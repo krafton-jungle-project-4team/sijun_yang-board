@@ -1,21 +1,28 @@
+/* Purpose: Provide UUID generation for Better Auth-owned records. */
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 /* Purpose: Keep updated_at columns current with PostgreSQL triggers. */
 CREATE EXTENSION IF NOT EXISTS moddatetime;
 
-/* Purpose: Store login identity, profile, role, and account status. */
+/* Purpose: Store Better Auth user identity plus app profile, role, and account status. */
 CREATE TABLE "user" (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    login_id VARCHAR(80) NOT NULL UNIQUE,
+    login_id VARCHAR(80) UNIQUE,
+    display_username VARCHAR(80),
     email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
+    email_verified BOOLEAN NOT NULL DEFAULT false,
+    image TEXT,
     display_name VARCHAR(80) NOT NULL,
-    role VARCHAR(20) NOT NULL CONSTRAINT user_role_check CHECK (
+    is_anonymous BOOLEAN NOT NULL DEFAULT false,
+    role VARCHAR(20) NOT NULL DEFAULT 'USER' CONSTRAINT user_role_check CHECK (
         role::text = ANY (ARRAY['USER'::character varying, 'ADMIN'::character varying]::text[])
     ),
-    status VARCHAR(20) NOT NULL CONSTRAINT user_status_check CHECK (
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CONSTRAINT user_status_check CHECK (
         status::text = ANY (ARRAY['ACTIVE'::character varying, 'SUSPENDED'::character varying]::text[])
     ),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT user_login_id_required_check CHECK (is_anonymous OR login_id IS NOT NULL)
 );
 
 /* Purpose: Refresh the user updated_at value on profile or status changes. */
@@ -24,11 +31,14 @@ BEFORE UPDATE ON "user"
 FOR EACH ROW
 EXECUTE FUNCTION moddatetime(updated_at);
 
-/* Purpose: Store API session tokens and expiry for signed-in users. */
+/* Purpose: Store Better Auth session tokens and expiry for signed-in users. */
 CREATE TABLE "session" (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    token TEXT NOT NULL UNIQUE,
     user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
     expires_at TIMESTAMPTZ NOT NULL,
+    ip_address TEXT,
+    user_agent TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -41,8 +51,56 @@ EXECUTE FUNCTION moddatetime(updated_at);
 
 /* Purpose: Speed up session lookups by user. */
 CREATE INDEX idx_session_user_id ON "session"(user_id);
+/* Purpose: Speed up Better Auth session lookups by token. */
+CREATE INDEX idx_session_token ON "session"(token);
 /* Purpose: Speed up expired session cleanup. */
 CREATE INDEX idx_session_expires_at ON "session"(expires_at);
+
+/* Purpose: Store Better Auth credential and future provider account links. */
+CREATE TABLE account (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    account_id TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    access_token TEXT,
+    refresh_token TEXT,
+    id_token TEXT,
+    access_token_expires_at TIMESTAMPTZ,
+    refresh_token_expires_at TIMESTAMPTZ,
+    scope TEXT,
+    password TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT account_provider_account_unique UNIQUE (provider_id, account_id)
+);
+
+/* Purpose: Refresh the account updated_at value on account changes. */
+CREATE TRIGGER set_account_updated_at
+BEFORE UPDATE ON account
+FOR EACH ROW
+EXECUTE FUNCTION moddatetime(updated_at);
+
+/* Purpose: Speed up account lookups by user. */
+CREATE INDEX idx_account_user_id ON account(user_id);
+
+/* Purpose: Store Better Auth one-time verification tokens. */
+CREATE TABLE verification (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    identifier TEXT NOT NULL,
+    value TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+/* Purpose: Refresh the verification updated_at value on verification changes. */
+CREATE TRIGGER set_verification_updated_at
+BEFORE UPDATE ON verification
+FOR EACH ROW
+EXECUTE FUNCTION moddatetime(updated_at);
+
+/* Purpose: Speed up verification lookup by identifier. */
+CREATE INDEX idx_verification_identifier ON verification(identifier);
 
 /* Purpose: Store board posts written by users. */
 CREATE TABLE posts (

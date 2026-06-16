@@ -3,8 +3,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuard
 import { createPostInputSchema, numericIdParamSchema, postListQuerySchema, updatePostInputSchema } from "@nmm/shared";
 import type { Request } from "express";
 
-import { ActiveAccountGuard, AuthQueryService, CurrentAuth, SessionUserGuard } from "../../auth";
-import { getSessionIdFromRequest } from "../../auth/controller/session-cookie";
+import { AuthenticatedUserGuard, AuthQueryService, CurrentAuth } from "../../auth";
 import { BoardCommandService, BoardQueryService } from "../service";
 
 @Controller("posts")
@@ -28,7 +27,7 @@ export class PostsController {
     }
 
     @Post()
-    @UseGuards(SessionUserGuard, ActiveAccountGuard)
+    @UseGuards(AuthenticatedUserGuard)
     async createPost(@CurrentAuth() auth: AuthClaims, @Body() body: unknown) {
         const input = createPostInputSchema.parse(body);
 
@@ -36,7 +35,7 @@ export class PostsController {
     }
 
     @Patch(":postId")
-    @UseGuards(SessionUserGuard, ActiveAccountGuard)
+    @UseGuards(AuthenticatedUserGuard)
     async updatePost(@CurrentAuth() auth: AuthClaims, @Param("postId") postId: string, @Body() body: unknown) {
         const input = updatePostInputSchema.parse(body);
 
@@ -44,19 +43,13 @@ export class PostsController {
     }
 
     @Delete(":postId")
-    @UseGuards(SessionUserGuard, ActiveAccountGuard)
+    @UseGuards(AuthenticatedUserGuard)
     async deletePost(@CurrentAuth() auth: AuthClaims, @Param("postId") postId: string) {
         return this.boardCommand.deletePost(auth, numericIdParamSchema.parse(postId));
     }
 
     private async getOptionalAuth(request: Request): Promise<AuthClaims | undefined> {
-        const sessionId = getSessionIdFromRequest(request);
-
-        if (!sessionId) {
-            return undefined;
-        }
-
-        const claims = await this.authQuery.getClaimsBySessionId(sessionId);
+        const claims = await this.authQuery.getClaimsByRequest(request);
 
         if (!claims || claims.status === "SUSPENDED") {
             return undefined;

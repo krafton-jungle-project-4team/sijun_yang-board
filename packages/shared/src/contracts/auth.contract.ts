@@ -38,6 +38,10 @@ export const updateMeInputSchema = z.object({
     displayName: z.string().trim().min(1).max(80).optional()
 });
 
+export const logoutResultSchema = z.object({
+    success: z.literal(true)
+});
+
 export type UserRole = z.infer<typeof userRoleSchema>;
 export type UserStatus = z.infer<typeof userStatusSchema>;
 export type User = z.infer<typeof userSchema>;
@@ -46,3 +50,4 @@ export type AuthClaims = z.infer<typeof authClaimsSchema>;
 export type LoginInput = z.infer<typeof loginInputSchema>;
 export type SignupInput = z.infer<typeof signupInputSchema>;
 export type UpdateMeInput = z.infer<typeof updateMeInputSchema>;
+export type LogoutResult = z.infer<typeof logoutResultSchema>;

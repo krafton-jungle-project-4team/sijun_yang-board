@@ -2,11 +2,11 @@ import type { AuthClaims } from "@nmm/shared";
 import { Body, Controller, Get, Param, Patch, UseGuards } from "@nestjs/common";
 import { numericIdParamSchema, updateTaskInputSchema } from "@nmm/shared";
 
-import { ActiveAccountGuard, CurrentAuth, SessionUserGuard } from "../../auth";
+import { AuthenticatedUserGuard, CurrentAuth } from "../../auth";
 import { OperationsCommandService, OperationsQueryService } from "../service";
 
 @Controller("tasks")
-@UseGuards(SessionUserGuard, ActiveAccountGuard)
+@UseGuards(AuthenticatedUserGuard)
 export class TasksController {
     constructor(
         private readonly operationsQuery: OperationsQueryService,

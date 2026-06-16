@@ -8,11 +8,11 @@ import {
     updateProjectInputSchema
 } from "@nmm/shared";
 
-import { ActiveAccountGuard, CurrentAuth, SessionUserGuard } from "../../auth";
+import { AuthenticatedUserGuard, CurrentAuth } from "../../auth";
 import { OperationsCommandService, OperationsQueryService } from "../service";
 
 @Controller("projects")
-@UseGuards(SessionUserGuard, ActiveAccountGuard)
+@UseGuards(AuthenticatedUserGuard)
 export class ProjectsController {
     constructor(
         private readonly operationsQuery: OperationsQueryService,

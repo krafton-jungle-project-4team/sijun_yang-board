@@ -23,6 +23,6 @@
 - Update feature `database/*.sql` files and run `npm run db:generate` after query changes.
 - Add a short purpose comment above each hand-written schema object and feature SQL query.
 - Run `npm run db:verify` with the database already started by `npm run dev:db` when checking schema drift; it uses Docker sqldef, not a local binary.
-- Writes require `SessionUserGuard` and `ActiveAccountGuard` unless explicitly public.
+- Writes require `AuthenticatedUserGuard` unless explicitly public.
 - Only author or ADMIN may update/delete board content.
 - Verify with `npm run verify` from the repository root.

@@ -2,7 +2,7 @@ import type { AuthClaims } from "@nmm/shared";
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { createCommentInputSchema, numericIdParamSchema, updateCommentInputSchema } from "@nmm/shared";
 
-import { ActiveAccountGuard, CurrentAuth, SessionUserGuard } from "../../auth";
+import { AuthenticatedUserGuard, CurrentAuth } from "../../auth";
 import { BoardCommandService, BoardQueryService } from "../service";
 
 @Controller()
@@ -18,7 +18,7 @@ export class CommentsController {
     }
 
     @Post("posts/:postId/comments")
-    @UseGuards(SessionUserGuard, ActiveAccountGuard)
+    @UseGuards(AuthenticatedUserGuard)
     async createComment(@CurrentAuth() auth: AuthClaims, @Param("postId") postId: string, @Body() body: unknown) {
         const input = createCommentInputSchema.parse(body);
 
@@ -26,7 +26,7 @@ export class CommentsController {
     }
 
     @Patch("comments/:commentId")
-    @UseGuards(SessionUserGuard, ActiveAccountGuard)
+    @UseGuards(AuthenticatedUserGuard)
     async updateComment(@CurrentAuth() auth: AuthClaims, @Param("commentId") commentId: string, @Body() body: unknown) {
         const input = updateCommentInputSchema.parse(body);
 
@@ -34,7 +34,7 @@ export class CommentsController {
     }
 
     @Delete("comments/:commentId")
-    @UseGuards(SessionUserGuard, ActiveAccountGuard)
+    @UseGuards(AuthenticatedUserGuard)
     async deleteComment(@CurrentAuth() auth: AuthClaims, @Param("commentId") commentId: string) {
         return this.boardCommand.deleteComment(auth, numericIdParamSchema.parse(commentId));
     }

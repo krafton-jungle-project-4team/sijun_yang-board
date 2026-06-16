@@ -22,7 +22,7 @@ const listActiveUsersIR: any = {
     usedParamSet: {},
     params: [],
     statement:
-        'SELECT\n    id,\n    email,\n    display_name AS "displayName",\n    role\nFROM "user"\nWHERE status = \'ACTIVE\'\nORDER BY display_name ASC                                                                         '
+        'SELECT\n    id,\n    email,\n    display_name AS "displayName",\n    role\nFROM "user"\nWHERE status = \'ACTIVE\'\n  AND is_anonymous = false\nORDER BY display_name ASC                                                                         '
 };
 
 /**
@@ -35,6 +35,7 @@ const listActiveUsersIR: any = {
  *     role
  * FROM "user"
  * WHERE status = 'ACTIVE'
+ *   AND is_anonymous = false
  * ORDER BY display_name ASC
  * ```
  */

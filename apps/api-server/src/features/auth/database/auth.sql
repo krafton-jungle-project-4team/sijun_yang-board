@@ -1,15 +1,3 @@
-/* Purpose: Load session claims for authenticated request guards. */
-/* @name GetClaimsBySessionId */
-SELECT
-    s.id,
-    s.user_id AS "userId",
-    u.role,
-    u.status
-FROM "session" s
-INNER JOIN "user" u ON u.id = s.user_id
-WHERE s.id = :sessionId::uuid
-  AND s.expires_at > now();
-
 /* Purpose: Read the current user profile by id. */
 /* @name GetUserById */
 SELECT
@@ -21,17 +9,16 @@ SELECT
     created_at AS "createdAt",
     updated_at AS "updatedAt"
 FROM "user"
-WHERE id = :userId::int4;
+WHERE id = :userId::int4
+  AND is_anonymous = false;
 
-/* Purpose: Load login credentials during email/password sign-in. */
-/* @name GetLoginCredentialsByLoginId */
-SELECT
-    id,
-    password_hash AS "passwordHash",
-    role,
-    status
+/* Purpose: Check if a self-service signup identity is already taken. */
+/* @name FindUserByLoginIdOrEmail */
+SELECT id
 FROM "user"
-WHERE login_id = :loginId;
+WHERE login_id = :loginId
+   OR email = :email
+LIMIT 1;
 
 /* Purpose: Update the current user's editable profile fields. */
 /* @name UpdateMe */
@@ -42,26 +29,7 @@ SET
 WHERE id = :userId::int4
 RETURNING id;
 
-/* Purpose: Create a self-service user account. */
-/* @name CreateUser */
-INSERT INTO "user" (login_id, email, password_hash, display_name, role, status)
-VALUES (:loginId, :email, :passwordHash, :displayName, 'USER', 'ACTIVE')
-RETURNING id;
-
-/* Purpose: Create a persistent session for a signed-in user. */
-/* @name CreateSessionForUser */
-INSERT INTO "session" (id, user_id, expires_at)
-SELECT
-    :sessionId::uuid,
-    u.id,
-    now() + interval '30 days'
-FROM "user" u
-WHERE u.id = :userId::int4
-RETURNING
-    id,
-    user_id AS "userId";
-
-/* Purpose: Remove every session owned by a user during sign-out cleanup. */
-/* @name DeleteSessionsByUserId */
+/* Purpose: Remove one Better Auth session by token during rejected sign-in cleanup. */
+/* @name DeleteSessionByToken */
 DELETE FROM "session"
-WHERE user_id = :userId::int4;
+WHERE token = :token;

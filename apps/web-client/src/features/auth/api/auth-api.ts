@@ -1,5 +1,5 @@
 import type { LoginInput, SignupInput } from "@nmm/shared";
-import { currentUserSchema, idCommandResultSchema, userSchema } from "@nmm/shared";
+import { currentUserSchema, logoutResultSchema, userSchema } from "@nmm/shared";
 import type { Options } from "ky";
 
 import { getJson, patchJson, postJson } from "../../../shared/api/http-client";
@@ -18,6 +18,6 @@ export const authApi = {
         return patchJson("account/me", userSchema, { displayName });
     },
     logout() {
-        return postJson("account/logout", idCommandResultSchema);
+        return postJson("account/logout", logoutResultSchema);
     }
 };

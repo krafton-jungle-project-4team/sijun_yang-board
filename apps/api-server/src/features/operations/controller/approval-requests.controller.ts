@@ -7,11 +7,11 @@ import {
     reviewApprovalRequestInputSchema
 } from "@nmm/shared";
 
-import { ActiveAccountGuard, CurrentAuth, SessionUserGuard } from "../../auth";
+import { AuthenticatedUserGuard, CurrentAuth } from "../../auth";
 import { OperationsCommandService, OperationsQueryService } from "../service";
 
 @Controller("requests")
-@UseGuards(SessionUserGuard, ActiveAccountGuard)
+@UseGuards(AuthenticatedUserGuard)
 export class ApprovalRequestsController {
     constructor(
         private readonly operationsQuery: OperationsQueryService,

@@ -11,7 +11,3 @@ export function accountAlreadyExistsError() {
 export function suspendedAccountError() {
     return new AppError("ACCOUNT_SUSPENDED", "This account is suspended.", 403);
 }
-
-export function activeAccountRequiredError() {
-    return new AppError("ACTIVE_ACCOUNT_REQUIRED", "An active account is required.", 403);
-}

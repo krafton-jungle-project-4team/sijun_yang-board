@@ -7,6 +7,7 @@ SELECT
     role
 FROM "user"
 WHERE status = 'ACTIVE'
+  AND is_anonymous = false
 ORDER BY display_name ASC;
 
 /* Purpose: List projects with filters, sorting, and aggregate counts. */

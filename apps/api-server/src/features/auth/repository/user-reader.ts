@@ -3,12 +3,8 @@ import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import {
-    getClaimsBySessionId,
-    getLoginCredentialsByLoginId,
-    getUserById
-} from "../database/__generated__/auth.queries";
-import type { LoginCredentials, SessionClaims, UserAccountSnapshot } from "../domain";
+import { findUserByLoginIdOrEmail, getUserById } from "../database/__generated__/auth.queries";
+import type { UserAccountSnapshot } from "../domain";
 
 @Injectable()
 export class UserReader {
@@ -16,19 +12,6 @@ export class UserReader {
         @InjectTransaction()
         private readonly db: Transaction<PgTypedTransactionalAdapter>
     ) {}
-
-    async findClaimsBySessionId(sessionId: string): Promise<SessionClaims | null> {
-        const claims = await this.db.query(getClaimsBySessionId, { sessionId }).singleOrNull();
-
-        return claims
-            ? {
-                  id: claims.id,
-                  userId: claims.userId,
-                  role: claims.role as UserRole,
-                  status: claims.status as UserStatus
-              }
-            : null;
-    }
 
     async findById(userId: number): Promise<UserAccountSnapshot | null> {
         const user = await this.db.query(getUserById, { userId }).singleOrNull();
@@ -46,16 +29,9 @@ export class UserReader {
             : null;
     }
 
-    async findCredentialsByLoginId(loginId: string): Promise<LoginCredentials | null> {
-        const credentials = await this.db.query(getLoginCredentialsByLoginId, { loginId }).singleOrNull();
+    async existsByLoginIdOrEmail(loginId: string, email: string): Promise<boolean> {
+        const user = await this.db.query(findUserByLoginIdOrEmail, { email, loginId }).singleOrNull();
 
-        return credentials
-            ? {
-                  id: credentials.id,
-                  passwordHash: credentials.passwordHash,
-                  role: credentials.role as UserRole,
-                  status: credentials.status as UserStatus
-              }
-            : null;
+        return Boolean(user);
     }
 }

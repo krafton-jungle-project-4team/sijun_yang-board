@@ -1,25 +1,21 @@
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
-
 import type { IdCommandResult, LoginInput, SignupInput, UpdateMeInput } from "@nmm/shared";
 import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
+import type { Request, Response } from "express";
 
 import { AppError } from "../../../app-errors";
-import { DatabaseDuplicateKeyError, PgTypedTransactionalAdapter } from "../../../infra/database";
-import { accountAlreadyExistsError } from "../auth-errors";
-import { LoginCredentialsDomain } from "../domain";
+import { PgTypedTransactionalAdapter } from "../../../infra/database";
+import { accountAlreadyExistsError, suspendedAccountError } from "../auth-errors";
 import { SessionWriter, UserReader, UserWriter } from "../repository";
-
-const passwordHashPrefix = "scrypt:v1:";
-const passwordHashLength = 64;
-const passwordSaltLength = 16;
+import { BetterAuthService } from "./better-auth.service";
 
 @Injectable()
 export class AuthCommandService {
     constructor(
         private readonly userWriter: UserWriter,
         private readonly userReader: UserReader,
-        private readonly sessionWriter: SessionWriter
+        private readonly sessionWriter: SessionWriter,
+        private readonly betterAuth: BetterAuthService
     ) {}
 
     @Transactional<PgTypedTransactionalAdapter>()
@@ -34,82 +30,52 @@ export class AuthCommandService {
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
-    async signup(input: SignupInput): Promise<IdCommandResult> {
-        try {
-            const id = await this.userWriter.create({
-                displayName: input.displayName,
-                email: input.email,
-                loginId: input.loginId,
-                passwordHash: createPasswordHash(input.password)
-            });
+    async signup(input: SignupInput, request: Request): Promise<IdCommandResult> {
+        if (await this.userReader.existsByLoginIdOrEmail(input.loginId, input.email.toLowerCase())) {
+            throw accountAlreadyExistsError();
+        }
 
-            return { id };
-        } catch (error) {
-            if (error instanceof DatabaseDuplicateKeyError) {
-                throw accountAlreadyExistsError();
+        const result = await this.betterAuth.signUp(input, request);
+        const id = parseUserId(result.data.user.id);
+
+        return { id };
+    }
+
+    async login(input: LoginInput, request: Request, response: Response): Promise<{ userId: number }> {
+        const result = await this.betterAuth.signIn(input, request).catch((error: unknown) => {
+            if (error instanceof AppError) {
+                throw new AppError("INVALID_CREDENTIALS", "Invalid ID or password.", 401, { cause: error });
             }
 
             throw error;
+        });
+        const userId = parseUserId(result.data.user.id);
+
+        if (result.data.user.status === "SUSPENDED") {
+            await this.sessionWriter.expireByToken(result.data.token);
+            this.betterAuth.clearSessionCookie(response);
+            throw suspendedAccountError();
         }
+
+        this.betterAuth.appendSetCookieHeaders(response, result.setCookieHeaders);
+
+        return { userId };
     }
 
-    @Transactional<PgTypedTransactionalAdapter>()
-    async login(input: LoginInput): Promise<{ sessionId: string; userId: number }> {
-        const credentials = await this.userReader.findCredentialsByLoginId(input.loginId);
+    async logout(request: Request, response: Response): Promise<void> {
+        const result = await this.betterAuth.signOut(request);
 
-        if (!credentials || !verifyPassword(input.password, credentials.passwordHash)) {
-            throw new AppError("INVALID_CREDENTIALS", "Invalid ID or password.", 401);
-        }
-
-        if (LoginCredentialsDomain.isSuspended(credentials)) {
-            throw new AppError("ACCOUNT_SUSPENDED", "This account is suspended.", 403);
-        }
-
-        const session = await this.createSession(credentials.id);
-
-        return {
-            sessionId: session.id,
-            userId: session.userId
-        };
-    }
-
-    @Transactional<PgTypedTransactionalAdapter>()
-    async createSession(userId: number): Promise<{ id: string; userId: number }> {
-        const session = await this.sessionWriter.createForUser(userId);
-
-        if (!session) {
-            throw new AppError("NOT_FOUND", "User not found.", 404);
-        }
-
-        return session;
-    }
-
-    @Transactional<PgTypedTransactionalAdapter>()
-    async expireUserSessions(userId: number): Promise<void> {
-        await this.sessionWriter.expireByUserId(userId);
+        this.betterAuth.appendSetCookieHeaders(response, result.setCookieHeaders);
+        this.betterAuth.clearSessionCookie(response);
     }
 }
 
-function createPasswordHash(password: string): string {
-    const salt = randomBytes(passwordSaltLength).toString("base64url");
-    const hash = scryptSync(password, salt, passwordHashLength).toString("base64");
+function parseUserId(value: string | number): number {
+    const id = Number(value);
 
-    return `${passwordHashPrefix}${salt}:${hash}`;
-}
-
-function verifyPassword(password: string, storedHash: string): boolean {
-    if (!storedHash.startsWith(passwordHashPrefix)) {
-        return false;
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        throw new AppError("INVALID_AUTH_USER", "Authentication provider returned an invalid user.", 500);
     }
 
-    const [, , salt, hash] = storedHash.split(":");
-
-    if (!salt || !hash) {
-        return false;
-    }
-
-    const expected = Buffer.from(hash, "base64");
-    const actual = scryptSync(password, salt, expected.length);
-
-    return expected.length === actual.length && timingSafeEqual(expected, actual);
+    return id;
 }
