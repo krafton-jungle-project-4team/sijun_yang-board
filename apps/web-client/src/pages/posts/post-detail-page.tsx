@@ -1,4 +1,13 @@
-import { Badge, Button, Card, CardContent, Separator } from "@nmm/ui/components";
+import {
+    Badge,
+    Button,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Separator
+} from "@nmm/ui/components";
 import { Link, useParams } from "@tanstack/react-router";
 import { ArrowLeft, Pencil } from "lucide-react";
 
@@ -12,22 +21,40 @@ export function PostDetailPage() {
     const postQuery = usePost(postId);
 
     if (!Number.isInteger(postId) || postId <= 0) {
-        return <p className="muted">Invalid post.</p>;
+        return (
+            <Card>
+                <CardHeader>
+                    <CardDescription>Invalid post.</CardDescription>
+                </CardHeader>
+            </Card>
+        );
     }
 
     if (postQuery.isPending) {
-        return <p className="muted">Loading post...</p>;
+        return (
+            <Card>
+                <CardHeader>
+                    <CardDescription>Loading post...</CardDescription>
+                </CardHeader>
+            </Card>
+        );
     }
 
     if (postQuery.isError) {
-        return <p className="muted">Could not load post.</p>;
+        return (
+            <Card>
+                <CardHeader>
+                    <CardDescription>Could not load post.</CardDescription>
+                </CardHeader>
+            </Card>
+        );
     }
 
     const post = postQuery.data;
     const canEdit = canManagePost(currentUser, post);
 
     return (
-        <article className="page-stack">
+        <article className="grid gap-5">
             <div className="flex items-center justify-between gap-3">
                 <Button asChild variant="ghost">
                     <Link to="/posts">
@@ -45,14 +72,14 @@ export function PostDetailPage() {
                 ) : null}
             </div>
 
-            <div className="grid gap-3">
+            <CardHeader className="px-0">
                 <Badge variant="secondary">{post.authorName}</Badge>
-                <h1 className="text-2xl font-semibold tracking-normal">{post.title}</h1>
-                <p className="text-muted-foreground">
+                <CardTitle>{post.title}</CardTitle>
+                <CardDescription>
                     {post.commentCount} comments · {post.viewCount} views
-                </p>
+                </CardDescription>
                 <PostTagBadges tags={post.tags} />
-            </div>
+            </CardHeader>
 
             <Separator />
             <Card>

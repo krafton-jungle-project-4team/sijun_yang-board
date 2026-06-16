@@ -1,5 +1,14 @@
 import type { PostSummary, User } from "@nmm/shared";
-import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@nmm/ui/components";
+import {
+    Button,
+    ButtonGroup,
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle
+} from "@nmm/ui/components";
 import { Link } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 
@@ -41,12 +50,14 @@ function ManageablePostCard({ post }: PostCardProps) {
     return (
         <Card>
             <PostCardContent post={post} />
-            <CardFooter className="justify-end gap-2">
-                <Button asChild size="icon" variant="ghost" aria-label="Edit post">
-                    <Link to="/posts/$postId/edit" params={{ postId: String(post.id) }}>
-                        <Pencil />
-                    </Link>
-                </Button>
+            <CardFooter>
+                <ButtonGroup className="ml-auto">
+                    <Button asChild size="icon" variant="ghost" aria-label="Edit post">
+                        <Link to="/posts/$postId/edit" params={{ postId: String(post.id) }}>
+                            <Pencil />
+                        </Link>
+                    </Button>
+                </ButtonGroup>
             </CardFooter>
         </Card>
     );
@@ -57,7 +68,7 @@ function PostCardContent({ post }: PostCardProps) {
         <>
             <CardHeader>
                 <CardTitle>
-                    <Link to="/posts/$postId" params={{ postId: String(post.id) }} className="hover:underline">
+                    <Link to="/posts/$postId" params={{ postId: String(post.id) }}>
                         {post.title}
                     </Link>
                 </CardTitle>
@@ -67,7 +78,7 @@ function PostCardContent({ post }: PostCardProps) {
             </CardHeader>
             <CardContent>
                 <div className="grid gap-3">
-                    <p className="text-muted-foreground line-clamp-3 text-sm">{post.excerpt}</p>
+                    <CardDescription className="line-clamp-3">{post.excerpt}</CardDescription>
                     <PostTagBadges tags={post.tags} />
                 </div>
             </CardContent>

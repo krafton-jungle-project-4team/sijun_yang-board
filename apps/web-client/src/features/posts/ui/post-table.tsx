@@ -1,7 +1,9 @@
 import type { PostSummary, User } from "@nmm/shared";
 import {
     Button,
+    ButtonGroup,
     Card,
+    CardDescription,
     CardContent,
     Table,
     TableBody,
@@ -64,21 +66,17 @@ function PostTableRow({ currentUser, hasActionColumn, post }: PostTableRowProps)
         <TableRow>
             <TableCell>
                 <div className="grid gap-1">
-                    <Link
-                        to="/posts/$postId"
-                        params={{ postId: String(post.id) }}
-                        className="font-medium hover:underline"
-                    >
+                    <Link to="/posts/$postId" params={{ postId: String(post.id) }}>
                         {post.title}
                     </Link>
-                    <p className="text-muted-foreground line-clamp-1 text-sm">{post.excerpt}</p>
+                    <CardDescription className="line-clamp-1">{post.excerpt}</CardDescription>
                     <PostTagBadges tags={post.tags} />
                 </div>
             </TableCell>
             <TableCell className="hidden md:table-cell">{post.authorName}</TableCell>
             {hasActionColumn ? (
                 <TableCell>
-                    <div className="flex justify-end">
+                    <ButtonGroup className="ml-auto">
                         {canEdit ? (
                             <Button asChild size="icon" variant="ghost" aria-label="Edit post">
                                 <Link to="/posts/$postId/edit" params={{ postId: String(post.id) }}>
@@ -86,7 +84,7 @@ function PostTableRow({ currentUser, hasActionColumn, post }: PostTableRowProps)
                                 </Link>
                             </Button>
                         ) : null}
-                    </div>
+                    </ButtonGroup>
                 </TableCell>
             ) : null}
         </TableRow>

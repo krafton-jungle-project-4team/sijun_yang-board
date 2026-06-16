@@ -3,10 +3,15 @@ import { createCommentInputSchema, type Comment, type CreateCommentInput, type U
 import {
     Badge,
     Button,
+    ButtonGroup,
     Card,
     CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
     Field,
     FieldError,
+    FieldGroup,
     FieldLabel,
     Separator,
     Textarea
@@ -37,10 +42,10 @@ export function PostComments({ currentUser, postId }: PostCommentsProps) {
     return (
         <section className="grid gap-4">
             <Separator />
-            <div className="flex items-center justify-between gap-3">
-                <h2 className="text-lg font-semibold tracking-normal">Comments</h2>
+            <CardHeader className="px-0">
+                <CardTitle>Comments</CardTitle>
                 <Badge variant="secondary">{comments.length}</Badge>
-            </div>
+            </CardHeader>
 
             <CommentComposer currentUser={currentUser} postId={postId} />
 
@@ -50,12 +55,16 @@ export function PostComments({ currentUser, postId }: PostCommentsProps) {
                 ))}
                 {commentsQuery.isPending ? (
                     <Card>
-                        <CardContent className="text-sm text-muted-foreground">Loading comments...</CardContent>
+                        <CardHeader>
+                            <CardDescription>Loading comments...</CardDescription>
+                        </CardHeader>
                     </Card>
                 ) : null}
                 {!commentsQuery.isPending && comments.length === 0 ? (
                     <Card>
-                        <CardContent className="text-sm text-muted-foreground">No comments yet.</CardContent>
+                        <CardHeader>
+                            <CardDescription>No comments yet.</CardDescription>
+                        </CardHeader>
                     </Card>
                 ) : null}
             </div>
@@ -94,7 +103,9 @@ function CommentComposer({ currentUser, postId }: PostCommentsProps) {
     if (currentUser === undefined) {
         return (
             <Card>
-                <CardContent className="text-sm text-muted-foreground">Checking account...</CardContent>
+                <CardHeader>
+                    <CardDescription>Checking account...</CardDescription>
+                </CardHeader>
             </Card>
         );
     }
@@ -102,30 +113,30 @@ function CommentComposer({ currentUser, postId }: PostCommentsProps) {
     if (!canCreateComment) {
         return (
             <Card>
-                <CardContent className="text-sm text-muted-foreground">
-                    Sign in with an active account to write comments.
-                </CardContent>
+                <CardHeader>
+                    <CardDescription>Sign in with an active account to write comments.</CardDescription>
+                </CardHeader>
             </Card>
         );
     }
 
     return (
-        <form className="grid gap-2" onSubmit={form.handleSubmit(handleSubmit)}>
-            <CommentContentField
-                control={form.control}
-                id="comment-content"
-                label="Comment"
-                placeholder="Comment"
-                disabled={createComment.isPending}
-            />
-            <Button
-                type="submit"
-                className="justify-self-end"
-                disabled={createComment.isPending || contentValue.trim().length === 0}
-            >
-                <Send />
-                Add
-            </Button>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <FieldGroup>
+                <CommentContentField
+                    control={form.control}
+                    id="comment-content"
+                    label="Comment"
+                    placeholder="Comment"
+                    disabled={createComment.isPending}
+                />
+                <ButtonGroup className="self-end">
+                    <Button type="submit" disabled={createComment.isPending || contentValue.trim().length === 0}>
+                        <Send />
+                        Add
+                    </Button>
+                </ButtonGroup>
+            </FieldGroup>
         </form>
     );
 }
@@ -184,7 +195,7 @@ function PostCommentItem({ comment, currentUser, postId }: PostCommentItemProps)
                         <Badge variant="outline">{formatCommentDate(comment.createdAt)}</Badge>
                     </div>
                     {canManageCurrentComment ? (
-                        <div className="flex gap-1">
+                        <ButtonGroup>
                             <Button
                                 type="button"
                                 size="icon-sm"
@@ -204,7 +215,7 @@ function PostCommentItem({ comment, currentUser, postId }: PostCommentItemProps)
                             >
                                 <Trash2 />
                             </Button>
-                        </div>
+                        </ButtonGroup>
                     ) : null}
                 </div>
                 <p className="whitespace-pre-wrap text-sm leading-6">{comment.content}</p>
@@ -243,23 +254,25 @@ function PostCommentEditForm({ comment, isPending, onCancel, onSubmit }: PostCom
     return (
         <Card className="gap-0 py-0">
             <form onSubmit={form.handleSubmit(handleSubmit)}>
-                <CardContent className="grid gap-2 p-3">
-                    <CommentContentField
-                        control={form.control}
-                        id="comment-edit-content"
-                        label="Edit comment"
-                        disabled={isPending}
-                    />
-                    <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" disabled={isPending} onClick={onCancel}>
-                            <X />
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={isPending || contentValue.trim().length === 0}>
-                            <Check />
-                            Save
-                        </Button>
-                    </div>
+                <CardContent className="p-3">
+                    <FieldGroup>
+                        <CommentContentField
+                            control={form.control}
+                            id="comment-edit-content"
+                            label="Edit comment"
+                            disabled={isPending}
+                        />
+                        <ButtonGroup className="self-end">
+                            <Button type="button" variant="outline" disabled={isPending} onClick={onCancel}>
+                                <X />
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={isPending || contentValue.trim().length === 0}>
+                                <Check />
+                                Save
+                            </Button>
+                        </ButtonGroup>
+                    </FieldGroup>
                 </CardContent>
             </form>
         </Card>

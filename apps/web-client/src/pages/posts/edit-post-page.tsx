@@ -32,41 +32,63 @@ export function EditPostPage() {
     }
 
     if (!Number.isInteger(postId) || postId <= 0) {
-        return <p className="muted">Invalid post.</p>;
+        return (
+            <Card>
+                <CardHeader>
+                    <CardDescription>Invalid post.</CardDescription>
+                </CardHeader>
+            </Card>
+        );
     }
 
     if (postQuery.isPending) {
-        return <p className="muted">Loading post...</p>;
+        return (
+            <Card>
+                <CardHeader>
+                    <CardDescription>Loading post...</CardDescription>
+                </CardHeader>
+            </Card>
+        );
     }
 
     if (postQuery.isError) {
-        return <p className="muted">Could not load post.</p>;
+        return (
+            <Card>
+                <CardHeader>
+                    <CardDescription>Could not load post.</CardDescription>
+                </CardHeader>
+            </Card>
+        );
     }
 
     if (currentUserQuery.isPending) {
-        return <p className="muted">Checking permissions...</p>;
+        return (
+            <Card>
+                <CardHeader>
+                    <CardDescription>Checking permissions...</CardDescription>
+                </CardHeader>
+            </Card>
+        );
     }
 
     if (!canManagePost(currentUserQuery.data, postQuery.data)) {
         return (
-            <div className="page-stack">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Edit unavailable</CardTitle>
-                        <CardDescription>Only the author or an admin can edit this post.</CardDescription>
-                    </CardHeader>
-                </Card>
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Edit unavailable</CardTitle>
+                    <CardDescription>Only the author or an admin can edit this post.</CardDescription>
+                </CardHeader>
+            </Card>
         );
     }
 
     return (
-        <div className="page-stack">
-            <div className="page-heading">
-                <div className="grid gap-1">
-                    <h1>Edit post</h1>
-                    <p className="muted">Update content, tags, or remove the post.</p>
-                </div>
+        <div className="grid gap-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+                <CardHeader className="px-0">
+                    <CardTitle>Edit post</CardTitle>
+                    <CardDescription>Update content, tags, or remove the post.</CardDescription>
+                </CardHeader>
                 <Button
                     type="button"
                     variant="outline"

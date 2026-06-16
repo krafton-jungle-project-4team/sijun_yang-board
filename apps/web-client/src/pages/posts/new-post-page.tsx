@@ -21,10 +21,10 @@ export function NewPostPage() {
     }
 
     return (
-        <div className="page-stack">
-            <div className="page-heading">
-                <h1>New post</h1>
-            </div>
+        <div className="grid gap-5">
+            <CardHeader className="px-0">
+                <CardTitle>New post</CardTitle>
+            </CardHeader>
             <Card>
                 <CardHeader>
                     <CardTitle>Post details</CardTitle>

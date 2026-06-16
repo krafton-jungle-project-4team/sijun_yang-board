@@ -6,6 +6,7 @@ import {
     CardTitle,
     Field,
     FieldError,
+    FieldGroup,
     FieldLabel,
     Input
 } from "@nmm/ui/components";
@@ -39,24 +40,26 @@ export function CompleteSignupPage() {
     }
 
     return (
-        <div className="page-stack">
-            <div className="page-heading">
-                <h1>Complete signup</h1>
-            </div>
+        <div className="grid gap-5">
+            <CardHeader className="px-0">
+                <CardTitle>Complete signup</CardTitle>
+            </CardHeader>
             <Card>
                 <CardHeader>
                     <CardTitle>Profile</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <form className="form-stack" onSubmit={handleSubmit}>
-                        <Field>
-                            <FieldLabel htmlFor="displayName">Display name</FieldLabel>
-                            <Input id="displayName" value={displayName} onChange={handleDisplayNameChange} />
-                            {error ? <FieldError>{error}</FieldError> : null}
-                        </Field>
-                        <Button disabled={completeSignup.isPending} type="submit">
-                            {completeSignup.isPending ? "Saving..." : "Complete"}
-                        </Button>
+                    <form onSubmit={handleSubmit}>
+                        <FieldGroup>
+                            <Field>
+                                <FieldLabel htmlFor="displayName">Display name</FieldLabel>
+                                <Input id="displayName" value={displayName} onChange={handleDisplayNameChange} />
+                                {error ? <FieldError>{error}</FieldError> : null}
+                            </Field>
+                            <Button disabled={completeSignup.isPending} type="submit">
+                                {completeSignup.isPending ? "Saving..." : "Complete"}
+                            </Button>
+                        </FieldGroup>
                     </form>
                 </CardContent>
             </Card>

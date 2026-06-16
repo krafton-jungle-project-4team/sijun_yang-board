@@ -2,9 +2,14 @@ import type { PostListQuery } from "@nmm/shared";
 import {
     Badge,
     Button,
+    ButtonGroup,
     Card,
-    CardContent,
-    Input,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
     Select,
     SelectContent,
     SelectItem,
@@ -118,12 +123,12 @@ export function PostsPage() {
     }
 
     return (
-        <section className="page-stack">
-            <div className="page-heading">
-                <div className="grid gap-1">
-                    <h1>Posts</h1>
-                    <p className="muted">Search, tag filters, comments, and guarded mutations.</p>
-                </div>
+        <section className="grid gap-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+                <CardHeader className="px-0">
+                    <CardTitle>Posts</CardTitle>
+                    <CardDescription>Search, tag filters, comments, and guarded mutations.</CardDescription>
+                </CardHeader>
                 <Button asChild>
                     <Link to="/posts/new">
                         <Plus />
@@ -134,16 +139,17 @@ export function PostsPage() {
 
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px_150px_150px_auto]">
                 <form className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]" onSubmit={handleSearchSubmit}>
-                    <div className="relative">
-                        <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                        <Input
+                    <InputGroup>
+                        <InputGroupAddon>
+                            <Search />
+                        </InputGroupAddon>
+                        <InputGroupInput
                             name="search"
-                            className="pl-9"
                             placeholder="Search posts"
                             value={searchDraft}
                             onChange={handleSearchInputChange}
                         />
-                    </div>
+                    </InputGroup>
                     <Button type="submit" variant="outline">
                         <Search />
                         Search
@@ -186,7 +192,7 @@ export function PostsPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                <div className="flex items-center gap-1">
+                <ButtonGroup>
                     <Button
                         type="button"
                         size="icon"
@@ -205,13 +211,21 @@ export function PostsPage() {
                     >
                         <LayoutGrid />
                     </Button>
-                </div>
+                </ButtonGroup>
             </div>
 
-            {postsQuery.isError ? <p className="muted">Could not load posts.</p> : null}
+            {postsQuery.isError ? (
+                <Card>
+                    <CardHeader>
+                        <CardDescription>Could not load posts.</CardDescription>
+                    </CardHeader>
+                </Card>
+            ) : null}
             {postsQuery.isPending ? (
                 <Card>
-                    <CardContent className="text-sm text-muted-foreground">Loading posts...</CardContent>
+                    <CardHeader>
+                        <CardDescription>Loading posts...</CardDescription>
+                    </CardHeader>
                 </Card>
             ) : null}
             {postsData ? (
@@ -225,7 +239,7 @@ export function PostsPage() {
                         <Badge variant="secondary">
                             {currentPage} / {totalPages} · {postsData.total} posts
                         </Badge>
-                        <div className="flex gap-2">
+                        <ButtonGroup>
                             <Button
                                 type="button"
                                 variant="outline"
@@ -242,7 +256,7 @@ export function PostsPage() {
                             >
                                 Next
                             </Button>
-                        </div>
+                        </ButtonGroup>
                     </div>
                 </>
             ) : null}

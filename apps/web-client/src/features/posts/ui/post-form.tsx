@@ -1,6 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { CreatePostInput, Tag } from "@nmm/shared";
-import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Textarea } from "@nmm/ui/components";
+import {
+    Button,
+    ButtonGroup,
+    Field,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+    Input,
+    Textarea,
+    ToggleGroup,
+    ToggleGroupItem
+} from "@nmm/ui/components";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -51,11 +62,7 @@ export function PostForm({
     });
     const selectedTags = parseTagsText(form.watch("tagsText"));
 
-    function handleTagToggle(tagName: string) {
-        const nextTags = selectedTags.includes(tagName)
-            ? selectedTags.filter((selectedTag) => selectedTag !== tagName)
-            : [...selectedTags, tagName];
-
+    function handleTagSuggestionsChange(nextTags: string[]) {
         form.setValue("tagsText", nextTags.join(", "), {
             shouldDirty: true,
             shouldValidate: true
@@ -63,7 +70,7 @@ export function PostForm({
     }
 
     return (
-        <form className="form-stack" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
             <FieldGroup>
                 <Field>
                     <FieldLabel htmlFor="title">Title</FieldLabel>
@@ -90,19 +97,19 @@ export function PostForm({
                     availableTags={availableTags}
                     disabled={pending}
                     selectedTags={selectedTags}
-                    onToggle={handleTagToggle}
+                    onValueChange={handleTagSuggestionsChange}
                 />
-            </FieldGroup>
-            <div className="button-row justify-end">
-                {onCancel ? (
-                    <Button disabled={pending} type="button" variant="outline" onClick={onCancel}>
-                        Cancel
+                <ButtonGroup className="self-end">
+                    {onCancel ? (
+                        <Button disabled={pending} type="button" variant="outline" onClick={onCancel}>
+                            Cancel
+                        </Button>
+                    ) : null}
+                    <Button disabled={pending} type="submit">
+                        {pending ? "Saving..." : submitLabel}
                     </Button>
-                ) : null}
-                <Button disabled={pending} type="submit">
-                    {pending ? "Saving..." : submitLabel}
-                </Button>
-            </div>
+                </ButtonGroup>
+            </FieldGroup>
         </form>
     );
 }
@@ -111,52 +118,22 @@ type PostTagSuggestionsProps = {
     availableTags: Tag[];
     disabled: boolean;
     selectedTags: string[];
-    onToggle: (tagName: string) => void;
+    onValueChange: (tagNames: string[]) => void;
 };
 
-function PostTagSuggestions({ availableTags, disabled, selectedTags, onToggle }: PostTagSuggestionsProps) {
+function PostTagSuggestions({ availableTags, disabled, selectedTags, onValueChange }: PostTagSuggestionsProps) {
     if (availableTags.length === 0) {
         return null;
     }
 
     return (
-        <div className="flex flex-wrap gap-2">
+        <ToggleGroup type="multiple" className="flex-wrap" value={selectedTags} onValueChange={onValueChange}>
             {availableTags.map((tag) => (
-                <PostTagToggle
-                    key={tag.id}
-                    disabled={disabled}
-                    isSelected={selectedTags.includes(tag.name)}
-                    tag={tag}
-                    onToggle={onToggle}
-                />
+                <ToggleGroupItem key={tag.id} value={tag.name} variant="outline" disabled={disabled}>
+                    {tag.name}
+                </ToggleGroupItem>
             ))}
-        </div>
-    );
-}
-
-type PostTagToggleProps = {
-    disabled: boolean;
-    isSelected: boolean;
-    tag: Tag;
-    onToggle: (tagName: string) => void;
-};
-
-function PostTagToggle({ disabled, isSelected, tag, onToggle }: PostTagToggleProps) {
-    function handleClick() {
-        onToggle(tag.name);
-    }
-
-    return (
-        <Button
-            type="button"
-            size="sm"
-            variant={isSelected ? "secondary" : "outline"}
-            aria-pressed={isSelected}
-            disabled={disabled}
-            onClick={handleClick}
-        >
-            {tag.name}
-        </Button>
+        </ToggleGroup>
     );
 }
 

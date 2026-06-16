@@ -1,14 +1,14 @@
-import { Button, Card, CardContent, CardHeader, CardTitle } from "@nmm/ui/components";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nmm/ui/components";
 import { Link } from "@tanstack/react-router";
 
 export function HomePage() {
     return (
-        <div className="page-stack">
-            <div className="page-heading">
-                <div>
-                    <h1>Board starter</h1>
-                    <p>SQL-first auth and board starter with shared Zod contracts.</p>
-                </div>
+        <div className="grid gap-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+                <CardHeader className="px-0">
+                    <CardTitle>Board starter</CardTitle>
+                    <CardDescription>SQL-first auth and board starter with shared Zod contracts.</CardDescription>
+                </CardHeader>
                 <Button asChild>
                     <Link to="/posts">Open posts</Link>
                 </Button>
@@ -18,7 +18,9 @@ export function HomePage() {
                     <CardTitle>Contract boundaries</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="muted">Web calls `/api` over HTTP and uses shared schemas to parse the envelope.</p>
+                    <CardDescription>
+                        Web calls `/api` over HTTP and uses shared schemas to parse the envelope.
+                    </CardDescription>
                 </CardContent>
             </Card>
         </div>
