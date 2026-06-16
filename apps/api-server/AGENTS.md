@@ -6,11 +6,22 @@
 - Keep global prefix `api` and global success/error envelope.
 - Controllers parse shared Zod schemas; services use inferred/shared types.
 - Auth/session/current user must be DB-backed.
-- Board/auth DB access must use PgTyped queries backed by PostgreSQL.
-- Multi-step writes must run through the `tx()` helper from `src/infra/database`.
+- All feature DB access must use PgTyped-backed repositories.
+- Services own transaction boundaries and use-case orchestration; they must not import `database/__generated__/*`, generated `I*Params`/`I*Result`/`I*Query` types, or call DB query methods directly.
+- PgTyped generated query imports and generated types stay inside `repository/*`; repositories map DB rows to domain snapshots, read views, or shared contract shapes before returning.
+- Basic reads use `XxxReader` in `repository/*-reader.ts`.
+- Writes use `XxxWriter` in `repository/*-writer.ts` and are CUD-only.
+- Performance-specific read shapes use `XxxViewQuery` in `repository/*-view-query.ts`.
+- Query services are read-oriented; documented side effects such as view-count increments must call a `XxxWriter`.
+- Domain data is plain interface/type snapshots such as `PostSnapshot`, `CommentSnapshot`, and `TaskSnapshot`; do not use domain classes or constructors.
+- Domain behavior is grouped as pure functions on `XxxDomain`; keep Nest errors, AppError, and exceptions in services.
+- Shared response types keep their contract names; use `Dto` aliases only for real local name collisions.
+- Inject repositories by role name, such as `postReader`, `postWriter`, and `dashboardViewQuery`.
+- Multi-step writes must run inside the service transaction boundary, normally `@Transactional<PgTypedTransactionalAdapter>()`.
 - In-memory stores, arrays as stores, Map stores, and `board-store.ts` are forbidden.
 - Update schema objects in `database/schema.sql`; keep seed data and sequence runtime state in `database/dummy-data.sql`.
 - Update feature `database/*.sql` files and run `npm run db:generate` after query changes.
+- Add a short purpose comment above each hand-written schema object and feature SQL query.
 - Run `npm run db:verify` with the database already started by `npm run dev:db` when checking schema drift; it uses Docker sqldef, not a local binary.
 - Writes require `SessionUserGuard` and `ActiveAccountGuard` unless explicitly public.
 - Only author or ADMIN may update/delete board content.

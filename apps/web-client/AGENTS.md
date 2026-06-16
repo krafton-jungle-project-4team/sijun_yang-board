@@ -5,7 +5,8 @@
 - Use `@nmm/shared` for Zod contracts and response parsing.
 - Use `@nmm/ui/components` before raw controls such as button/input/card/table/dialog.
 - Keep app-specific UI composition in feature/page code even when no matching `@nmm/ui` primitive exists.
-- Routes live under `src/app/router.tsx` and page code under `src/pages`.
+- File-based routes live under `src/routes`.
+- Route files own route boundaries and shared route layouts; large page bodies may live under `src/pages`.
 - Feature API/query hooks stay under `src/features/<feature>`.
 - Use React Query for server state and mutation pending/error UI.
 - Use RHF with shared Zod schemas for forms.
