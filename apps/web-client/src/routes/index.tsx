@@ -1,6 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ExamplePage } from "@/pages/example/example-page";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
+import { BoardPostListQuerySchema } from "@nmm/shared";
+
+const defaultBoardPostListSearch = BoardPostListQuerySchema.parse({});
 
 export const Route = createFileRoute("/")({
-    component: ExamplePage
+    component: IndexRoute
 });
+
+function IndexRoute() {
+    return <Navigate to="/board" search={defaultBoardPostListSearch} replace />;
+}

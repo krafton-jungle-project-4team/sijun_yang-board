@@ -9,38 +9,177 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as EstateRouteImport } from './routes/estate'
+import { Route as BoardRouteImport } from './routes/board'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BoardNewRouteImport } from './routes/board.new'
+import { Route as BoardPostIdRouteImport } from './routes/board.$postId'
+import { Route as AuthSignupRouteImport } from './routes/auth.signup'
+import { Route as AuthLoginRouteImport } from './routes/auth.login'
+import { Route as EstateTransactionsTransactionIdRouteImport } from './routes/estate.transactions.$transactionId'
+import { Route as BoardPostIdEditRouteImport } from './routes/board.$postId.edit'
 
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstateRoute = EstateRouteImport.update({
+  id: '/estate',
+  path: '/estate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BoardRoute = BoardRouteImport.update({
+  id: '/board',
+  path: '/board',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoardNewRoute = BoardNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => BoardRoute,
+} as any)
+const BoardPostIdRoute = BoardPostIdRouteImport.update({
+  id: '/$postId',
+  path: '/$postId',
+  getParentRoute: () => BoardRoute,
+} as any)
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: '/auth/signup',
+  path: '/auth/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstateTransactionsTransactionIdRoute =
+  EstateTransactionsTransactionIdRouteImport.update({
+    id: '/transactions/$transactionId',
+    path: '/transactions/$transactionId',
+    getParentRoute: () => EstateRoute,
+  } as any)
+const BoardPostIdEditRoute = BoardPostIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => BoardPostIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/board': typeof BoardRouteWithChildren
+  '/estate': typeof EstateRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/board/$postId': typeof BoardPostIdRouteWithChildren
+  '/board/new': typeof BoardNewRoute
+  '/board/$postId/edit': typeof BoardPostIdEditRoute
+  '/estate/transactions/$transactionId': typeof EstateTransactionsTransactionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/board': typeof BoardRouteWithChildren
+  '/estate': typeof EstateRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/board/$postId': typeof BoardPostIdRouteWithChildren
+  '/board/new': typeof BoardNewRoute
+  '/board/$postId/edit': typeof BoardPostIdEditRoute
+  '/estate/transactions/$transactionId': typeof EstateTransactionsTransactionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/board': typeof BoardRouteWithChildren
+  '/estate': typeof EstateRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/board/$postId': typeof BoardPostIdRouteWithChildren
+  '/board/new': typeof BoardNewRoute
+  '/board/$postId/edit': typeof BoardPostIdEditRoute
+  '/estate/transactions/$transactionId': typeof EstateTransactionsTransactionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/board'
+    | '/estate'
+    | '/profile'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/board/$postId'
+    | '/board/new'
+    | '/board/$postId/edit'
+    | '/estate/transactions/$transactionId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/board'
+    | '/estate'
+    | '/profile'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/board/$postId'
+    | '/board/new'
+    | '/board/$postId/edit'
+    | '/estate/transactions/$transactionId'
+  id:
+    | '__root__'
+    | '/'
+    | '/board'
+    | '/estate'
+    | '/profile'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/board/$postId'
+    | '/board/new'
+    | '/board/$postId/edit'
+    | '/estate/transactions/$transactionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BoardRoute: typeof BoardRouteWithChildren
+  EstateRoute: typeof EstateRouteWithChildren
+  ProfileRoute: typeof ProfileRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthSignupRoute: typeof AuthSignupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estate': {
+      id: '/estate'
+      path: '/estate'
+      fullPath: '/estate'
+      preLoaderRoute: typeof EstateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/board': {
+      id: '/board'
+      path: '/board'
+      fullPath: '/board'
+      preLoaderRoute: typeof BoardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +187,93 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/board/new': {
+      id: '/board/new'
+      path: '/new'
+      fullPath: '/board/new'
+      preLoaderRoute: typeof BoardNewRouteImport
+      parentRoute: typeof BoardRoute
+    }
+    '/board/$postId': {
+      id: '/board/$postId'
+      path: '/$postId'
+      fullPath: '/board/$postId'
+      preLoaderRoute: typeof BoardPostIdRouteImport
+      parentRoute: typeof BoardRoute
+    }
+    '/auth/signup': {
+      id: '/auth/signup'
+      path: '/auth/signup'
+      fullPath: '/auth/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estate/transactions/$transactionId': {
+      id: '/estate/transactions/$transactionId'
+      path: '/transactions/$transactionId'
+      fullPath: '/estate/transactions/$transactionId'
+      preLoaderRoute: typeof EstateTransactionsTransactionIdRouteImport
+      parentRoute: typeof EstateRoute
+    }
+    '/board/$postId/edit': {
+      id: '/board/$postId/edit'
+      path: '/edit'
+      fullPath: '/board/$postId/edit'
+      preLoaderRoute: typeof BoardPostIdEditRouteImport
+      parentRoute: typeof BoardPostIdRoute
+    }
   }
 }
 
+interface BoardPostIdRouteChildren {
+  BoardPostIdEditRoute: typeof BoardPostIdEditRoute
+}
+
+const BoardPostIdRouteChildren: BoardPostIdRouteChildren = {
+  BoardPostIdEditRoute: BoardPostIdEditRoute,
+}
+
+const BoardPostIdRouteWithChildren = BoardPostIdRoute._addFileChildren(
+  BoardPostIdRouteChildren,
+)
+
+interface BoardRouteChildren {
+  BoardPostIdRoute: typeof BoardPostIdRouteWithChildren
+  BoardNewRoute: typeof BoardNewRoute
+}
+
+const BoardRouteChildren: BoardRouteChildren = {
+  BoardPostIdRoute: BoardPostIdRouteWithChildren,
+  BoardNewRoute: BoardNewRoute,
+}
+
+const BoardRouteWithChildren = BoardRoute._addFileChildren(BoardRouteChildren)
+
+interface EstateRouteChildren {
+  EstateTransactionsTransactionIdRoute: typeof EstateTransactionsTransactionIdRoute
+}
+
+const EstateRouteChildren: EstateRouteChildren = {
+  EstateTransactionsTransactionIdRoute: EstateTransactionsTransactionIdRoute,
+}
+
+const EstateRouteWithChildren =
+  EstateRoute._addFileChildren(EstateRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BoardRoute: BoardRouteWithChildren,
+  EstateRoute: EstateRouteWithChildren,
+  ProfileRoute: ProfileRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthSignupRoute: AuthSignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

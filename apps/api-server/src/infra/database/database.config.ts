@@ -8,6 +8,7 @@ export function createTypeOrmOptions(): TypeOrmModuleOptions {
         type: "postgres",
         autoLoadEntities: true,
         synchronize: database.synchronize,
+        migrationsRun: false,
         logging: database.logging,
         host: database.host,
         port: database.port,

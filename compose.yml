@@ -2,7 +2,7 @@ name: namanmu
 
 services:
     postgres:
-        image: postgres:18
+        image: pgvector/pgvector:pg18-trixie
         container_name: namanmu-postgres
         environment:
             POSTGRES_DB: ${NMM_DB_DATABASE:-namanmu}
@@ -33,12 +33,14 @@ services:
             NODE_ENV: ${NODE_ENV:-development}
             PORT: ${PORT:-3000}
             NMM_WEB_ORIGIN: ${NMM_WEB_ORIGIN:-http://localhost:5173}
+            NMM_AUTH_SECRET: ${NMM_AUTH_SECRET:-change-me-change-me-change-me-change-me}
+            NMM_AUTH_BASE_URL: ${NMM_AUTH_BASE_URL:-http://localhost:3000/api/auth}
             NMM_DB_HOST: ${NMM_DB_HOST:-postgres}
             NMM_DB_PORT: ${NMM_DB_PORT:-5432}
             NMM_DB_USERNAME: ${NMM_DB_USERNAME:-namanmu}
             NMM_DB_PASSWORD: ${NMM_DB_PASSWORD:-change-me}
             NMM_DB_DATABASE: ${NMM_DB_DATABASE:-namanmu}
-            NMM_DB_SYNCHRONIZE: ${NMM_DB_SYNCHRONIZE:-true}
+            NMM_DB_SYNCHRONIZE: ${NMM_DB_SYNCHRONIZE:-false}
             NMM_DB_LOGGING: ${NMM_DB_LOGGING:-false}
         ports:
             - "${PORT:-3000}:${PORT:-3000}"
@@ -48,6 +50,31 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
+
+    mcp-server:
+        build:
+            context: .
+            dockerfile: apps/mcp-server/Dockerfile
+            target: development
+        image: namanmu-mcp-server:dev
+        container_name: namanmu-mcp-server
+        command: npm run dev -w @nmm/mcp-server
+        env_file:
+            - apps/api-server/.env
+        environment:
+            NODE_ENV: ${NODE_ENV:-development}
+            NMM_MCP_PORT: ${NMM_MCP_PORT:-3002}
+            NMM_MCP_API_BASE_URL: ${NMM_MCP_API_BASE_URL:-http://api-server:3000/api}
+            NMM_MCP_BEARER_TOKEN: ${NMM_MCP_BEARER_TOKEN:-change-me-mcp-token}
+            NMM_MCP_ALLOWED_ORIGINS: ${NMM_MCP_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:6274,http://127.0.0.1:6274}
+            NMM_MCP_REQUEST_TIMEOUT_MS: ${NMM_MCP_REQUEST_TIMEOUT_MS:-5000}
+        ports:
+            - "${NMM_MCP_PORT:-3002}:${NMM_MCP_PORT:-3002}"
+        volumes:
+            - .:/app
+            - node_modules:/app/node_modules
+        depends_on:
+            - api-server
 
 volumes:
     node_modules:
