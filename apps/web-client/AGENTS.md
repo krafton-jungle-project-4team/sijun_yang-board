@@ -9,6 +9,8 @@
 - Use React Query for server state and mutation pending/error UI.
 - Use RHF with shared Zod schemas for forms.
 - Name event handlers `handle*`; do not put anonymous functions in JSX props.
+- Interpret shadcn official import/path examples as `@nmm/ui/components` for this app.
+- If the `shadcn` skill conflicts with this file, prefer this app's boundary, import, UI, and verification rules.
 - React/UI code must apply `toss-frontend-fundamentals` and `vercel-react-best-practices`.
 - Component API changes must apply `vercel-composition-patterns`.
 - Verify with `npm run verify` from the repository root.
