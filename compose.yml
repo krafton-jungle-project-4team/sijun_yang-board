@@ -2,19 +2,19 @@ name: namanmu
 
 services:
     postgres:
-        image: postgres:18
-        container_name: namanmu-postgres
+        image: postgres:16-alpine
         environment:
-            POSTGRES_DB: ${NMM_DB_DATABASE:-namanmu}
-            POSTGRES_USER: ${NMM_DB_USERNAME:-namanmu}
-            POSTGRES_PASSWORD: ${NMM_DB_PASSWORD:-change-me}
-            PGDATA: /var/lib/postgresql/data/pgdata
+            POSTGRES_DB: ${POSTGRES_DB:-nmm_starter}
+            POSTGRES_USER: ${POSTGRES_USER:-nmm}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nmm_password}
         ports:
-            - "${NMM_POSTGRES_PORT:-5432}:5432"
+            - "${POSTGRES_PORT:-5432}:5432"
         volumes:
-            - postgres_data:/var/lib/postgresql/data
+            - postgres-data:/var/lib/postgresql/data
+            - ./apps/api-server/database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+            - ./apps/api-server/database/dummy-data.sql:/docker-entrypoint-initdb.d/002-dummy-data.sql:ro
         healthcheck:
-            test: ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+            test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
             interval: 5s
             timeout: 5s
             retries: 10
@@ -24,31 +24,18 @@ services:
             context: .
             dockerfile: apps/api-server/Dockerfile
             target: development
-        image: namanmu-api-server:dev
-        container_name: namanmu-api-server
-        command: sh apps/api-server/scripts/dev-entrypoint.sh
         env_file:
             - apps/api-server/.env
-        environment:
-            NODE_ENV: ${NODE_ENV:-development}
-            PORT: ${PORT:-3000}
-            NMM_WEB_ORIGIN: ${NMM_WEB_ORIGIN:-http://localhost:5173}
-            NMM_DB_HOST: ${NMM_DB_HOST:-postgres}
-            NMM_DB_PORT: ${NMM_DB_PORT:-5432}
-            NMM_DB_USERNAME: ${NMM_DB_USERNAME:-namanmu}
-            NMM_DB_PASSWORD: ${NMM_DB_PASSWORD:-change-me}
-            NMM_DB_DATABASE: ${NMM_DB_DATABASE:-namanmu}
-            NMM_DB_SYNCHRONIZE: ${NMM_DB_SYNCHRONIZE:-true}
-            NMM_DB_LOGGING: ${NMM_DB_LOGGING:-false}
-        ports:
-            - "${PORT:-3000}:${PORT:-3000}"
-        volumes:
-            - .:/app
-            - node_modules:/app/node_modules
         depends_on:
             postgres:
                 condition: service_healthy
+        ports:
+            - "${PORT:-4000}:${PORT:-4000}"
+        volumes:
+            - .:/workspace
+            - api-node-modules:/workspace/node_modules
+        command: npm run dev:docker --workspace @nmm/api-server
 
 volumes:
-    node_modules:
-    postgres_data:
+    postgres-data:
+    api-node-modules:

@@ -1,20 +1,21 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "module": "NodeNext",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
         "lib": ["ES2022"],
         "types": ["node"],
-        "outDir": "./dist",
-        "rootDir": "./src",
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "sourceMap": true,
         "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "isolatedModules": false,
         "verbatimModuleSyntax": false,
-        "baseUrl": ".",
-        "paths": {
-            "@/*": ["./src/*"]
-        }
+        "sourceMap": true,
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "incremental": true,
+        "strictPropertyInitialization": false
     },
-    "include": ["src"]
+    "include": ["src/**/*.ts"]
 }

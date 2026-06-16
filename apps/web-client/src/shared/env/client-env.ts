@@ -1,9 +1,7 @@
-const apiOrigin = import.meta.env.VITE_NMM_API_ORIGIN;
+import { z } from "zod";
 
-if (!apiOrigin) {
-    throw new Error("Required environment variable is missing: VITE_NMM_API_ORIGIN");
-}
+const clientEnvSchema = z.object({
+    VITE_API_BASE_URL: z.string().default("/api")
+});
 
-export const clientEnv = {
-    apiOrigin
-};
+export const clientEnv = clientEnvSchema.parse(import.meta.env);

@@ -20,6 +20,7 @@ export default [
             "node_modules/**",
             ".codex/**",
             "**/dist/**",
+            "apps/api-server/src/**/database/__generated__/**",
             "apps/web-client/src/routeTree.gen.ts",
             "apps/web-client/src/shared/api/generated/**"
         ]
@@ -193,7 +194,7 @@ export default [
 
     {
         name: "node config files",
-        files: ["*.config.mjs", "eslint.config.mjs"],
+        files: ["*.config.mjs", "eslint.config.mjs", "apps/api-server/scripts/*.mjs"],
         languageOptions: {
             globals: globals.node
         }

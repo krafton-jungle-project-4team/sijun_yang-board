@@ -1,18 +1,11 @@
-import type { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import type { PoolConfig } from "pg";
+
 import { serverEnv } from "../env";
 
-export function createTypeOrmOptions(): TypeOrmModuleOptions {
-    const { database } = serverEnv;
-
-    return {
-        type: "postgres",
-        autoLoadEntities: true,
-        synchronize: database.synchronize,
-        logging: database.logging,
-        host: database.host,
-        port: database.port,
-        username: database.username,
-        password: database.password,
-        database: database.database
-    };
-}
+export const databaseConfig: PoolConfig = {
+    host: serverEnv.DATABASE_HOST,
+    port: serverEnv.DATABASE_PORT,
+    user: serverEnv.DATABASE_USER,
+    password: serverEnv.DATABASE_PASSWORD,
+    database: serverEnv.DATABASE_NAME
+};

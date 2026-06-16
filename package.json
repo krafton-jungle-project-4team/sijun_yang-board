@@ -7,12 +7,15 @@
     ],
     "scripts": {
         "dev": "npm run dev:all",
-        "dev:all": "npm run build -w @nmm/shared && concurrently -n web,api \"npm run dev -w @nmm/web-client\" \"npm run dev:api\"",
+        "dev:all": "npm run dev:db && concurrently -k -n api,web \"npm run dev:api\" \"npm run dev:web\"",
         "dev:web": "npm run build -w @nmm/shared && npm run dev -w @nmm/web-client",
         "dev:api": "docker compose --env-file apps/api-server/.env up --build api-server",
         "dev:db": "docker compose --env-file apps/api-server/.env up -d postgres",
-        "dev:db:stop": "docker compose --env-file apps/api-server/.env stop postgres",
-        "preview:web": "npm run build -w @nmm/shared && npm run build:profile -w @nmm/web-client && npm run preview -w @nmm/web-client",
+        "dev:db:stop": "docker compose --env-file apps/api-server/.env down",
+        "db:generate": "npm run db:generate -w @nmm/api-server",
+        "db:verify": "npm run db:verify -w @nmm/api-server",
+        "test:api": "npm run test -w @nmm/api-server",
+        "preview:web": "npm run build:web && npm run preview -w @nmm/web-client",
         "build": "npm run build -w @nmm/shared && npm run build -w @nmm/web-client && npm run build -w @nmm/api-server",
         "build:web": "npm run build -w @nmm/shared && npm run build -w @nmm/web-client",
         "build:api": "npm run build -w @nmm/shared && npm run build -w @nmm/api-server",
@@ -21,7 +24,7 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "verify": "npm run lint && npm run format:check && npm run typecheck && npm run build",
-        "prepare": "husky"
+        "prepare": "husky || true"
     },
     "lint-staged": {
         "*.{ts,tsx,js,jsx,json,css,md}": [

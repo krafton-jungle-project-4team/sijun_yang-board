@@ -1,106 +1,72 @@
-import { ArgumentsHost, Catch, HttpException, HttpStatus, Logger, type ExceptionFilter } from "@nestjs/common";
-import { DomainError } from "../../app-errors";
-import { getRequestId, type ApiErrorResponse, type ApiRequest, type ApiResponse } from "./api-response";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from "@nestjs/common";
+import type { Request, Response } from "express";
+import { ZodError } from "zod";
 
-type HttpApiError = {
-    statusCode: number;
+import { AppError } from "../../app-errors";
+import type { RequestWithRequestId } from "./api-response";
+
+type ErrorBody = {
     code: string;
     message: string;
 };
 
-type WritableApiResponse = ApiResponse & {
-    headersSent?: boolean;
-    status(statusCode: number): WritableApiResponse;
-    json(body: ApiErrorResponse): void;
-};
-
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger(ApiExceptionFilter.name);
+    catch(error: unknown, host: ArgumentsHost) {
+        const context = host.switchToHttp();
+        const request = context.getRequest<Request & RequestWithRequestId>();
+        const response = context.getResponse<Response>();
+        const requestId = request.requestId ?? "missing-request-id";
+        const status = this.getStatus(error);
+        const body = this.getBody(error);
 
-    catch(exception: unknown, host: ArgumentsHost) {
-        const http = host.switchToHttp();
-        const request = http.getRequest<ApiRequest>();
-        const response = http.getResponse<WritableApiResponse>();
-
-        if (response.headersSent) {
-            return;
-        }
-
-        const requestId = getRequestId(request, response);
-        const error = this.toHttpError(exception);
-
-        if (error.statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) {
-            this.logger.error(
-                `Unhandled exception for request ${requestId}`,
-                exception instanceof Error ? exception.stack : String(exception)
-            );
-        }
-
-        response.status(error.statusCode).json({
+        response.status(status).json({
             requestId,
-            error: {
-                code: error.code,
-                message: error.message
-            }
+            error: body
         });
     }
 
-    private toHttpError(exception: unknown): HttpApiError {
-        if (exception instanceof DomainError) {
+    private getStatus(error: unknown) {
+        if (error instanceof AppError) {
+            return error.statusCode;
+        }
+
+        if (error instanceof ZodError) {
+            return 400;
+        }
+
+        if (error instanceof HttpException) {
+            return error.getStatus();
+        }
+
+        return 500;
+    }
+
+    private getBody(error: unknown): ErrorBody {
+        if (error instanceof AppError) {
             return {
-                statusCode: exception.statusCode,
-                code: exception.code,
-                message: exception.message
+                code: error.code,
+                message: error.message
             };
         }
 
-        if (this.isValidationError(exception)) {
+        if (error instanceof ZodError) {
             return {
-                statusCode: HttpStatus.BAD_REQUEST,
-                code: "VALIDATION_ERROR",
-                message: "요청 형식이 올바르지 않습니다."
+                code: "VALIDATION_FAILED",
+                message: error.issues.map((issue) => issue.message).join(", ")
             };
         }
 
-        if (exception instanceof HttpException) {
+        if (error instanceof HttpException) {
             return {
-                statusCode: exception.getStatus(),
                 code: "HTTP_ERROR",
-                message: this.readHttpExceptionMessage(exception)
+                message: error.message
             };
         }
 
         return {
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
             code: "INTERNAL_SERVER_ERROR",
-            message: "서버 오류가 발생했습니다."
+            message: "Unexpected server error."
         };
-    }
-
-    private isValidationError(exception: unknown) {
-        return exception instanceof Error && exception.name === "ZodError";
-    }
-
-    private readHttpExceptionMessage(exception: HttpException) {
-        const response = exception.getResponse();
-
-        if (typeof response === "string") {
-            return response;
-        }
-
-        if (response && typeof response === "object" && "message" in response) {
-            const message = (response as { message?: unknown }).message;
-
-            if (typeof message === "string") {
-                return message;
-            }
-
-            if (Array.isArray(message) && typeof message[0] === "string") {
-                return message[0];
-            }
-        }
-
-        return exception.message || "요청을 처리할 수 없습니다.";
     }
 }

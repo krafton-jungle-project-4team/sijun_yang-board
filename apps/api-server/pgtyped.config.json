@@ -1,0 +1,12 @@
+{
+    "srcDir": "./apps/api-server/src",
+    "failOnError": true,
+    "camelCaseColumnNames": true,
+    "transforms": [
+        {
+            "mode": "sql",
+            "include": "features/**/database/*.sql",
+            "emitTemplate": "{{dir}}/__generated__/{{name}}.queries.ts"
+        }
+    ]
+}

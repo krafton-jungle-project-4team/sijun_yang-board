@@ -1,12 +1,13 @@
-import path from "node:path";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { config } from "dotenv";
 
-const envFilePath = path.resolve(__dirname, "../../../.env");
+export function loadEnvFile() {
+    const candidates = [resolve(process.cwd(), "apps/api-server/.env"), resolve(process.cwd(), ".env")];
+    const envFile = candidates.find((candidate) => existsSync(candidate));
 
-export function loadServerEnv() {
-    const result = config({ path: envFilePath, override: true });
-
-    if (result.error) {
-        throw new Error(`Server environment file is required: ${envFilePath}`);
+    if (envFile) {
+        config({ path: envFile });
     }
 }

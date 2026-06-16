@@ -1,2 +1,85 @@
 @import "@nmm/ui/styles/globals.css";
-@source "../../../packages/ui/src";
+
+body {
+    background: #f7f7f5;
+}
+
+.app-shell {
+    min-height: 100vh;
+}
+
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 24px;
+    border-bottom: 1px solid #deded8;
+    background: rgba(247, 247, 245, 0.95);
+    padding: 14px 24px;
+}
+
+.app-brand {
+    font-weight: 700;
+}
+
+.app-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 16px;
+    color: #525252;
+    font-size: 14px;
+}
+
+.app-main {
+    width: min(1040px, calc(100vw - 32px));
+    margin: 0 auto;
+    padding: 28px 0 56px;
+}
+
+.page-stack {
+    display: grid;
+    gap: 20px;
+}
+
+.page-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.page-heading h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.page-heading p,
+.muted {
+    color: #666;
+}
+
+.grid-list {
+    display: grid;
+    gap: 12px;
+}
+
+.form-stack {
+    display: grid;
+    gap: 16px;
+}
+
+.button-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.breakable {
+    overflow-wrap: anywhere;
+}

@@ -1,49 +1,78 @@
-import { ApiErrorResponseSchema, createApiSuccessResponseSchema } from "@nmm/shared";
-import type { ApiErrorPayload } from "@nmm/shared";
+import { apiFailureSchema, createApiSuccessSchema } from "@nmm/shared";
 import ky, { HTTPError, type Options } from "ky";
 import type { z } from "zod";
 
-type ApiRequestOptions = Omit<Options, "prefix">;
+import { clientEnv } from "../env/client-env";
 
-const apiClient = ky.create({
-    prefix: "/api",
-    credentials: "include",
-    retry: 3,
-    timeout: 1000
+const http = ky.create({
+    prefixUrl: clientEnv.VITE_API_BASE_URL.replace(/^\//, ""),
+    credentials: "include"
 });
 
 export class ApiClientError extends Error {
     constructor(
-        readonly status: number,
-        readonly requestId: string | undefined,
-        readonly error: ApiErrorPayload
+        public readonly code: string,
+        message: string,
+        public readonly requestId?: string
     ) {
-        super(error.message);
-        this.name = "ApiClientError";
+        super(message);
     }
 }
 
-export async function requestApiData<TData>(
-    path: string,
-    dataSchema: z.ZodType<TData>,
-    options: ApiRequestOptions = {}
-): Promise<TData> {
-    try {
-        const body = await apiClient(path, options).json<unknown>();
+export async function getJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options?: Options) {
+    return requestJson(path, schema, {
+        ...options,
+        method: "get"
+    });
+}
 
-        return createApiSuccessResponseSchema(dataSchema).parse(body).data;
+export async function postJson<TSchema extends z.ZodType>(
+    path: string,
+    schema: TSchema,
+    json?: unknown,
+    options?: Options
+) {
+    return requestJson(path, schema, {
+        ...options,
+        json,
+        method: "post"
+    });
+}
+
+export async function patchJson<TSchema extends z.ZodType>(
+    path: string,
+    schema: TSchema,
+    json?: unknown,
+    options?: Options
+) {
+    return requestJson(path, schema, {
+        ...options,
+        json,
+        method: "patch"
+    });
+}
+
+export async function deleteJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options?: Options) {
+    return requestJson(path, schema, {
+        ...options,
+        method: "delete"
+    });
+}
+
+async function requestJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options: Options) {
+    try {
+        const response = await http(path, options).json<unknown>();
+        const envelope = createApiSuccessSchema(schema).parse(response) as { data: z.infer<TSchema> };
+
+        return envelope.data;
     } catch (error) {
         if (error instanceof HTTPError) {
-            const errorResponse = ApiErrorResponseSchema.safeParse(error.data);
+            const response = await error.response.json().catch(() => null);
+            const parsed = apiFailureSchema.safeParse(response);
 
-            throw new ApiClientError(
-                error.response.status,
-                errorResponse.data?.requestId,
-                errorResponse.data?.error ?? {
-                    code: "HTTP_ERROR",
-                    message: "API 요청에 실패했습니다."
-                }
-            );
+            if (parsed.success) {
+                throw new ApiClientError(parsed.data.error.code, parsed.data.error.message, parsed.data.requestId);
+            }
         }
 
         throw error;
