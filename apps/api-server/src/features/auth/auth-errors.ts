@@ -4,10 +4,14 @@ export function unauthenticatedError() {
     return new AppError("UNAUTHENTICATED", "A valid session is required.", 401);
 }
 
+export function accountAlreadyExistsError() {
+    return new AppError("ACCOUNT_ALREADY_EXISTS", "An account with this ID or email already exists.", 409);
+}
+
 export function suspendedAccountError() {
     return new AppError("ACCOUNT_SUSPENDED", "This account is suspended.", 403);
 }
 
 export function activeAccountRequiredError() {
-    return new AppError("ACTIVE_ACCOUNT_REQUIRED", "Complete signup before this action.", 403);
+    return new AppError("ACTIVE_ACCOUNT_REQUIRED", "An active account is required.", 403);
 }

@@ -56,7 +56,7 @@ const listPostsIR: any = {
         { name: "offset", required: false, transform: { type: "scalar" }, locs: [{ a: 696, b: 702 }] }
     ],
     statement:
-        'SELECT\n    p.id,\n    p.title,\n    p.content,\n    p.author_id AS "authorId",\n    u.display_name AS "authorName",\n    p.view_count AS "viewCount",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM comments c\n        WHERE c.post_id = p.id\n    ) AS "commentCount"\nFROM posts p\nINNER JOIN "user" u ON u.id = p.author_id\nWHERE (:search::text IS NULL OR p.title ILIKE \'%\' || :search::text || \'%\' OR p.content ILIKE \'%\' || :search::text || \'%\')\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)\nORDER BY\n    CASE WHEN :sort = \'popular\' THEN p.view_count END DESC NULLS LAST,\n    p.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4'
+        'SELECT\n    p.id,\n    p.title,\n    p.content,\n    p.author_id AS "authorId",\n    u.display_name AS "authorName",\n    p.view_count AS "viewCount",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM comments c\n        WHERE c.post_id = p.id\n    ) AS "commentCount"\nFROM posts p\nINNER JOIN "user" u ON u.id = p.author_id\nWHERE (:search::text IS NULL OR p.title ILIKE \'%\' || :search::text || \'%\' OR p.content ILIKE \'%\' || :search::text || \'%\')\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)\nORDER BY\n    CASE WHEN :sort = \'popular\' THEN p.view_count END DESC NULLS LAST,\n    p.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4                                                             '
 };
 
 /**
@@ -130,7 +130,7 @@ const countPostsIR: any = {
         }
     ],
     statement:
-        "SELECT count(*)::int4 AS total\nFROM posts p\nWHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)"
+        "SELECT count(*)::int4 AS total\nFROM posts p\nWHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)                                                                        "
 };
 
 /**
@@ -163,7 +163,8 @@ export interface IIncrementPostViewQuery {
 const incrementPostViewIR: any = {
     usedParamSet: { postId: true },
     params: [{ name: "postId", required: false, transform: { type: "scalar" }, locs: [{ a: 56, b: 62 }] }],
-    statement: "UPDATE posts\nSET view_count = view_count + 1\nWHERE id = :postId::int4\nRETURNING id"
+    statement:
+        "UPDATE posts\nSET view_count = view_count + 1\nWHERE id = :postId::int4\nRETURNING id                                                                         "
 };
 
 /**
@@ -207,7 +208,7 @@ const getPostByIdIR: any = {
     usedParamSet: { postId: true },
     params: [{ name: "postId", required: false, transform: { type: "scalar" }, locs: [{ a: 394, b: 400 }] }],
     statement:
-        'SELECT\n    p.id,\n    p.title,\n    p.content,\n    p.author_id AS "authorId",\n    u.display_name AS "authorName",\n    p.view_count AS "viewCount",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM comments c\n        WHERE c.post_id = p.id\n    ) AS "commentCount"\nFROM posts p\nINNER JOIN "user" u ON u.id = p.author_id\nWHERE p.id = :postId::int4'
+        'SELECT\n    p.id,\n    p.title,\n    p.content,\n    p.author_id AS "authorId",\n    u.display_name AS "authorName",\n    p.view_count AS "viewCount",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM comments c\n        WHERE c.post_id = p.id\n    ) AS "commentCount"\nFROM posts p\nINNER JOIN "user" u ON u.id = p.author_id\nWHERE p.id = :postId::int4                                                               '
 };
 
 /**
@@ -260,7 +261,7 @@ const listCommentsByPostIdIR: any = {
     usedParamSet: { postId: true },
     params: [{ name: "postId", required: false, transform: { type: "scalar" }, locs: [{ a: 267, b: 273 }] }],
     statement:
-        'SELECT\n    c.id,\n    c.post_id AS "postId",\n    c.author_id AS "authorId",\n    u.display_name AS "authorName",\n    c.content,\n    c.created_at AS "createdAt",\n    c.updated_at AS "updatedAt"\nFROM comments c\nINNER JOIN "user" u ON u.id = c.author_id\nWHERE c.post_id = :postId::int4\nORDER BY c.created_at ASC'
+        'SELECT\n    c.id,\n    c.post_id AS "postId",\n    c.author_id AS "authorId",\n    u.display_name AS "authorName",\n    c.content,\n    c.created_at AS "createdAt",\n    c.updated_at AS "updatedAt"\nFROM comments c\nINNER JOIN "user" u ON u.id = c.author_id\nWHERE c.post_id = :postId::int4\nORDER BY c.created_at ASC                                                         '
 };
 
 /**
@@ -310,7 +311,7 @@ const createPostIR: any = {
         { name: "authorId", required: false, transform: { type: "scalar" }, locs: [{ a: 103, b: 111 }] }
     ],
     statement:
-        "WITH created_post AS (\n    INSERT INTO posts (title, content, author_id)\n    VALUES (:title, :content, :authorId::int4)\n    RETURNING id\n)\nSELECT id\nFROM created_post"
+        "WITH created_post AS (\n    INSERT INTO posts (title, content, author_id)\n    VALUES (:title, :content, :authorId::int4)\n    RETURNING id\n)\nSELECT id\nFROM created_post                                                                      "
 };
 
 /**
@@ -359,7 +360,7 @@ const updatePostIR: any = {
         { name: "actorRole", required: false, transform: { type: "scalar" }, locs: [{ a: 364, b: 373 }] }
     ],
     statement:
-        'WITH target_post AS (\n    SELECT id, author_id\n    FROM posts\n    WHERE id = :postId::int4\n),\nupdated_post AS (\n    UPDATE posts p\n    SET\n        title = COALESCE(:title, p.title),\n        content = COALESCE(:content, p.content),\n        updated_at = now()\n    FROM target_post\n    WHERE p.id = target_post.id\n      AND (target_post.author_id = :actorId::int4 OR :actorRole::text = \'ADMIN\')\n    RETURNING p.id\n)\nSELECT\n    target_post.id,\n    target_post.author_id AS "authorId",\n    updated_post.id AS "updatedId"\nFROM target_post\nLEFT JOIN updated_post ON true'
+        'WITH target_post AS (\n    SELECT id, author_id\n    FROM posts\n    WHERE id = :postId::int4\n),\nupdated_post AS (\n    UPDATE posts p\n    SET\n        title = COALESCE(:title, p.title),\n        content = COALESCE(:content, p.content),\n        updated_at = now()\n    FROM target_post\n    WHERE p.id = target_post.id\n      AND (target_post.author_id = :actorId::int4 OR :actorRole::text = \'ADMIN\')\n    RETURNING p.id\n)\nSELECT\n    target_post.id,\n    target_post.author_id AS "authorId",\n    updated_post.id AS "updatedId"\nFROM target_post\nLEFT JOIN updated_post ON true                                                                      '
 };
 
 /**
@@ -419,7 +420,7 @@ const deletePostIR: any = {
         { name: "actorRole", required: false, transform: { type: "scalar" }, locs: [{ a: 243, b: 252 }] }
     ],
     statement:
-        'WITH target_post AS (\n    SELECT id, author_id\n    FROM posts\n    WHERE id = :postId::int4\n),\ndeleted_post AS (\n    DELETE FROM posts p\n    USING target_post\n    WHERE p.id = target_post.id\n      AND (target_post.author_id = :actorId::int4 OR :actorRole::text = \'ADMIN\')\n    RETURNING p.id\n)\nSELECT\n    target_post.id,\n    target_post.author_id AS "authorId",\n    deleted_post.id AS "deletedId"\nFROM target_post\nLEFT JOIN deleted_post ON true'
+        'WITH target_post AS (\n    SELECT id, author_id\n    FROM posts\n    WHERE id = :postId::int4\n),\ndeleted_post AS (\n    DELETE FROM posts p\n    USING target_post\n    WHERE p.id = target_post.id\n      AND (target_post.author_id = :actorId::int4 OR :actorRole::text = \'ADMIN\')\n    RETURNING p.id\n)\nSELECT\n    target_post.id,\n    target_post.author_id AS "authorId",\n    deleted_post.id AS "deletedId"\nFROM target_post\nLEFT JOIN deleted_post ON true                                                                 '
 };
 
 /**
@@ -474,7 +475,7 @@ const createCommentIR: any = {
         { name: "content", required: false, transform: { type: "scalar" }, locs: [{ a: 203, b: 210 }] }
     ],
     statement:
-        'WITH target_post AS (\n    SELECT id\n    FROM posts\n    WHERE id = :postId::int4\n),\ncreated_comment AS (\n    INSERT INTO comments (post_id, author_id, content)\n    SELECT target_post.id, :authorId::int4, :content\n    FROM target_post\n    RETURNING id\n)\nSELECT\n    target_post.id AS "postId",\n    created_comment.id AS "commentId"\nFROM target_post\nLEFT JOIN created_comment ON true'
+        'WITH target_post AS (\n    SELECT id\n    FROM posts\n    WHERE id = :postId::int4\n),\ncreated_comment AS (\n    INSERT INTO comments (post_id, author_id, content)\n    SELECT target_post.id, :authorId::int4, :content\n    FROM target_post\n    RETURNING id\n)\nSELECT\n    target_post.id AS "postId",\n    created_comment.id AS "commentId"\nFROM target_post\nLEFT JOIN created_comment ON true                                                                         '
 };
 
 /**
@@ -530,7 +531,7 @@ const updateCommentIR: any = {
         { name: "actorRole", required: false, transform: { type: "scalar" }, locs: [{ a: 324, b: 333 }] }
     ],
     statement:
-        'WITH target_comment AS (\n    SELECT id, author_id\n    FROM comments\n    WHERE id = :commentId::int4\n),\nupdated_comment AS (\n    UPDATE comments c\n    SET\n        content = :content,\n        updated_at = now()\n    FROM target_comment\n    WHERE c.id = target_comment.id\n      AND (target_comment.author_id = :actorId::int4 OR :actorRole::text = \'ADMIN\')\n    RETURNING c.id\n)\nSELECT\n    target_comment.id,\n    target_comment.author_id AS "authorId",\n    updated_comment.id AS "updatedId"\nFROM target_comment\nLEFT JOIN updated_comment ON true'
+        'WITH target_comment AS (\n    SELECT id, author_id\n    FROM comments\n    WHERE id = :commentId::int4\n),\nupdated_comment AS (\n    UPDATE comments c\n    SET\n        content = :content,\n        updated_at = now()\n    FROM target_comment\n    WHERE c.id = target_comment.id\n      AND (target_comment.author_id = :actorId::int4 OR :actorRole::text = \'ADMIN\')\n    RETURNING c.id\n)\nSELECT\n    target_comment.id,\n    target_comment.author_id AS "authorId",\n    updated_comment.id AS "updatedId"\nFROM target_comment\nLEFT JOIN updated_comment ON true                                                                         '
 };
 
 /**

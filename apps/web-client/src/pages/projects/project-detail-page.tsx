@@ -1,38 +1,20 @@
-import type { CreateTaskInput } from "@nmm/shared";
-import {
-    Badge,
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Separator
-} from "@nmm/ui/components";
-import { Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft, Pencil } from "lucide-react";
+import type { CreateTaskInput, User } from "@nmm/shared";
+import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, Separator } from "@nmm/ui/components";
+import { useParams } from "@tanstack/react-router";
+import { Suspense } from "react";
 
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useCreateTask, useProject, useProjectTasks } from "../../features/projects/hooks/use-projects";
+import { SectionSkeleton } from "../../app/section-skeleton";
+import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
+import { useCreateTask, useSuspenseProject, useSuspenseProjectTasks } from "../../features/projects/hooks/use-projects";
 import { projectStatusLabels } from "../../features/projects/model/project-labels";
 import { canManageProjects } from "../../features/projects/model/project-permissions";
 import { ProjectTasksTable } from "../../features/projects/ui/project-tasks-table";
 import { TaskForm } from "../../features/projects/ui/task-form";
-import { useUsers } from "../../features/users/hooks/use-users";
+import { useSuspenseUsers } from "../../features/users/hooks/use-users";
 
 export function ProjectDetailPage() {
     const params = useParams({ strict: false }) as { projectId: string };
     const projectId = Number(params.projectId);
-    const currentUser = useCurrentUserQuery().data;
-    const usersQuery = useUsers();
-    const projectQuery = useProject(projectId);
-    const tasksQuery = useProjectTasks(projectId);
-    const createTask = useCreateTask(projectId);
-    const canManageProject = canManageProjects(currentUser);
-
-    async function handleTaskSubmit(input: CreateTaskInput) {
-        await createTask.mutateAsync(input);
-    }
 
     if (!Number.isInteger(projectId) || projectId <= 0) {
         return (
@@ -44,48 +26,16 @@ export function ProjectDetailPage() {
         );
     }
 
-    if (projectQuery.isPending) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Loading project...</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
+    return <ProjectDetailContent projectId={projectId} />;
+}
 
-    if (projectQuery.isError) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Could not load project.</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
-
-    const project = projectQuery.data;
-    const tasks = tasksQuery.data ?? [];
+function ProjectDetailContent({ projectId }: { projectId: number }) {
+    const currentUser = useSuspenseCurrentUserQuery().data;
+    const project = useSuspenseProject(projectId).data;
+    const canManageProject = canManageProjects(currentUser);
 
     return (
         <article className="grid gap-5">
-            <div className="flex items-center justify-between gap-3">
-                <Button asChild variant="ghost">
-                    <Link to="/projects">
-                        <ArrowLeft />
-                        Projects
-                    </Link>
-                </Button>
-                {canManageProject ? (
-                    <Button asChild variant="outline">
-                        <Link to="/projects/$projectId/edit" params={{ projectId: String(project.id) }}>
-                            <Pencil />
-                            Edit
-                        </Link>
-                    </Button>
-                ) : null}
-            </div>
-
             <CardHeader className="px-0">
                 <Badge variant="secondary">{projectStatusLabels[project.status]}</Badge>
                 <CardTitle>{project.name}</CardTitle>
@@ -106,30 +56,48 @@ export function ProjectDetailPage() {
                 <CardTitle>Tasks</CardTitle>
                 <CardDescription>Optimistic status updates.</CardDescription>
             </CardHeader>
-            {tasksQuery.isPending ? (
-                <Card>
-                    <CardHeader>
-                        <CardDescription>Loading tasks...</CardDescription>
-                    </CardHeader>
-                </Card>
-            ) : (
-                <ProjectTasksTable currentUser={currentUser} projectId={project.id} tasks={tasks} />
-            )}
+            <Suspense fallback={<SectionSkeleton title="Tasks" description="Loading tasks..." rows={3} />}>
+                <ProjectTasksSection currentUser={currentUser} projectId={project.id} />
+            </Suspense>
 
             {canManageProject ? (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Assign task</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <TaskForm
-                            users={usersQuery.data ?? []}
-                            pending={createTask.isPending}
-                            onSubmit={handleTaskSubmit}
-                        />
-                    </CardContent>
-                </Card>
+                <Suspense
+                    fallback={<SectionSkeleton title="Assign task" description="Loading assignees..." rows={2} />}
+                >
+                    <AssignTaskCard projectId={project.id} />
+                </Suspense>
             ) : null}
         </article>
     );
 }
+
+function ProjectTasksSection({ currentUser, projectId }: ProjectTasksSectionProps) {
+    const tasks = useSuspenseProjectTasks(projectId).data;
+
+    return <ProjectTasksTable currentUser={currentUser} projectId={projectId} tasks={tasks} />;
+}
+
+function AssignTaskCard({ projectId }: { projectId: number }) {
+    const users = useSuspenseUsers().data;
+    const createTask = useCreateTask(projectId);
+
+    async function handleTaskSubmit(input: CreateTaskInput) {
+        await createTask.mutateAsync(input);
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Assign task</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <TaskForm users={users} pending={createTask.isPending} onSubmit={handleTaskSubmit} />
+            </CardContent>
+        </Card>
+    );
+}
+
+type ProjectTasksSectionProps = {
+    currentUser: User | null;
+    projectId: number;
+};

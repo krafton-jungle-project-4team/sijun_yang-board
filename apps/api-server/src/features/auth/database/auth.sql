@@ -1,3 +1,4 @@
+/* Purpose: Load session claims for authenticated request guards. */
 /* @name GetClaimsBySessionId */
 SELECT
     s.id,
@@ -9,6 +10,7 @@ INNER JOIN "user" u ON u.id = s.user_id
 WHERE s.id = :sessionId::uuid
   AND s.expires_at > now();
 
+/* Purpose: Read the current user profile by id. */
 /* @name GetUserById */
 SELECT
     id,
@@ -21,6 +23,7 @@ SELECT
 FROM "user"
 WHERE id = :userId::int4;
 
+/* Purpose: Load login credentials during email/password sign-in. */
 /* @name GetLoginCredentialsByLoginId */
 SELECT
     id,
@@ -30,15 +33,7 @@ SELECT
 FROM "user"
 WHERE login_id = :loginId;
 
-/* @name CompleteSignup */
-UPDATE "user"
-SET
-    display_name = :displayName,
-    status = 'ACTIVE',
-    updated_at = now()
-WHERE id = :userId::int4
-RETURNING id;
-
+/* Purpose: Update the current user's editable profile fields. */
 /* @name UpdateMe */
 UPDATE "user"
 SET
@@ -47,6 +42,13 @@ SET
 WHERE id = :userId::int4
 RETURNING id;
 
+/* Purpose: Create a self-service user account. */
+/* @name CreateUser */
+INSERT INTO "user" (login_id, email, password_hash, display_name, role, status)
+VALUES (:loginId, :email, :passwordHash, :displayName, 'USER', 'ACTIVE')
+RETURNING id;
+
+/* Purpose: Create a persistent session for a signed-in user. */
 /* @name CreateSessionForUser */
 INSERT INTO "session" (id, user_id, expires_at)
 SELECT
@@ -59,6 +61,7 @@ RETURNING
     id,
     user_id AS "userId";
 
+/* Purpose: Remove every session owned by a user during sign-out cleanup. */
 /* @name DeleteSessionsByUserId */
 DELETE FROM "session"
 WHERE user_id = :userId::int4;

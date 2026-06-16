@@ -1,5 +1,5 @@
 import type { CreateCommentInput, PostListQuery, UpdateCommentInput, UpdatePostInput } from "@nmm/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { dashboardQueryKeys } from "../../dashboard/hooks/use-dashboard";
 import { postsApi } from "../api/posts-api";
@@ -11,27 +11,24 @@ const postQueryKeys = {
     comments: (postId: number) => ["posts", "comments", postId] as const
 };
 
-export function usePosts(query: PostListQuery) {
-    return useQuery({
+export function useSuspensePosts(query: PostListQuery) {
+    return useSuspenseQuery({
         queryKey: postQueryKeys.list(query),
-        queryFn: ({ signal }) => postsApi.listPosts(query, { signal }),
-        placeholderData: (previousData) => previousData
+        queryFn: ({ signal }) => postsApi.listPosts(query, { signal })
     });
 }
 
-export function usePost(postId: number) {
-    return useQuery({
+export function useSuspensePost(postId: number) {
+    return useSuspenseQuery({
         queryKey: postQueryKeys.detail(postId),
-        queryFn: ({ signal }) => postsApi.getPost(postId, { signal }),
-        enabled: Number.isInteger(postId) && postId > 0
+        queryFn: ({ signal }) => postsApi.getPost(postId, { signal })
     });
 }
 
-export function useComments(postId: number) {
-    return useQuery({
+export function useSuspenseComments(postId: number) {
+    return useSuspenseQuery({
         queryKey: postQueryKeys.comments(postId),
-        queryFn: ({ signal }) => postsApi.listComments(postId, { signal }),
-        enabled: Number.isInteger(postId) && postId > 0
+        queryFn: ({ signal }) => postsApi.listComments(postId, { signal })
     });
 }
 

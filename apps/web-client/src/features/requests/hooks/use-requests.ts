@@ -1,5 +1,5 @@
 import type { ApprovalRequestListQuery, ReviewApprovalRequestInput } from "@nmm/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { dashboardQueryKeys } from "../../dashboard/hooks/use-dashboard";
 import { projectQueryKeys } from "../../projects/hooks/use-projects";
@@ -11,19 +11,17 @@ const requestQueryKeys = {
     detail: (requestId: number) => ["requests", "detail", requestId] as const
 };
 
-export function useRequests(query: ApprovalRequestListQuery) {
-    return useQuery({
+export function useSuspenseRequests(query: ApprovalRequestListQuery) {
+    return useSuspenseQuery({
         queryKey: requestQueryKeys.list(query),
-        queryFn: ({ signal }) => requestsApi.listRequests(query, { signal }),
-        placeholderData: (previousData) => previousData
+        queryFn: ({ signal }) => requestsApi.listRequests(query, { signal })
     });
 }
 
-export function useRequest(requestId: number) {
-    return useQuery({
+export function useSuspenseRequest(requestId: number) {
+    return useSuspenseQuery({
         queryKey: requestQueryKeys.detail(requestId),
-        queryFn: ({ signal }) => requestsApi.getRequest(requestId, { signal }),
-        enabled: Number.isInteger(requestId) && requestId > 0
+        queryFn: ({ signal }) => requestsApi.getRequest(requestId, { signal })
     });
 }
 

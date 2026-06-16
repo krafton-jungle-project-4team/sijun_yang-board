@@ -13,6 +13,14 @@ export const createApiSuccessSchema = <TData extends z.ZodType>(dataSchema: TDat
         data: dataSchema
     });
 
+export const createPageResultSchema = <TItem extends z.ZodType>(itemSchema: TItem) =>
+    z.object({
+        items: z.array(itemSchema),
+        page: z.number().int().min(1),
+        pageSize: z.number().int().min(1),
+        total: z.number().int().nonnegative()
+    });
+
 export const apiFailureSchema = z.object({
     requestId: requestIdSchema,
     error: apiErrorSchema

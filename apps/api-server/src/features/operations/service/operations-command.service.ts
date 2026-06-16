@@ -9,10 +9,11 @@ import type {
     UpdateProjectInput,
     UpdateTaskInput
 } from "@nmm/shared";
-import { InjectTransaction, Transactional, type Transaction } from "@nestjs-cls/transactional";
+import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "../../../infra/database";
+import { ApprovalRequestDomain, TaskDomain } from "../domain";
 import {
     adminRequiredError,
     approvalRequestAlreadyReviewedError,
@@ -21,129 +22,72 @@ import {
     taskMutationForbiddenError,
     taskNotFoundError
 } from "../operations-errors";
-import {
-    createApprovalRequest,
-    createProject,
-    createTask,
-    reviewApprovalRequest,
-    updateProject,
-    updateTask
-} from "../database/__generated__/operations.queries";
+import { ApprovalRequestWriter, ProjectWriter, TaskWriter } from "../repository";
 
 @Injectable()
 export class OperationsCommandService {
     constructor(
-        @InjectTransaction()
-        private readonly db: Transaction<PgTypedTransactionalAdapter>
+        private readonly projectWriter: ProjectWriter,
+        private readonly taskWriter: TaskWriter,
+        private readonly approvalRequestWriter: ApprovalRequestWriter
     ) {}
 
     @Transactional<PgTypedTransactionalAdapter>()
     async createProject(auth: AuthClaims, input: CreateProjectInput): Promise<IdCommandResult> {
         assertAdmin(auth);
-        const project = await this.db
-            .query(createProject, {
-                name: input.name,
-                description: input.description,
-                status: input.status,
-                ownerId: input.ownerId ?? null,
-                createdById: auth.userId
-            })
-            .single();
+        const id = await this.projectWriter.create(auth.userId, input);
 
-        return { id: project.id };
+        return { id };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async updateProject(auth: AuthClaims, projectId: number, input: UpdateProjectInput): Promise<IdCommandResult> {
         assertAdmin(auth);
-        const project = await this.db
-            .query(updateProject, {
-                projectId,
-                name: input.name ?? null,
-                description: input.description ?? null,
-                status: input.status ?? null,
-                ownerId: input.ownerId ?? null
-            })
-            .singleOrNull();
+        const id = await this.projectWriter.update(projectId, input);
 
-        if (!project) {
+        if (!id) {
             throw projectNotFoundError();
         }
 
-        return { id: project.id };
+        return { id };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async createTask(auth: AuthClaims, projectId: number, input: CreateTaskInput): Promise<IdCommandResult> {
         assertAdmin(auth);
-        const task = await this.db
-            .query(createTask, {
-                projectId,
-                title: input.title,
-                description: input.description,
-                status: input.status,
-                priority: input.priority,
-                assigneeId: input.assigneeId ?? null,
-                createdById: auth.userId
-            })
-            .singleOrNull();
+        const task = await this.taskWriter.create(auth.userId, projectId, input);
 
         if (!task) {
             throw projectNotFoundError();
         }
 
-        return { id: task.taskId };
+        return { id: task.id };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async updateTask(auth: AuthClaims, taskId: number, input: UpdateTaskInput): Promise<IdCommandResult> {
-        const adminFieldPatch =
-            input.title !== undefined ||
-            input.description !== undefined ||
-            input.priority !== undefined ||
-            input.assigneeId !== undefined;
-        const task = await this.db
-            .query(updateTask, {
-                taskId,
-                title: input.title ?? null,
-                description: input.description ?? null,
-                status: input.status ?? null,
-                priority: input.priority ?? null,
-                assigneeId: input.assigneeId ?? null,
-                replaceAssignee: input.assigneeId !== undefined,
-                adminFieldPatch,
-                actorId: auth.userId,
-                actorRole: auth.role
-            })
-            .singleOrNull();
+        const result = await this.taskWriter.update(auth, taskId, input);
 
-        if (!task) {
+        if (!result) {
             throw taskNotFoundError();
         }
 
-        if (!task.updatedId) {
+        if (!TaskDomain.canUpdate(result.task, auth, input) || !result.changedId) {
             throw taskMutationForbiddenError();
         }
 
-        return { id: task.updatedId };
+        return { id: result.changedId };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async createApprovalRequest(auth: AuthClaims, input: CreateApprovalRequestInput): Promise<IdCommandResult> {
-        const request = await this.db
-            .query(createApprovalRequest, {
-                projectId: input.projectId,
-                title: input.title,
-                description: input.description,
-                requesterId: auth.userId
-            })
-            .singleOrNull();
+        const request = await this.approvalRequestWriter.create(auth.userId, input);
 
         if (!request) {
             throw projectNotFoundError();
         }
 
-        return { id: request.requestId };
+        return { id: request.id };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
@@ -171,24 +115,22 @@ export class OperationsCommandService {
         input: ReviewApprovalRequestInput
     ): Promise<IdCommandResult> {
         assertAdmin(auth);
-        const request = await this.db
-            .query(reviewApprovalRequest, {
-                requestId,
-                nextStatus,
-                reviewerId: auth.userId,
-                reviewComment: input.reviewComment ?? null
-            })
-            .singleOrNull();
+        const result = await this.approvalRequestWriter.review({
+            requestId,
+            nextStatus,
+            reviewerId: auth.userId,
+            input
+        });
 
-        if (!request) {
+        if (!result) {
             throw approvalRequestNotFoundError();
         }
 
-        if (!request.reviewedId) {
+        if (ApprovalRequestDomain.isReviewed(result.request) || !result.changedId) {
             throw approvalRequestAlreadyReviewedError();
         }
 
-        return { id: request.reviewedId };
+        return { id: result.changedId };
     }
 }
 

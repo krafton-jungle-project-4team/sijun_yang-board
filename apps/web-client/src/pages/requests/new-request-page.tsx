@@ -1,24 +1,23 @@
 import type { CreateApprovalRequestInput } from "@nmm/shared";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nmm/ui/components";
+import { Card, CardContent, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate } from "@tanstack/react-router";
 
-import { useProjects } from "../../features/projects/hooks/use-projects";
+import { useSuspenseProjects } from "../../features/projects/hooks/use-projects";
 import { toProjectListQuery } from "../../features/projects/model/project-search";
 import { useCreateRequest } from "../../features/requests/hooks/use-requests";
 import { RequestForm } from "../../features/requests/ui/request-form";
 
 export function NewRequestPage() {
     const navigate = useNavigate();
-    const projectsQuery = useProjects(
+    const projects = useSuspenseProjects(
         toProjectListQuery({
             page: 1,
             search: "",
             sort: "name",
             status: "ALL"
         })
-    );
+    ).data.items;
     const createRequest = useCreateRequest();
-    const projects = projectsQuery.data?.items ?? [];
 
     async function handleSubmit(input: CreateApprovalRequestInput) {
         const result = await createRequest.mutateAsync(input);
@@ -28,16 +27,6 @@ export function NewRequestPage() {
 
     function handleCancel() {
         void navigate({ to: "/requests" });
-    }
-
-    if (projectsQuery.isPending) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Loading request form...</CardDescription>
-                </CardHeader>
-            </Card>
-        );
     }
 
     return (

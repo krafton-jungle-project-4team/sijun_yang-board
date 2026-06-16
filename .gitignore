@@ -135,6 +135,7 @@ apps/api-server/.env
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
+.tanstack/
 
 # Next.js build output
 .next

@@ -1,4 +1,5 @@
 import type { TransactionalAdapter, TransactionalAdapterOptions } from "@nestjs-cls/transactional";
+import { randomUUID } from "crypto";
 import type { Pool } from "pg";
 
 import { PG_POOL } from "./database.tokens";
@@ -12,18 +13,36 @@ export interface PgTypedTransactionOptions {
     deferrable?: boolean;
 }
 
-let savepointSequence = 0;
+export type PgTypedTransactionDb = TxDb;
 
-export class PgTypedTransactionalAdapter implements TransactionalAdapter<Pool, TxDb, PgTypedTransactionOptions> {
-    readonly connectionToken = PG_POOL;
+export interface TransactionalAdapterPgTypedOptions {
+    connectionToken?: unknown;
+    poolToken?: unknown;
+    connection?: Pool;
+    pool?: Pool;
+    defaultTxOptions?: Partial<PgTypedTransactionOptions>;
+}
 
+export class TransactionalAdapterPgTyped implements TransactionalAdapter<
+    Pool,
+    PgTypedTransactionDb,
+    PgTypedTransactionOptions
+> {
+    readonly connectionToken?: unknown;
+    readonly connection?: Pool;
     readonly defaultTxOptions?: Partial<PgTypedTransactionOptions>;
 
-    constructor(defaultTxOptions?: Partial<PgTypedTransactionOptions>) {
-        this.defaultTxOptions = defaultTxOptions;
+    constructor(options: TransactionalAdapterPgTypedOptions = {}) {
+        this.connectionToken = options.connectionToken ?? options.poolToken ?? PG_POOL;
+        this.connection = options.connection ?? options.pool;
+        this.defaultTxOptions = options.defaultTxOptions;
+
+        if (this.connectionToken === undefined && this.connection === undefined) {
+            throw new Error("TransactionalAdapterPgTyped requires a poolToken, connectionToken, pool, or connection.");
+        }
     }
 
-    optionsFactory(pool: Pool): TransactionalAdapterOptions<TxDb, PgTypedTransactionOptions> {
+    optionsFactory(pool: Pool): TransactionalAdapterOptions<PgTypedTransactionDb, PgTypedTransactionOptions> {
         return {
             wrapWithTransaction: async (options, fn, setTx) => {
                 const client = await pool.connect();
@@ -45,7 +64,7 @@ export class PgTypedTransactionalAdapter implements TransactionalAdapter<Pool, T
             },
             wrapWithNestedTransaction: async (_options, fn, setTx, db) => {
                 const executor = getTxDbExecutor(db);
-                const savepointName = getNextSavepointName();
+                const savepointName = this.getNextSavepointName();
 
                 await executor.query(`SAVEPOINT ${savepointName}`, []);
                 setTx(db);
@@ -64,12 +83,13 @@ export class PgTypedTransactionalAdapter implements TransactionalAdapter<Pool, T
             getFallbackInstance: () => createTxDb(pool as unknown as PgExecutor)
         };
     }
+
+    private getNextSavepointName() {
+        return `pgtyped_cls_tx_${randomUUID().replace(/-/g, "_")}`;
+    }
 }
 
-function getNextSavepointName() {
-    savepointSequence += 1;
-    return `pgtyped_cls_tx_${savepointSequence}`;
-}
+export { TransactionalAdapterPgTyped as PgTypedTransactionalAdapter };
 
 function getBeginTransactionSql(options: PgTypedTransactionOptions | undefined) {
     const clauses: string[] = [];

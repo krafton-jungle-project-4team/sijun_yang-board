@@ -24,7 +24,7 @@ const getClaimsBySessionIdIR: any = {
     usedParamSet: { sessionId: true },
     params: [{ name: "sessionId", required: false, transform: { type: "scalar" }, locs: [{ a: 139, b: 148 }] }],
     statement:
-        'SELECT\n    s.id,\n    s.user_id AS "userId",\n    u.role,\n    u.status\nFROM "session" s\nINNER JOIN "user" u ON u.id = s.user_id\nWHERE s.id = :sessionId::uuid\n  AND s.expires_at > now()'
+        'SELECT\n    s.id,\n    s.user_id AS "userId",\n    u.role,\n    u.status\nFROM "session" s\nINNER JOIN "user" u ON u.id = s.user_id\nWHERE s.id = :sessionId::uuid\n  AND s.expires_at > now()                                                   '
 };
 
 /**
@@ -71,7 +71,7 @@ const getUserByIdIR: any = {
     usedParamSet: { userId: true },
     params: [{ name: "userId", required: false, transform: { type: "scalar" }, locs: [{ a: 167, b: 173 }] }],
     statement:
-        'SELECT\n    id,\n    email,\n    display_name AS "displayName",\n    role,\n    status,\n    created_at AS "createdAt",\n    updated_at AS "updatedAt"\nFROM "user"\nWHERE id = :userId::int4'
+        'SELECT\n    id,\n    email,\n    display_name AS "displayName",\n    role,\n    status,\n    created_at AS "createdAt",\n    updated_at AS "updatedAt"\nFROM "user"\nWHERE id = :userId::int4                                                                    '
 };
 
 /**
@@ -114,7 +114,7 @@ const getLoginCredentialsByLoginIdIR: any = {
     usedParamSet: { loginId: true },
     params: [{ name: "loginId", required: false, transform: { type: "scalar" }, locs: [{ a: 102, b: 109 }] }],
     statement:
-        'SELECT\n    id,\n    password_hash AS "passwordHash",\n    role,\n    status\nFROM "user"\nWHERE login_id = :loginId'
+        'SELECT\n    id,\n    password_hash AS "passwordHash",\n    role,\n    status\nFROM "user"\nWHERE login_id = :loginId                                                                 '
 };
 
 /**
@@ -133,47 +133,6 @@ export const getLoginCredentialsByLoginId = new PreparedQuery<
     IGetLoginCredentialsByLoginIdParams,
     IGetLoginCredentialsByLoginIdResult
 >(getLoginCredentialsByLoginIdIR);
-
-/** 'CompleteSignup' parameters type */
-export interface ICompleteSignupParams {
-    displayName?: string | null | void;
-    userId?: number | null | void;
-}
-
-/** 'CompleteSignup' return type */
-export interface ICompleteSignupResult {
-    id: number;
-}
-
-/** 'CompleteSignup' query type */
-export interface ICompleteSignupQuery {
-    params: ICompleteSignupParams;
-    result: ICompleteSignupResult;
-}
-
-const completeSignupIR: any = {
-    usedParamSet: { displayName: true, userId: true },
-    params: [
-        { name: "displayName", required: false, transform: { type: "scalar" }, locs: [{ a: 37, b: 48 }] },
-        { name: "userId", required: false, transform: { type: "scalar" }, locs: [{ a: 108, b: 114 }] }
-    ],
-    statement:
-        "UPDATE \"user\"\nSET\n    display_name = :displayName,\n    status = 'ACTIVE',\n    updated_at = now()\nWHERE id = :userId::int4\nRETURNING id"
-};
-
-/**
- * Query generated from SQL:
- * ```
- * UPDATE "user"
- * SET
- *     display_name = :displayName,
- *     status = 'ACTIVE',
- *     updated_at = now()
- * WHERE id = :userId::int4
- * RETURNING id
- * ```
- */
-export const completeSignup = new PreparedQuery<ICompleteSignupParams, ICompleteSignupResult>(completeSignupIR);
 
 /** 'UpdateMe' parameters type */
 export interface IUpdateMeParams {
@@ -199,7 +158,7 @@ const updateMeIR: any = {
         { name: "userId", required: false, transform: { type: "scalar" }, locs: [{ a: 109, b: 115 }] }
     ],
     statement:
-        'UPDATE "user"\nSET\n    display_name = COALESCE(:displayName, display_name),\n    updated_at = now()\nWHERE id = :userId::int4\nRETURNING id'
+        'UPDATE "user"\nSET\n    display_name = COALESCE(:displayName, display_name),\n    updated_at = now()\nWHERE id = :userId::int4\nRETURNING id                                                  '
 };
 
 /**
@@ -214,6 +173,47 @@ const updateMeIR: any = {
  * ```
  */
 export const updateMe = new PreparedQuery<IUpdateMeParams, IUpdateMeResult>(updateMeIR);
+
+/** 'CreateUser' parameters type */
+export interface ICreateUserParams {
+    displayName?: string | null | void;
+    email?: string | null | void;
+    loginId?: string | null | void;
+    passwordHash?: string | null | void;
+}
+
+/** 'CreateUser' return type */
+export interface ICreateUserResult {
+    id: number;
+}
+
+/** 'CreateUser' query type */
+export interface ICreateUserQuery {
+    params: ICreateUserParams;
+    result: ICreateUserResult;
+}
+
+const createUserIR: any = {
+    usedParamSet: { loginId: true, email: true, passwordHash: true, displayName: true },
+    params: [
+        { name: "loginId", required: false, transform: { type: "scalar" }, locs: [{ a: 88, b: 95 }] },
+        { name: "email", required: false, transform: { type: "scalar" }, locs: [{ a: 98, b: 103 }] },
+        { name: "passwordHash", required: false, transform: { type: "scalar" }, locs: [{ a: 106, b: 118 }] },
+        { name: "displayName", required: false, transform: { type: "scalar" }, locs: [{ a: 121, b: 132 }] }
+    ],
+    statement:
+        "INSERT INTO \"user\" (login_id, email, password_hash, display_name, role, status)\nVALUES (:loginId, :email, :passwordHash, :displayName, 'USER', 'ACTIVE')\nRETURNING id                                                                "
+};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * INSERT INTO "user" (login_id, email, password_hash, display_name, role, status)
+ * VALUES (:loginId, :email, :passwordHash, :displayName, 'USER', 'ACTIVE')
+ * RETURNING id
+ * ```
+ */
+export const createUser = new PreparedQuery<ICreateUserParams, ICreateUserResult>(createUserIR);
 
 /** 'CreateSessionForUser' parameters type */
 export interface ICreateSessionForUserParams {
@@ -240,7 +240,7 @@ const createSessionForUserIR: any = {
         { name: "userId", required: false, transform: { type: "scalar" }, locs: [{ a: 145, b: 151 }] }
     ],
     statement:
-        'INSERT INTO "session" (id, user_id, expires_at)\nSELECT\n    :sessionId::uuid,\n    u.id,\n    now() + interval \'30 days\'\nFROM "user" u\nWHERE u.id = :userId::int4\nRETURNING\n    id,\n    user_id AS "userId"'
+        'INSERT INTO "session" (id, user_id, expires_at)\nSELECT\n    :sessionId::uuid,\n    u.id,\n    now() + interval \'30 days\'\nFROM "user" u\nWHERE u.id = :userId::int4\nRETURNING\n    id,\n    user_id AS "userId"                                                                            '
 };
 
 /**

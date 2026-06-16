@@ -10,149 +10,105 @@ import type {
     TaskSummary,
     UserOption
 } from "@nmm/shared";
-import { InjectTransaction, Transactional, type Transaction } from "@nestjs-cls/transactional";
+import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "../../../infra/database";
+import { ApprovalRequestDomain, DashboardViewDomain, ProjectDomain, TaskDomain } from "../domain";
 import { approvalRequestNotFoundError, projectNotFoundError, taskNotFoundError } from "../operations-errors";
-import {
-    countApprovalRequests,
-    countProjects,
-    getApprovalRequestById,
-    getDashboardCounts,
-    getProjectById,
-    getTaskById,
-    listActiveUsers,
-    listApprovalRequests,
-    listDashboardMyTasks,
-    listDashboardPendingRequests,
-    listDashboardRecentPosts,
-    listProjects,
-    listTasksByProjectId
-} from "../database/__generated__/operations.queries";
-import {
-    toApprovalRequestSummary,
-    toDashboardSummary,
-    toProjectSummary,
-    toTaskSummary,
-    toUserOption
-} from "./operations-mappers";
+import { ApprovalRequestReader, DashboardViewQuery, ProjectReader, TaskReader, UserReader } from "../repository";
 
 const DASHBOARD_LIMIT = 5;
 
 @Injectable()
 export class OperationsQueryService {
     constructor(
-        @InjectTransaction()
-        private readonly db: Transaction<PgTypedTransactionalAdapter>
+        private readonly userReader: UserReader,
+        private readonly projectReader: ProjectReader,
+        private readonly taskReader: TaskReader,
+        private readonly approvalRequestReader: ApprovalRequestReader,
+        private readonly dashboardViewQuery: DashboardViewQuery
     ) {}
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listUsers(): Promise<UserOption[]> {
-        const users = await this.db.query(listActiveUsers, undefined).multiple();
-
-        return users.map(toUserOption);
+        return this.userReader.listActive();
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listProjects(query: ProjectListQuery): Promise<ProjectListResult> {
-        const filters = {
-            search: query.search ?? null,
-            status: query.status === "ALL" ? null : query.status
-        };
-        const items = await this.db
-            .query(listProjects, {
-                ...filters,
-                sort: query.sort,
-                limit: query.pageSize,
-                offset: (query.page - 1) * query.pageSize
-            })
-            .multiple();
-        const total = await this.db.query(countProjects, filters).single();
+        const page = await this.projectReader.list(query);
 
         return {
-            items: items.map(toProjectSummary),
-            page: query.page,
-            pageSize: query.pageSize,
-            total: total.total ?? 0
+            items: page.items.map(ProjectDomain.toProject),
+            page: page.page,
+            pageSize: page.pageSize,
+            total: page.total
         };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async getProject(projectId: number): Promise<ProjectDetail> {
-        const project = await this.db.query(getProjectById, { projectId }).singleOrNull();
+        const project = await this.projectReader.findById(projectId);
 
         if (!project) {
             throw projectNotFoundError();
         }
 
-        return toProjectSummary(project);
+        return ProjectDomain.toProject(project);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listProjectTasks(projectId: number): Promise<TaskSummary[]> {
-        await this.getProject(projectId);
-        const tasks = await this.db.query(listTasksByProjectId, { projectId }).multiple();
+        const project = await this.projectReader.findById(projectId);
 
-        return tasks.map(toTaskSummary);
+        if (!project) {
+            throw projectNotFoundError();
+        }
+
+        const tasks = await this.taskReader.listByProjectId(projectId);
+
+        return tasks.map(TaskDomain.toTask);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async getTask(taskId: number): Promise<TaskDetail> {
-        const task = await this.db.query(getTaskById, { taskId }).singleOrNull();
+        const task = await this.taskReader.findById(taskId);
 
         if (!task) {
             throw taskNotFoundError();
         }
 
-        return toTaskSummary(task);
+        return TaskDomain.toTask(task);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listApprovalRequests(query: ApprovalRequestListQuery): Promise<ApprovalRequestListResult> {
-        const filters = {
-            projectId: query.projectId ?? null,
-            search: query.search ?? null,
-            status: query.status === "ALL" ? null : query.status
-        };
-        const items = await this.db
-            .query(listApprovalRequests, {
-                ...filters,
-                sort: query.sort,
-                limit: query.pageSize,
-                offset: (query.page - 1) * query.pageSize
-            })
-            .multiple();
-        const total = await this.db.query(countApprovalRequests, filters).single();
+        const page = await this.approvalRequestReader.list(query);
 
         return {
-            items: items.map(toApprovalRequestSummary),
-            page: query.page,
-            pageSize: query.pageSize,
-            total: total.total ?? 0
+            items: page.items.map(ApprovalRequestDomain.toApprovalRequest),
+            page: page.page,
+            pageSize: page.pageSize,
+            total: page.total
         };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async getApprovalRequest(requestId: number): Promise<ApprovalRequestDetail> {
-        const request = await this.db.query(getApprovalRequestById, { requestId }).singleOrNull();
+        const request = await this.approvalRequestReader.findById(requestId);
 
         if (!request) {
             throw approvalRequestNotFoundError();
         }
 
-        return toApprovalRequestSummary(request);
+        return ApprovalRequestDomain.toApprovalRequest(request);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async getDashboard(userId: number): Promise<Dashboard> {
-        const [counts, myTasks, pendingRequests, recentAnnouncements] = await Promise.all([
-            this.db.query(getDashboardCounts, undefined).single(),
-            this.db.query(listDashboardMyTasks, { assigneeId: userId, limit: DASHBOARD_LIMIT }).multiple(),
-            this.db.query(listDashboardPendingRequests, { limit: DASHBOARD_LIMIT }).multiple(),
-            this.db.query(listDashboardRecentPosts, { limit: DASHBOARD_LIMIT }).multiple()
-        ]);
+        const dashboardView = await this.dashboardViewQuery.get(userId, DASHBOARD_LIMIT);
 
-        return toDashboardSummary(counts, myTasks, pendingRequests, recentAnnouncements);
+        return DashboardViewDomain.toDashboard(dashboardView);
     }
 }

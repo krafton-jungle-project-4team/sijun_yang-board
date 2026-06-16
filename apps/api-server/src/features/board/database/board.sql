@@ -1,3 +1,4 @@
+/* Purpose: List board posts with filters, sorting, and comment counts. */
 /* @name ListPosts */
 SELECT
     p.id,
@@ -23,18 +24,21 @@ ORDER BY
 LIMIT :limit::int4
 OFFSET :offset::int4;
 
+/* Purpose: Count board posts for paginated list metadata. */
 /* @name CountPosts */
 SELECT count(*)::int4 AS total
 FROM posts p
 WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')
   AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4);
 
+/* Purpose: Increment a post view count before returning detail data. */
 /* @name IncrementPostView */
 UPDATE posts
 SET view_count = view_count + 1
 WHERE id = :postId::int4
 RETURNING id;
 
+/* Purpose: Read a single board post with author and comment metadata. */
 /* @name GetPostById */
 SELECT
     p.id,
@@ -54,6 +58,7 @@ FROM posts p
 INNER JOIN "user" u ON u.id = p.author_id
 WHERE p.id = :postId::int4;
 
+/* Purpose: List comments for a board post in display order. */
 /* @name ListCommentsByPostId */
 SELECT
     c.id,
@@ -68,6 +73,7 @@ INNER JOIN "user" u ON u.id = c.author_id
 WHERE c.post_id = :postId::int4
 ORDER BY c.created_at ASC;
 
+/* Purpose: Create a board post and return its new id. */
 /* @name CreatePost */
 WITH created_post AS (
     INSERT INTO posts (title, content, author_id)
@@ -77,6 +83,7 @@ WITH created_post AS (
 SELECT id
 FROM created_post;
 
+/* Purpose: Update a post when the actor is the author or an admin. */
 /* @name UpdatePost */
 WITH target_post AS (
     SELECT id, author_id
@@ -101,6 +108,7 @@ SELECT
 FROM target_post
 LEFT JOIN updated_post ON true;
 
+/* Purpose: Delete a post when the actor is the author or an admin. */
 /* @name DeletePost */
 WITH target_post AS (
     SELECT id, author_id
@@ -121,6 +129,7 @@ SELECT
 FROM target_post
 LEFT JOIN deleted_post ON true;
 
+/* Purpose: Create a comment only when the target post exists. */
 /* @name CreateComment */
 WITH target_post AS (
     SELECT id
@@ -139,6 +148,7 @@ SELECT
 FROM target_post
 LEFT JOIN created_comment ON true;
 
+/* Purpose: Update a comment when the actor is the author or an admin. */
 /* @name UpdateComment */
 WITH target_comment AS (
     SELECT id, author_id
@@ -162,6 +172,7 @@ SELECT
 FROM target_comment
 LEFT JOIN updated_comment ON true;
 
+/* Purpose: Delete a comment when the actor is the author or an admin. */
 /* @name DeleteComment */
 WITH target_comment AS (
     SELECT id, author_id

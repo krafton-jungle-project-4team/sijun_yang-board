@@ -6,141 +6,114 @@ import type {
     UpdateCommentInput,
     UpdatePostInput
 } from "@nmm/shared";
-import { InjectTransaction, Transactional, type Transaction } from "@nestjs-cls/transactional";
+import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "../../../infra/database";
 import { boardMutationForbiddenError, commentNotFoundError, postNotFoundError } from "../board-errors";
-import {
-    createComment,
-    createPost,
-    deleteComment,
-    deletePost,
-    updateComment,
-    updatePost
-} from "../database/__generated__/board.queries";
+import { CommentDomain, PostDomain } from "../domain";
+import { CommentWriter, PostWriter } from "../repository";
 
 @Injectable()
 export class BoardCommandService {
     constructor(
-        @InjectTransaction()
-        private readonly db: Transaction<PgTypedTransactionalAdapter>
+        private readonly postWriter: PostWriter,
+        private readonly commentWriter: CommentWriter
     ) {}
 
     @Transactional<PgTypedTransactionalAdapter>()
     async createPost(auth: AuthClaims, input: CreatePostInput): Promise<IdCommandResult> {
-        const post = await this.db
-            .query(createPost, {
-                title: input.title,
-                content: input.content,
-                authorId: auth.userId
-            })
-            .single();
+        const id = await this.postWriter.create(auth.userId, input);
 
-        return { id: post.id };
+        return { id };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async updatePost(auth: AuthClaims, postId: number, input: UpdatePostInput): Promise<IdCommandResult> {
-        const post = await this.db
-            .query(updatePost, {
-                postId,
-                title: input.title ?? null,
-                content: input.content ?? null,
-                actorId: auth.userId,
-                actorRole: auth.role
-            })
-            .singleOrNull();
+        const result = await this.postWriter.update({
+            postId,
+            input,
+            actorId: auth.userId,
+            actorRole: auth.role
+        });
 
-        if (!post) {
+        if (!result) {
             throw postNotFoundError();
         }
 
-        if (!post.updatedId) {
+        if (!PostDomain.canMutate(result.post, auth) || !result.changedId) {
             throw boardMutationForbiddenError();
         }
 
-        return { id: post.updatedId };
+        return { id: result.changedId };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async deletePost(auth: AuthClaims, postId: number): Promise<IdCommandResult> {
-        const post = await this.db
-            .query(deletePost, {
-                postId,
-                actorId: auth.userId,
-                actorRole: auth.role
-            })
-            .singleOrNull();
+        const result = await this.postWriter.delete({
+            postId,
+            actorId: auth.userId,
+            actorRole: auth.role
+        });
 
-        if (!post) {
+        if (!result) {
             throw postNotFoundError();
         }
 
-        if (!post.deletedId) {
+        if (!PostDomain.canMutate(result.post, auth) || !result.changedId) {
             throw boardMutationForbiddenError();
         }
 
-        return { id: post.deletedId };
+        return { id: result.changedId };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async createComment(auth: AuthClaims, postId: number, input: CreateCommentInput): Promise<IdCommandResult> {
-        const comment = await this.db
-            .query(createComment, {
-                postId,
-                authorId: auth.userId,
-                content: input.content
-            })
-            .singleOrNull();
+        const comment = await this.commentWriter.create(auth.userId, postId, input);
 
         if (!comment) {
             throw postNotFoundError();
         }
 
-        return { id: comment.commentId };
+        return { id: comment.id };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async updateComment(auth: AuthClaims, commentId: number, input: UpdateCommentInput): Promise<IdCommandResult> {
-        const comment = await this.db
-            .query(updateComment, {
-                commentId,
-                content: input.content,
-                actorId: auth.userId,
-                actorRole: auth.role
-            })
-            .singleOrNull();
+        const result = await this.commentWriter.update({
+            commentId,
+            input,
+            actorId: auth.userId,
+            actorRole: auth.role
+        });
 
-        if (!comment) {
+        if (!result) {
             throw commentNotFoundError();
         }
 
-        if (!comment.updatedId) {
+        if (!CommentDomain.canMutate(result.comment, auth) || !result.changedId) {
             throw boardMutationForbiddenError();
         }
 
-        return { id: comment.updatedId };
+        return { id: result.changedId };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async deleteComment(auth: AuthClaims, commentId: number): Promise<IdCommandResult> {
-        const comment = await this.db
-            .query(deleteComment, {
-                commentId,
-                actorId: auth.userId,
-                actorRole: auth.role
-            })
-            .singleOrNull();
+        const result = await this.commentWriter.delete({
+            commentId,
+            actorId: auth.userId,
+            actorRole: auth.role
+        });
 
-        if (!comment) {
+        if (!result) {
             throw commentNotFoundError();
         }
 
-        if (!comment.deletedId) {
+        if (!CommentDomain.canMutate(result.comment, auth) || !result.changedId) {
             throw boardMutationForbiddenError();
         }
 
-        return { id: comment.deletedId };
+        return { id: result.changedId };
     }
 }

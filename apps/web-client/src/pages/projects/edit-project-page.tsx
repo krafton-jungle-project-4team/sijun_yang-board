@@ -2,29 +2,15 @@ import type { CreateProjectInput } from "@nmm/shared";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate, useParams } from "@tanstack/react-router";
 
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useProject, useUpdateProject } from "../../features/projects/hooks/use-projects";
+import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
+import { useSuspenseProject, useUpdateProject } from "../../features/projects/hooks/use-projects";
 import { canManageProjects } from "../../features/projects/model/project-permissions";
 import { ProjectForm } from "../../features/projects/ui/project-form";
-import { useUsers } from "../../features/users/hooks/use-users";
+import { useSuspenseUsers } from "../../features/users/hooks/use-users";
 
 export function EditProjectPage() {
-    const navigate = useNavigate();
     const params = useParams({ strict: false }) as { projectId: string };
     const projectId = Number(params.projectId);
-    const currentUserQuery = useCurrentUserQuery();
-    const usersQuery = useUsers();
-    const projectQuery = useProject(projectId);
-    const updateProject = useUpdateProject(projectId);
-
-    async function handleSubmit(input: CreateProjectInput) {
-        await updateProject.mutateAsync(input);
-        await navigate({ to: "/projects/$projectId", params: { projectId: String(projectId) } });
-    }
-
-    function handleCancel() {
-        void navigate({ to: "/projects/$projectId", params: { projectId: String(projectId) } });
-    }
 
     if (!Number.isInteger(projectId) || projectId <= 0) {
         return (
@@ -36,27 +22,26 @@ export function EditProjectPage() {
         );
     }
 
-    if (currentUserQuery.isPending || usersQuery.isPending || projectQuery.isPending) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Loading project...</CardDescription>
-                </CardHeader>
-            </Card>
-        );
+    return <EditProjectContent projectId={projectId} />;
+}
+
+function EditProjectContent({ projectId }: { projectId: number }) {
+    const navigate = useNavigate();
+    const currentUser = useSuspenseCurrentUserQuery().data;
+    const users = useSuspenseUsers().data;
+    const project = useSuspenseProject(projectId).data;
+    const updateProject = useUpdateProject(projectId);
+
+    async function handleSubmit(input: CreateProjectInput) {
+        await updateProject.mutateAsync(input);
+        await navigate({ to: "/projects/$projectId", params: { projectId: String(projectId) } });
     }
 
-    if (projectQuery.isError) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Could not load project.</CardDescription>
-                </CardHeader>
-            </Card>
-        );
+    function handleCancel() {
+        void navigate({ to: "/projects/$projectId", params: { projectId: String(projectId) } });
     }
 
-    if (!canManageProjects(currentUserQuery.data)) {
+    if (!canManageProjects(currentUser)) {
         return (
             <Card>
                 <CardHeader>
@@ -78,12 +63,12 @@ export function EditProjectPage() {
                 </CardHeader>
                 <CardContent>
                     <ProjectForm
-                        users={usersQuery.data ?? []}
+                        users={users}
                         initialValue={{
-                            name: projectQuery.data.name,
-                            description: projectQuery.data.description,
-                            status: projectQuery.data.status,
-                            ownerId: projectQuery.data.ownerId
+                            name: project.name,
+                            description: project.description,
+                            status: project.status,
+                            ownerId: project.ownerId
                         }}
                         pending={updateProject.isPending}
                         submitLabel="Save"

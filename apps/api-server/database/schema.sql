@@ -1,5 +1,7 @@
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+/* Purpose: Keep updated_at columns current with PostgreSQL triggers. */
+CREATE EXTENSION IF NOT EXISTS moddatetime;
 
+/* Purpose: Store login identity, profile, role, and account status. */
 CREATE TABLE "user" (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     login_id VARCHAR(80) NOT NULL UNIQUE,
@@ -10,28 +12,39 @@ CREATE TABLE "user" (
         role::text = ANY (ARRAY['USER'::character varying, 'ADMIN'::character varying]::text[])
     ),
     status VARCHAR(20) NOT NULL CONSTRAINT user_status_check CHECK (
-        status::text = ANY (
-            ARRAY[
-                'PENDING'::character varying,
-                'ACTIVE'::character varying,
-                'SUSPENDED'::character varying
-            ]::text[]
-        )
+        status::text = ANY (ARRAY['ACTIVE'::character varying, 'SUSPENDED'::character varying]::text[])
     ),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+/* Purpose: Refresh the user updated_at value on profile or status changes. */
+CREATE TRIGGER set_user_updated_at
+BEFORE UPDATE ON "user"
+FOR EACH ROW
+EXECUTE FUNCTION moddatetime(updated_at);
+
+/* Purpose: Store API session tokens and expiry for signed-in users. */
 CREATE TABLE "session" (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
     expires_at TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+/* Purpose: Refresh the session updated_at value on session updates. */
+CREATE TRIGGER set_session_updated_at
+BEFORE UPDATE ON "session"
+FOR EACH ROW
+EXECUTE FUNCTION moddatetime(updated_at);
+
+/* Purpose: Speed up session lookups by user. */
 CREATE INDEX idx_session_user_id ON "session"(user_id);
+/* Purpose: Speed up expired session cleanup. */
 CREATE INDEX idx_session_expires_at ON "session"(expires_at);
 
+/* Purpose: Store board posts written by users. */
 CREATE TABLE posts (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title VARCHAR(120) NOT NULL,
@@ -42,9 +55,18 @@ CREATE TABLE posts (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+/* Purpose: Refresh the post updated_at value on content or counter changes. */
+CREATE TRIGGER set_posts_updated_at
+BEFORE UPDATE ON posts
+FOR EACH ROW
+EXECUTE FUNCTION moddatetime(updated_at);
+
+/* Purpose: Speed up post list filtering by author. */
 CREATE INDEX idx_posts_author_id ON posts(author_id);
+/* Purpose: Speed up recent post ordering. */
 CREATE INDEX idx_posts_created_at ON posts(created_at DESC);
 
+/* Purpose: Store comments attached to board posts. */
 CREATE TABLE comments (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
@@ -54,8 +76,16 @@ CREATE TABLE comments (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+/* Purpose: Refresh the comment updated_at value on content changes. */
+CREATE TRIGGER set_comments_updated_at
+BEFORE UPDATE ON comments
+FOR EACH ROW
+EXECUTE FUNCTION moddatetime(updated_at);
+
+/* Purpose: Speed up comment list loading by post. */
 CREATE INDEX idx_comments_post_id ON comments(post_id);
 
+/* Purpose: Store operational projects and their ownership. */
 CREATE TABLE projects (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(120) NOT NULL,
@@ -76,10 +106,20 @@ CREATE TABLE projects (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+/* Purpose: Refresh the project updated_at value on project changes. */
+CREATE TRIGGER set_projects_updated_at
+BEFORE UPDATE ON projects
+FOR EACH ROW
+EXECUTE FUNCTION moddatetime(updated_at);
+
+/* Purpose: Speed up project filtering by status. */
 CREATE INDEX idx_projects_status ON projects(status);
+/* Purpose: Speed up project lookup by owner. */
 CREATE INDEX idx_projects_owner_id ON projects(owner_id);
+/* Purpose: Speed up recent project ordering. */
 CREATE INDEX idx_projects_created_at ON projects(created_at DESC);
 
+/* Purpose: Store project tasks with assignment, status, and priority. */
 CREATE TABLE tasks (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -99,10 +139,20 @@ CREATE TABLE tasks (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+/* Purpose: Refresh the task updated_at value on task changes. */
+CREATE TRIGGER set_tasks_updated_at
+BEFORE UPDATE ON tasks
+FOR EACH ROW
+EXECUTE FUNCTION moddatetime(updated_at);
+
+/* Purpose: Speed up task lists by project. */
 CREATE INDEX idx_tasks_project_id ON tasks(project_id);
+/* Purpose: Speed up task lists by assignee. */
 CREATE INDEX idx_tasks_assignee_id ON tasks(assignee_id);
+/* Purpose: Speed up task filtering by status. */
 CREATE INDEX idx_tasks_status ON tasks(status);
 
+/* Purpose: Store project approval requests and review results. */
 CREATE TABLE approval_requests (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -121,6 +171,15 @@ CREATE TABLE approval_requests (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+/* Purpose: Refresh the approval request updated_at value on review changes. */
+CREATE TRIGGER set_approval_requests_updated_at
+BEFORE UPDATE ON approval_requests
+FOR EACH ROW
+EXECUTE FUNCTION moddatetime(updated_at);
+
+/* Purpose: Speed up approval request filtering by project. */
 CREATE INDEX idx_approval_requests_project_id ON approval_requests(project_id);
+/* Purpose: Speed up approval request filtering by status. */
 CREATE INDEX idx_approval_requests_status ON approval_requests(status);
+/* Purpose: Speed up approval request filtering by requester. */
 CREATE INDEX idx_approval_requests_requester_id ON approval_requests(requester_id);

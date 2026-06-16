@@ -22,7 +22,7 @@ const listActiveUsersIR: any = {
     usedParamSet: {},
     params: [],
     statement:
-        'SELECT\n    id,\n    email,\n    display_name AS "displayName",\n    role\nFROM "user"\nWHERE status = \'ACTIVE\'\nORDER BY display_name ASC'
+        'SELECT\n    id,\n    email,\n    display_name AS "displayName",\n    role\nFROM "user"\nWHERE status = \'ACTIVE\'\nORDER BY display_name ASC                                                                         '
 };
 
 /**
@@ -107,7 +107,7 @@ const listProjectsIR: any = {
         { name: "offset", required: false, transform: { type: "scalar" }, locs: [{ a: 1207, b: 1213 }] }
     ],
     statement:
-        'SELECT\n    p.id,\n    p.name,\n    p.description,\n    p.status,\n    p.owner_id AS "ownerId",\n    owner.display_name AS "ownerName",\n    p.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM tasks t\n        WHERE t.project_id = p.id\n    ) AS "taskCount",\n    (\n        SELECT count(*)::int4\n        FROM tasks t\n        WHERE t.project_id = p.id\n          AND t.status <> \'DONE\'\n    ) AS "openTaskCount",\n    (\n        SELECT count(*)::int4\n        FROM approval_requests ar\n        WHERE ar.project_id = p.id\n          AND ar.status = \'PENDING\'\n    ) AS "pendingRequestCount"\nFROM projects p\nINNER JOIN "user" owner ON owner.id = p.owner_id\nINNER JOIN "user" creator ON creator.id = p.created_by_id\nWHERE (:search::text IS NULL OR p.name ILIKE \'%\' || :search::text || \'%\' OR p.description ILIKE \'%\' || :search::text || \'%\')\n  AND (:status::text IS NULL OR p.status = :status::text)\nORDER BY\n    CASE WHEN :sort = \'name\' THEN p.name END ASC NULLS LAST,\n    CASE WHEN :sort = \'oldest\' THEN p.created_at END ASC NULLS LAST,\n    p.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4'
+        'SELECT\n    p.id,\n    p.name,\n    p.description,\n    p.status,\n    p.owner_id AS "ownerId",\n    owner.display_name AS "ownerName",\n    p.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM tasks t\n        WHERE t.project_id = p.id\n    ) AS "taskCount",\n    (\n        SELECT count(*)::int4\n        FROM tasks t\n        WHERE t.project_id = p.id\n          AND t.status <> \'DONE\'\n    ) AS "openTaskCount",\n    (\n        SELECT count(*)::int4\n        FROM approval_requests ar\n        WHERE ar.project_id = p.id\n          AND ar.status = \'PENDING\'\n    ) AS "pendingRequestCount"\nFROM projects p\nINNER JOIN "user" owner ON owner.id = p.owner_id\nINNER JOIN "user" creator ON creator.id = p.created_by_id\nWHERE (:search::text IS NULL OR p.name ILIKE \'%\' || :search::text || \'%\' OR p.description ILIKE \'%\' || :search::text || \'%\')\n  AND (:status::text IS NULL OR p.status = :status::text)\nORDER BY\n    CASE WHEN :sort = \'name\' THEN p.name END ASC NULLS LAST,\n    CASE WHEN :sort = \'oldest\' THEN p.created_at END ASC NULLS LAST,\n    p.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4                                                          '
 };
 
 /**
@@ -197,7 +197,7 @@ const countProjectsIR: any = {
         }
     ],
     statement:
-        "SELECT count(*)::int4 AS total\nFROM projects p\nWHERE (:search::text IS NULL OR p.name ILIKE '%' || :search::text || '%' OR p.description ILIKE '%' || :search::text || '%')\n  AND (:status::text IS NULL OR p.status = :status::text)"
+        "SELECT count(*)::int4 AS total\nFROM projects p\nWHERE (:search::text IS NULL OR p.name ILIKE '%' || :search::text || '%' OR p.description ILIKE '%' || :search::text || '%')\n  AND (:status::text IS NULL OR p.status = :status::text)                                                                               "
 };
 
 /**
@@ -243,7 +243,7 @@ const getProjectByIdIR: any = {
     usedParamSet: { projectId: true },
     params: [{ name: "projectId", required: false, transform: { type: "scalar" }, locs: [{ a: 850, b: 859 }] }],
     statement:
-        'SELECT\n    p.id,\n    p.name,\n    p.description,\n    p.status,\n    p.owner_id AS "ownerId",\n    owner.display_name AS "ownerName",\n    p.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM tasks t\n        WHERE t.project_id = p.id\n    ) AS "taskCount",\n    (\n        SELECT count(*)::int4\n        FROM tasks t\n        WHERE t.project_id = p.id\n          AND t.status <> \'DONE\'\n    ) AS "openTaskCount",\n    (\n        SELECT count(*)::int4\n        FROM approval_requests ar\n        WHERE ar.project_id = p.id\n          AND ar.status = \'PENDING\'\n    ) AS "pendingRequestCount"\nFROM projects p\nINNER JOIN "user" owner ON owner.id = p.owner_id\nINNER JOIN "user" creator ON creator.id = p.created_by_id\nWHERE p.id = :projectId::int4'
+        'SELECT\n    p.id,\n    p.name,\n    p.description,\n    p.status,\n    p.owner_id AS "ownerId",\n    owner.display_name AS "ownerName",\n    p.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM tasks t\n        WHERE t.project_id = p.id\n    ) AS "taskCount",\n    (\n        SELECT count(*)::int4\n        FROM tasks t\n        WHERE t.project_id = p.id\n          AND t.status <> \'DONE\'\n    ) AS "openTaskCount",\n    (\n        SELECT count(*)::int4\n        FROM approval_requests ar\n        WHERE ar.project_id = p.id\n          AND ar.status = \'PENDING\'\n    ) AS "pendingRequestCount"\nFROM projects p\nINNER JOIN "user" owner ON owner.id = p.owner_id\nINNER JOIN "user" creator ON creator.id = p.created_by_id\nWHERE p.id = :projectId::int4                                                      '
 };
 
 /**
@@ -323,7 +323,7 @@ const createProjectIR: any = {
         }
     ],
     statement:
-        "INSERT INTO projects (name, description, status, owner_id, created_by_id)\nVALUES (:name, :description, :status, COALESCE(:ownerId::int4, :createdById::int4), :createdById::int4)\nRETURNING id"
+        "INSERT INTO projects (name, description, status, owner_id, created_by_id)\nVALUES (:name, :description, :status, COALESCE(:ownerId::int4, :createdById::int4), :createdById::int4)\nRETURNING id                                              "
 };
 
 /**
@@ -366,7 +366,7 @@ const updateProjectIR: any = {
         { name: "projectId", required: false, transform: { type: "scalar" }, locs: [{ a: 228, b: 237 }] }
     ],
     statement:
-        "UPDATE projects\nSET\n    name = COALESCE(:name, name),\n    description = COALESCE(:description, description),\n    status = COALESCE(:status, status),\n    owner_id = COALESCE(:ownerId, owner_id),\n    updated_at = now()\nWHERE id = :projectId::int4\nRETURNING id"
+        "UPDATE projects\nSET\n    name = COALESCE(:name, name),\n    description = COALESCE(:description, description),\n    status = COALESCE(:status, status),\n    owner_id = COALESCE(:ownerId, owner_id),\n    updated_at = now()\nWHERE id = :projectId::int4\nRETURNING id                                                               "
 };
 
 /**
@@ -417,7 +417,7 @@ const listTasksByProjectIdIR: any = {
     usedParamSet: { projectId: true },
     params: [{ name: "projectId", required: false, transform: { type: "scalar" }, locs: [{ a: 563, b: 572 }] }],
     statement:
-        'SELECT\n    t.id,\n    t.project_id AS "projectId",\n    p.name AS "projectName",\n    t.title,\n    t.description,\n    t.status,\n    t.priority,\n    t.assignee_id AS "assigneeId",\n    assignee.display_name AS "assigneeName",\n    t.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    t.created_at AS "createdAt",\n    t.updated_at AS "updatedAt"\nFROM tasks t\nINNER JOIN projects p ON p.id = t.project_id\nINNER JOIN "user" creator ON creator.id = t.created_by_id\nLEFT JOIN "user" assignee ON assignee.id = t.assignee_id\nWHERE t.project_id = :projectId::int4\nORDER BY\n    CASE t.status WHEN \'IN_PROGRESS\' THEN 1 WHEN \'TODO\' THEN 2 ELSE 3 END ASC,\n    CASE t.priority WHEN \'HIGH\' THEN 1 WHEN \'MEDIUM\' THEN 2 ELSE 3 END ASC,\n    t.created_at DESC'
+        'SELECT\n    t.id,\n    t.project_id AS "projectId",\n    p.name AS "projectName",\n    t.title,\n    t.description,\n    t.status,\n    t.priority,\n    t.assignee_id AS "assigneeId",\n    assignee.display_name AS "assigneeName",\n    t.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    t.created_at AS "createdAt",\n    t.updated_at AS "updatedAt"\nFROM tasks t\nINNER JOIN projects p ON p.id = t.project_id\nINNER JOIN "user" creator ON creator.id = t.created_by_id\nLEFT JOIN "user" assignee ON assignee.id = t.assignee_id\nWHERE t.project_id = :projectId::int4\nORDER BY\n    CASE t.status WHEN \'IN_PROGRESS\' THEN 1 WHEN \'TODO\' THEN 2 ELSE 3 END ASC,\n    CASE t.priority WHEN \'HIGH\' THEN 1 WHEN \'MEDIUM\' THEN 2 ELSE 3 END ASC,\n    t.created_at DESC                                                                '
 };
 
 /**
@@ -484,7 +484,7 @@ const getTaskByIdIR: any = {
     usedParamSet: { taskId: true },
     params: [{ name: "taskId", required: false, transform: { type: "scalar" }, locs: [{ a: 555, b: 561 }] }],
     statement:
-        'SELECT\n    t.id,\n    t.project_id AS "projectId",\n    p.name AS "projectName",\n    t.title,\n    t.description,\n    t.status,\n    t.priority,\n    t.assignee_id AS "assigneeId",\n    assignee.display_name AS "assigneeName",\n    t.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    t.created_at AS "createdAt",\n    t.updated_at AS "updatedAt"\nFROM tasks t\nINNER JOIN projects p ON p.id = t.project_id\nINNER JOIN "user" creator ON creator.id = t.created_by_id\nLEFT JOIN "user" assignee ON assignee.id = t.assignee_id\nWHERE t.id = :taskId::int4'
+        'SELECT\n    t.id,\n    t.project_id AS "projectId",\n    p.name AS "projectName",\n    t.title,\n    t.description,\n    t.status,\n    t.priority,\n    t.assignee_id AS "assigneeId",\n    assignee.display_name AS "assigneeName",\n    t.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    t.created_at AS "createdAt",\n    t.updated_at AS "updatedAt"\nFROM tasks t\nINNER JOIN projects p ON p.id = t.project_id\nINNER JOIN "user" creator ON creator.id = t.created_by_id\nLEFT JOIN "user" assignee ON assignee.id = t.assignee_id\nWHERE t.id = :taskId::int4                                                                 '
 };
 
 /**
@@ -556,7 +556,7 @@ const createTaskIR: any = {
         { name: "createdById", required: false, transform: { type: "scalar" }, locs: [{ a: 302, b: 313 }] }
     ],
     statement:
-        'WITH target_project AS (\n    SELECT id\n    FROM projects\n    WHERE id = :projectId::int4\n),\ncreated_task AS (\n    INSERT INTO tasks (project_id, title, description, status, priority, assignee_id, created_by_id)\n    SELECT target_project.id, :title, :description, :status, :priority, :assigneeId::int4, :createdById::int4\n    FROM target_project\n    RETURNING id\n)\nSELECT\n    target_project.id AS "projectId",\n    created_task.id AS "taskId"\nFROM target_project\nLEFT JOIN created_task ON true'
+        'WITH target_project AS (\n    SELECT id\n    FROM projects\n    WHERE id = :projectId::int4\n),\ncreated_task AS (\n    INSERT INTO tasks (project_id, title, description, status, priority, assignee_id, created_by_id)\n    SELECT target_project.id, :title, :description, :status, :priority, :assigneeId::int4, :createdById::int4\n    FROM target_project\n    RETURNING id\n)\nSELECT\n    target_project.id AS "projectId",\n    created_task.id AS "taskId"\nFROM target_project\nLEFT JOIN created_task ON true                                                                '
 };
 
 /**
@@ -643,7 +643,7 @@ const updateTaskIR: any = {
         { name: "adminFieldPatch", required: false, transform: { type: "scalar" }, locs: [{ a: 710, b: 725 }] }
     ],
     statement:
-        'WITH target_task AS (\n    SELECT id, assignee_id\n    FROM tasks\n    WHERE id = :taskId::int4\n),\nupdated_task AS (\n    UPDATE tasks t\n    SET\n        title = COALESCE(:title, t.title),\n        description = COALESCE(:description, t.description),\n        status = COALESCE(:status, t.status),\n        priority = COALESCE(:priority, t.priority),\n        assignee_id = CASE WHEN :replaceAssignee::bool THEN :assigneeId::int4 ELSE t.assignee_id END,\n        updated_at = now()\n    FROM target_task\n    WHERE t.id = target_task.id\n      AND (\n          :actorRole::text = \'ADMIN\'\n          OR (\n              target_task.assignee_id = :actorId::int4\n              AND :status::text IS NOT NULL\n              AND NOT :adminFieldPatch::bool\n          )\n      )\n    RETURNING t.id\n)\nSELECT\n    target_task.id,\n    target_task.assignee_id AS "assigneeId",\n    updated_task.id AS "updatedId"\nFROM target_task\nLEFT JOIN updated_task ON true'
+        'WITH target_task AS (\n    SELECT id, assignee_id\n    FROM tasks\n    WHERE id = :taskId::int4\n),\nupdated_task AS (\n    UPDATE tasks t\n    SET\n        title = COALESCE(:title, t.title),\n        description = COALESCE(:description, t.description),\n        status = COALESCE(:status, t.status),\n        priority = COALESCE(:priority, t.priority),\n        assignee_id = CASE WHEN :replaceAssignee::bool THEN :assigneeId::int4 ELSE t.assignee_id END,\n        updated_at = now()\n    FROM target_task\n    WHERE t.id = target_task.id\n      AND (\n          :actorRole::text = \'ADMIN\'\n          OR (\n              target_task.assignee_id = :actorId::int4\n              AND :status::text IS NOT NULL\n              AND NOT :adminFieldPatch::bool\n          )\n      )\n    RETURNING t.id\n)\nSELECT\n    target_task.id,\n    target_task.assignee_id AS "assigneeId",\n    updated_task.id AS "updatedId"\nFROM target_task\nLEFT JOIN updated_task ON true                                                                         '
 };
 
 /**
@@ -755,7 +755,7 @@ const listApprovalRequestsIR: any = {
         { name: "offset", required: false, transform: { type: "scalar" }, locs: [{ a: 1017, b: 1023 }] }
     ],
     statement:
-        'SELECT\n    ar.id,\n    ar.project_id AS "projectId",\n    p.name AS "projectName",\n    ar.title,\n    ar.description,\n    ar.status,\n    ar.requester_id AS "requesterId",\n    requester.display_name AS "requesterName",\n    ar.reviewer_id AS "reviewerId",\n    reviewer.display_name AS "reviewerName",\n    ar.reviewed_at AS "reviewedAt",\n    ar.review_comment AS "reviewComment",\n    ar.created_at AS "createdAt",\n    ar.updated_at AS "updatedAt"\nFROM approval_requests ar\nINNER JOIN projects p ON p.id = ar.project_id\nINNER JOIN "user" requester ON requester.id = ar.requester_id\nLEFT JOIN "user" reviewer ON reviewer.id = ar.reviewer_id\nWHERE (:search::text IS NULL OR ar.title ILIKE \'%\' || :search::text || \'%\' OR ar.description ILIKE \'%\' || :search::text || \'%\')\n  AND (:projectId::int4 IS NULL OR ar.project_id = :projectId::int4)\n  AND (:status::text IS NULL OR ar.status = :status::text)\nORDER BY\n    CASE WHEN :sort = \'oldest\' THEN ar.created_at END ASC NULLS LAST,\n    ar.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4'
+        'SELECT\n    ar.id,\n    ar.project_id AS "projectId",\n    p.name AS "projectName",\n    ar.title,\n    ar.description,\n    ar.status,\n    ar.requester_id AS "requesterId",\n    requester.display_name AS "requesterName",\n    ar.reviewer_id AS "reviewerId",\n    reviewer.display_name AS "reviewerName",\n    ar.reviewed_at AS "reviewedAt",\n    ar.review_comment AS "reviewComment",\n    ar.created_at AS "createdAt",\n    ar.updated_at AS "updatedAt"\nFROM approval_requests ar\nINNER JOIN projects p ON p.id = ar.project_id\nINNER JOIN "user" requester ON requester.id = ar.requester_id\nLEFT JOIN "user" reviewer ON reviewer.id = ar.reviewer_id\nWHERE (:search::text IS NULL OR ar.title ILIKE \'%\' || :search::text || \'%\' OR ar.description ILIKE \'%\' || :search::text || \'%\')\n  AND (:projectId::int4 IS NULL OR ar.project_id = :projectId::int4)\n  AND (:status::text IS NULL OR ar.status = :status::text)\nORDER BY\n    CASE WHEN :sort = \'oldest\' THEN ar.created_at END ASC NULLS LAST,\n    ar.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4                                                                   '
 };
 
 /**
@@ -845,7 +845,7 @@ const countApprovalRequestsIR: any = {
         }
     ],
     statement:
-        "SELECT count(*)::int4 AS total\nFROM approval_requests ar\nWHERE (:search::text IS NULL OR ar.title ILIKE '%' || :search::text || '%' OR ar.description ILIKE '%' || :search::text || '%')\n  AND (:projectId::int4 IS NULL OR ar.project_id = :projectId::int4)\n  AND (:status::text IS NULL OR ar.status = :status::text)"
+        "SELECT count(*)::int4 AS total\nFROM approval_requests ar\nWHERE (:search::text IS NULL OR ar.title ILIKE '%' || :search::text || '%' OR ar.description ILIKE '%' || :search::text || '%')\n  AND (:projectId::int4 IS NULL OR ar.project_id = :projectId::int4)\n  AND (:status::text IS NULL OR ar.status = :status::text)                                                                            "
 };
 
 /**
@@ -895,7 +895,7 @@ const getApprovalRequestByIdIR: any = {
     usedParamSet: { requestId: true },
     params: [{ name: "requestId", required: false, transform: { type: "scalar" }, locs: [{ a: 647, b: 656 }] }],
     statement:
-        'SELECT\n    ar.id,\n    ar.project_id AS "projectId",\n    p.name AS "projectName",\n    ar.title,\n    ar.description,\n    ar.status,\n    ar.requester_id AS "requesterId",\n    requester.display_name AS "requesterName",\n    ar.reviewer_id AS "reviewerId",\n    reviewer.display_name AS "reviewerName",\n    ar.reviewed_at AS "reviewedAt",\n    ar.review_comment AS "reviewComment",\n    ar.created_at AS "createdAt",\n    ar.updated_at AS "updatedAt"\nFROM approval_requests ar\nINNER JOIN projects p ON p.id = ar.project_id\nINNER JOIN "user" requester ON requester.id = ar.requester_id\nLEFT JOIN "user" reviewer ON reviewer.id = ar.reviewer_id\nWHERE ar.id = :requestId::int4'
+        'SELECT\n    ar.id,\n    ar.project_id AS "projectId",\n    p.name AS "projectName",\n    ar.title,\n    ar.description,\n    ar.status,\n    ar.requester_id AS "requesterId",\n    requester.display_name AS "requesterName",\n    ar.reviewer_id AS "reviewerId",\n    reviewer.display_name AS "reviewerName",\n    ar.reviewed_at AS "reviewedAt",\n    ar.review_comment AS "reviewComment",\n    ar.created_at AS "createdAt",\n    ar.updated_at AS "updatedAt"\nFROM approval_requests ar\nINNER JOIN projects p ON p.id = ar.project_id\nINNER JOIN "user" requester ON requester.id = ar.requester_id\nLEFT JOIN "user" reviewer ON reviewer.id = ar.reviewer_id\nWHERE ar.id = :requestId::int4                                                                         '
 };
 
 /**
@@ -956,7 +956,7 @@ const createApprovalRequestIR: any = {
         { name: "requesterId", required: false, transform: { type: "scalar" }, locs: [{ a: 265, b: 276 }] }
     ],
     statement:
-        'WITH target_project AS (\n    SELECT id\n    FROM projects\n    WHERE id = :projectId::int4\n),\ncreated_request AS (\n    INSERT INTO approval_requests (project_id, title, description, status, requester_id)\n    SELECT target_project.id, :title, :description, \'PENDING\', :requesterId::int4\n    FROM target_project\n    RETURNING id\n)\nSELECT\n    target_project.id AS "projectId",\n    created_request.id AS "requestId"\nFROM target_project\nLEFT JOIN created_request ON true'
+        'WITH target_project AS (\n    SELECT id\n    FROM projects\n    WHERE id = :projectId::int4\n),\ncreated_request AS (\n    INSERT INTO approval_requests (project_id, title, description, status, requester_id)\n    SELECT target_project.id, :title, :description, \'PENDING\', :requesterId::int4\n    FROM target_project\n    RETURNING id\n)\nSELECT\n    target_project.id AS "projectId",\n    created_request.id AS "requestId"\nFROM target_project\nLEFT JOIN created_request ON true                                                      '
 };
 
 /**
@@ -1014,7 +1014,7 @@ const reviewApprovalRequestIR: any = {
         { name: "reviewComment", required: false, transform: { type: "scalar" }, locs: [{ a: 296, b: 309 }] }
     ],
     statement:
-        "WITH target_request AS (\n    SELECT id, status\n    FROM approval_requests\n    WHERE id = :requestId::int4\n),\nreviewed_request AS (\n    UPDATE approval_requests ar\n    SET\n        status = :nextStatus,\n        reviewer_id = :reviewerId::int4,\n        reviewed_at = now(),\n        review_comment = :reviewComment,\n        updated_at = now()\n    FROM target_request\n    WHERE ar.id = target_request.id\n      AND target_request.status = 'PENDING'\n    RETURNING ar.id\n)\nSELECT\n    target_request.id,\n    target_request.status,\n    reviewed_request.id AS \"reviewedId\"\nFROM target_request\nLEFT JOIN reviewed_request ON true"
+        "WITH target_request AS (\n    SELECT id, status\n    FROM approval_requests\n    WHERE id = :requestId::int4\n),\nreviewed_request AS (\n    UPDATE approval_requests ar\n    SET\n        status = :nextStatus,\n        reviewer_id = :reviewerId::int4,\n        reviewed_at = now(),\n        review_comment = :reviewComment,\n        updated_at = now()\n    FROM target_request\n    WHERE ar.id = target_request.id\n      AND target_request.status = 'PENDING'\n    RETURNING ar.id\n)\nSELECT\n    target_request.id,\n    target_request.status,\n    reviewed_request.id AS \"reviewedId\"\nFROM target_request\nLEFT JOIN reviewed_request ON true                                             "
 };
 
 /**
@@ -1069,7 +1069,7 @@ const getDashboardCountsIR: any = {
     usedParamSet: {},
     params: [],
     statement:
-        "SELECT\n    (\n        SELECT count(*)::int4\n        FROM projects\n        WHERE status = 'ACTIVE'\n    ) AS \"activeProjectCount\",\n    (\n        SELECT count(*)::int4\n        FROM tasks\n        WHERE status = 'IN_PROGRESS'\n    ) AS \"inProgressTaskCount\""
+        "SELECT\n    (\n        SELECT count(*)::int4\n        FROM projects\n        WHERE status = 'ACTIVE'\n    ) AS \"activeProjectCount\",\n    (\n        SELECT count(*)::int4\n        FROM tasks\n        WHERE status = 'IN_PROGRESS'\n    ) AS \"inProgressTaskCount\"                                                            "
 };
 
 /**
@@ -1128,7 +1128,7 @@ const listDashboardMyTasksIR: any = {
         { name: "limit", required: false, transform: { type: "scalar" }, locs: [{ a: 799, b: 804 }] }
     ],
     statement:
-        'SELECT\n    t.id,\n    t.project_id AS "projectId",\n    p.name AS "projectName",\n    t.title,\n    t.description,\n    t.status,\n    t.priority,\n    t.assignee_id AS "assigneeId",\n    assignee.display_name AS "assigneeName",\n    t.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    t.created_at AS "createdAt",\n    t.updated_at AS "updatedAt"\nFROM tasks t\nINNER JOIN projects p ON p.id = t.project_id\nINNER JOIN "user" creator ON creator.id = t.created_by_id\nLEFT JOIN "user" assignee ON assignee.id = t.assignee_id\nWHERE t.assignee_id = :assigneeId::int4\n  AND t.status <> \'DONE\'\nORDER BY\n    CASE t.status WHEN \'IN_PROGRESS\' THEN 1 WHEN \'TODO\' THEN 2 ELSE 3 END ASC,\n    CASE t.priority WHEN \'HIGH\' THEN 1 WHEN \'MEDIUM\' THEN 2 ELSE 3 END ASC,\n    t.updated_at DESC\nLIMIT :limit::int4'
+        'SELECT\n    t.id,\n    t.project_id AS "projectId",\n    p.name AS "projectName",\n    t.title,\n    t.description,\n    t.status,\n    t.priority,\n    t.assignee_id AS "assigneeId",\n    assignee.display_name AS "assigneeName",\n    t.created_by_id AS "createdById",\n    creator.display_name AS "createdByName",\n    t.created_at AS "createdAt",\n    t.updated_at AS "updatedAt"\nFROM tasks t\nINNER JOIN projects p ON p.id = t.project_id\nINNER JOIN "user" creator ON creator.id = t.created_by_id\nLEFT JOIN "user" assignee ON assignee.id = t.assignee_id\nWHERE t.assignee_id = :assigneeId::int4\n  AND t.status <> \'DONE\'\nORDER BY\n    CASE t.status WHEN \'IN_PROGRESS\' THEN 1 WHEN \'TODO\' THEN 2 ELSE 3 END ASC,\n    CASE t.priority WHEN \'HIGH\' THEN 1 WHEN \'MEDIUM\' THEN 2 ELSE 3 END ASC,\n    t.updated_at DESC\nLIMIT :limit::int4                                                                '
 };
 
 /**
@@ -1198,7 +1198,7 @@ const listDashboardPendingRequestsIR: any = {
     usedParamSet: { limit: true },
     params: [{ name: "limit", required: false, transform: { type: "scalar" }, locs: [{ a: 695, b: 700 }] }],
     statement:
-        'SELECT\n    ar.id,\n    ar.project_id AS "projectId",\n    p.name AS "projectName",\n    ar.title,\n    ar.description,\n    ar.status,\n    ar.requester_id AS "requesterId",\n    requester.display_name AS "requesterName",\n    ar.reviewer_id AS "reviewerId",\n    reviewer.display_name AS "reviewerName",\n    ar.reviewed_at AS "reviewedAt",\n    ar.review_comment AS "reviewComment",\n    ar.created_at AS "createdAt",\n    ar.updated_at AS "updatedAt"\nFROM approval_requests ar\nINNER JOIN projects p ON p.id = ar.project_id\nINNER JOIN "user" requester ON requester.id = ar.requester_id\nLEFT JOIN "user" reviewer ON reviewer.id = ar.reviewer_id\nWHERE ar.status = \'PENDING\'\nORDER BY ar.created_at DESC\nLIMIT :limit::int4'
+        'SELECT\n    ar.id,\n    ar.project_id AS "projectId",\n    p.name AS "projectName",\n    ar.title,\n    ar.description,\n    ar.status,\n    ar.requester_id AS "requesterId",\n    requester.display_name AS "requesterName",\n    ar.reviewer_id AS "reviewerId",\n    reviewer.display_name AS "reviewerName",\n    ar.reviewed_at AS "reviewedAt",\n    ar.review_comment AS "reviewComment",\n    ar.created_at AS "createdAt",\n    ar.updated_at AS "updatedAt"\nFROM approval_requests ar\nINNER JOIN projects p ON p.id = ar.project_id\nINNER JOIN "user" requester ON requester.id = ar.requester_id\nLEFT JOIN "user" reviewer ON reviewer.id = ar.reviewer_id\nWHERE ar.status = \'PENDING\'\nORDER BY ar.created_at DESC\nLIMIT :limit::int4                                                         '
 };
 
 /**

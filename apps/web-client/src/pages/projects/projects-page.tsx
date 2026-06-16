@@ -5,8 +5,6 @@ import {
     ButtonGroup,
     Card,
     CardDescription,
-    CardHeader,
-    CardTitle,
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
@@ -23,18 +21,19 @@ import {
     TableRow
 } from "@nmm/ui/components";
 import { Link } from "@tanstack/react-router";
-import { Plus, Search } from "lucide-react";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { Suspense, type ChangeEvent, type FormEvent, useEffect, useMemo, useState } from "react";
 
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useProjects } from "../../features/projects/hooks/use-projects";
+import { SectionSkeleton } from "../../app/section-skeleton";
+import { useSuspenseProjects } from "../../features/projects/hooks/use-projects";
 import { projectStatusLabels } from "../../features/projects/model/project-labels";
-import { canManageProjects } from "../../features/projects/model/project-permissions";
 import {
     getProjectTotalPages,
     toProjectListQuery,
     useProjectSearchParams
 } from "../../features/projects/model/project-search";
+
+type SetProjectSearch = ReturnType<typeof useProjectSearchParams>[1];
 
 const projectSortOptions: Array<{ label: string; value: ProjectListQuery["sort"] }> = [
     { label: "Latest", value: "latest" },
@@ -53,18 +52,12 @@ export function ProjectsPage() {
     const [search, setSearch] = useProjectSearchParams();
     const [searchDraft, setSearchDraft] = useState(search.search);
     const query = useMemo(() => toProjectListQuery(search), [search]);
-    const currentUser = useCurrentUserQuery().data;
-    const projectsQuery = useProjects(query);
-    const projectsData = projectsQuery.data;
-    const currentPage = projectsData?.page ?? search.page;
-    const totalPages = getProjectTotalPages(projectsData?.total ?? 0);
-    const canCreateProject = canManageProjects(currentUser);
 
     useEffect(() => {
         setSearchDraft(search.search);
     }, [search.search]);
 
-    function handleSearchInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    function handleSearchInputChange(event: ChangeEvent<HTMLInputElement>) {
         setSearchDraft(event.target.value);
     }
 
@@ -90,35 +83,8 @@ export function ProjectsPage() {
         });
     }
 
-    function handlePreviousPageClick() {
-        void setSearch((current) => ({
-            page: Math.max(1, current.page - 1)
-        }));
-    }
-
-    function handleNextPageClick() {
-        void setSearch((current) => ({
-            page: Math.min(totalPages, current.page + 1)
-        }));
-    }
-
     return (
         <section className="grid gap-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <CardHeader className="min-w-0 flex-1 px-0">
-                    <CardTitle>Projects</CardTitle>
-                    <CardDescription>Track initiatives, tasks, and approvals.</CardDescription>
-                </CardHeader>
-                {canCreateProject ? (
-                    <Button asChild>
-                        <Link to="/projects/new">
-                            <Plus />
-                            New project
-                        </Link>
-                    </Button>
-                ) : null}
-            </div>
-
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px_170px]">
                 <form className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]" onSubmit={handleSearchSubmit}>
                     <InputGroup>
@@ -163,85 +129,95 @@ export function ProjectsPage() {
                 </Select>
             </div>
 
-            {projectsQuery.isError ? (
-                <Card>
-                    <CardHeader>
-                        <CardDescription>Could not load projects.</CardDescription>
-                    </CardHeader>
-                </Card>
-            ) : null}
-            {projectsQuery.isPending ? (
-                <Card>
-                    <CardHeader>
-                        <CardDescription>Loading projects...</CardDescription>
-                    </CardHeader>
-                </Card>
-            ) : null}
-            {projectsData ? (
-                <>
-                    <Card className="gap-0 py-0">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Project</TableHead>
-                                    <TableHead className="hidden md:table-cell">Owner</TableHead>
-                                    <TableHead className="hidden lg:table-cell">Work</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {projectsData.items.map((project) => (
-                                    <TableRow key={project.id}>
-                                        <TableCell>
-                                            <div className="grid gap-1">
-                                                <Link
-                                                    to="/projects/$projectId"
-                                                    params={{ projectId: String(project.id) }}
-                                                >
-                                                    {project.name}
-                                                </Link>
-                                                <CardDescription className="line-clamp-1">
-                                                    {project.description}
-                                                </CardDescription>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell">{project.ownerName}</TableCell>
-                                        <TableCell className="hidden lg:table-cell">
-                                            {project.openTaskCount} open tasks · {project.pendingRequestCount} pending
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant="secondary">{projectStatusLabels[project.status]}</Badge>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </Card>
-                    <div className="flex items-center justify-between gap-3">
-                        <Badge variant="secondary">
-                            {currentPage} / {totalPages} · {projectsData.total} projects
-                        </Badge>
-                        <ButtonGroup>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={currentPage <= 1}
-                                onClick={handlePreviousPageClick}
-                            >
-                                Previous
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={currentPage >= totalPages}
-                                onClick={handleNextPageClick}
-                            >
-                                Next
-                            </Button>
-                        </ButtonGroup>
-                    </div>
-                </>
-            ) : null}
+            <Suspense fallback={<SectionSkeleton title="Projects" description="Loading projects..." rows={4} />}>
+                <ProjectsResult query={query} setSearch={setSearch} />
+            </Suspense>
         </section>
     );
 }
+
+function ProjectsResult({ query, setSearch }: ProjectsResultProps) {
+    const projectsData = useSuspenseProjects(query).data;
+    const currentPage = projectsData.page;
+    const totalPages = getProjectTotalPages(projectsData.total);
+
+    function handlePreviousPageClick() {
+        void setSearch((current) => ({
+            page: Math.max(1, current.page - 1)
+        }));
+    }
+
+    function handleNextPageClick() {
+        void setSearch((current) => ({
+            page: Math.min(totalPages, current.page + 1)
+        }));
+    }
+
+    return (
+        <>
+            <Card className="gap-0 py-0">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Project</TableHead>
+                            <TableHead className="hidden md:table-cell">Owner</TableHead>
+                            <TableHead className="hidden lg:table-cell">Work</TableHead>
+                            <TableHead>Status</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {projectsData.items.map((project) => (
+                            <TableRow key={project.id}>
+                                <TableCell>
+                                    <div className="grid gap-1">
+                                        <Link to="/projects/$projectId" params={{ projectId: String(project.id) }}>
+                                            {project.name}
+                                        </Link>
+                                        <CardDescription className="line-clamp-1">
+                                            {project.description}
+                                        </CardDescription>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="hidden md:table-cell">{project.ownerName}</TableCell>
+                                <TableCell className="hidden lg:table-cell">
+                                    {project.openTaskCount} open tasks · {project.pendingRequestCount} pending
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="secondary">{projectStatusLabels[project.status]}</Badge>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </Card>
+            <div className="flex items-center justify-between gap-3">
+                <Badge variant="secondary">
+                    {currentPage} / {totalPages} · {projectsData.total} projects
+                </Badge>
+                <ButtonGroup>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled={currentPage <= 1}
+                        onClick={handlePreviousPageClick}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled={currentPage >= totalPages}
+                        onClick={handleNextPageClick}
+                    >
+                        Next
+                    </Button>
+                </ButtonGroup>
+            </div>
+        </>
+    );
+}
+
+type ProjectsResultProps = {
+    query: ProjectListQuery;
+    setSearch: SetProjectSearch;
+};

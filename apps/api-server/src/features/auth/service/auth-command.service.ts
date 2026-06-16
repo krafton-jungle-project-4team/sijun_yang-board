@@ -1,61 +1,67 @@
-import { randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
+import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
-import type { CompleteSignupInput, IdCommandResult, LoginInput, UpdateMeInput } from "@nmm/shared";
-import { InjectTransaction, Transactional, type Transaction } from "@nestjs-cls/transactional";
+import type { IdCommandResult, LoginInput, SignupInput, UpdateMeInput } from "@nmm/shared";
+import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { AppError } from "../../../app-errors";
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import {
-    completeSignup,
-    createSessionForUser,
-    deleteSessionsByUserId,
-    getLoginCredentialsByLoginId,
-    updateMe
-} from "../database/__generated__/auth.queries";
+import { DatabaseDuplicateKeyError, PgTypedTransactionalAdapter } from "../../../infra/database";
+import { accountAlreadyExistsError } from "../auth-errors";
+import { LoginCredentialsDomain } from "../domain";
+import { SessionWriter, UserReader, UserWriter } from "../repository";
 
 const passwordHashPrefix = "scrypt:v1:";
+const passwordHashLength = 64;
+const passwordSaltLength = 16;
 
 @Injectable()
 export class AuthCommandService {
     constructor(
-        @InjectTransaction()
-        private readonly db: Transaction<PgTypedTransactionalAdapter>
+        private readonly userWriter: UserWriter,
+        private readonly userReader: UserReader,
+        private readonly sessionWriter: SessionWriter
     ) {}
 
     @Transactional<PgTypedTransactionalAdapter>()
-    async completeSignup(userId: number, input: CompleteSignupInput): Promise<IdCommandResult> {
-        const user = await this.db.query(completeSignup, { userId, displayName: input.displayName }).singleOrNull();
+    async updateMe(userId: number, input: UpdateMeInput): Promise<IdCommandResult> {
+        const id = await this.userWriter.updateMe(userId, input);
 
-        if (!user) {
+        if (!id) {
             throw new AppError("NOT_FOUND", "User not found.", 404);
         }
 
-        return { id: user.id };
+        return { id };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
-    async updateMe(userId: number, input: UpdateMeInput): Promise<IdCommandResult> {
-        const user = await this.db.query(updateMe, { userId, displayName: input.displayName ?? null }).singleOrNull();
+    async signup(input: SignupInput): Promise<IdCommandResult> {
+        try {
+            const id = await this.userWriter.create({
+                displayName: input.displayName,
+                email: input.email,
+                loginId: input.loginId,
+                passwordHash: createPasswordHash(input.password)
+            });
 
-        if (!user) {
-            throw new AppError("NOT_FOUND", "User not found.", 404);
+            return { id };
+        } catch (error) {
+            if (error instanceof DatabaseDuplicateKeyError) {
+                throw accountAlreadyExistsError();
+            }
+
+            throw error;
         }
-
-        return { id: user.id };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async login(input: LoginInput): Promise<{ sessionId: string; userId: number }> {
-        const credentials = await this.db
-            .query(getLoginCredentialsByLoginId, { loginId: input.loginId })
-            .singleOrNull();
+        const credentials = await this.userReader.findCredentialsByLoginId(input.loginId);
 
         if (!credentials || !verifyPassword(input.password, credentials.passwordHash)) {
             throw new AppError("INVALID_CREDENTIALS", "Invalid ID or password.", 401);
         }
 
-        if (credentials.status === "SUSPENDED") {
+        if (LoginCredentialsDomain.isSuspended(credentials)) {
             throw new AppError("ACCOUNT_SUSPENDED", "This account is suspended.", 403);
         }
 
@@ -69,12 +75,7 @@ export class AuthCommandService {
 
     @Transactional<PgTypedTransactionalAdapter>()
     async createSession(userId: number): Promise<{ id: string; userId: number }> {
-        const session = await this.db
-            .query(createSessionForUser, {
-                sessionId: randomUUID(),
-                userId
-            })
-            .singleOrNull();
+        const session = await this.sessionWriter.createForUser(userId);
 
         if (!session) {
             throw new AppError("NOT_FOUND", "User not found.", 404);
@@ -85,8 +86,15 @@ export class AuthCommandService {
 
     @Transactional<PgTypedTransactionalAdapter>()
     async expireUserSessions(userId: number): Promise<void> {
-        await this.db.query(deleteSessionsByUserId, { userId }).multiple();
+        await this.sessionWriter.expireByUserId(userId);
     }
+}
+
+function createPasswordHash(password: string): string {
+    const salt = randomBytes(passwordSaltLength).toString("base64url");
+    const hash = scryptSync(password, salt, passwordHashLength).toString("base64");
+
+    return `${passwordHashPrefix}${salt}:${hash}`;
 }
 
 function verifyPassword(password: string, storedHash: string): boolean {

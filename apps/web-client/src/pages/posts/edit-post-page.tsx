@@ -3,17 +3,32 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } fro
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useDeletePost, usePost, useUpdatePost } from "../../features/posts/hooks/use-posts";
+import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
+import { useDeletePost, useSuspensePost, useUpdatePost } from "../../features/posts/hooks/use-posts";
 import { canManagePost } from "../../features/posts/model/post-permissions";
 import { PostForm } from "../../features/posts/ui/post-form";
 
 export function EditPostPage() {
-    const navigate = useNavigate();
     const params = useParams({ strict: false }) as { postId: string };
     const postId = Number(params.postId);
-    const currentUserQuery = useCurrentUserQuery();
-    const postQuery = usePost(postId);
+
+    if (!Number.isInteger(postId) || postId <= 0) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardDescription>Invalid post.</CardDescription>
+                </CardHeader>
+            </Card>
+        );
+    }
+
+    return <EditPostContent postId={postId} />;
+}
+
+function EditPostContent({ postId }: { postId: number }) {
+    const navigate = useNavigate();
+    const currentUser = useSuspenseCurrentUserQuery().data;
+    const post = useSuspensePost(postId).data;
     const updatePost = useUpdatePost(postId);
     const deletePost = useDeletePost(postId);
 
@@ -31,47 +46,7 @@ export function EditPostPage() {
         void navigate({ to: "/posts/$postId", params: { postId: String(postId) } });
     }
 
-    if (!Number.isInteger(postId) || postId <= 0) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Invalid post.</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
-
-    if (postQuery.isPending) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Loading post...</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
-
-    if (postQuery.isError) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Could not load post.</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
-
-    if (currentUserQuery.isPending) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Checking permissions...</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
-
-    if (!canManagePost(currentUserQuery.data, postQuery.data)) {
+    if (!canManagePost(currentUser, post)) {
         return (
             <Card>
                 <CardHeader>
@@ -106,8 +81,8 @@ export function EditPostPage() {
                 <CardContent>
                     <PostForm
                         initialValue={{
-                            title: postQuery.data.title,
-                            content: postQuery.data.content
+                            title: post.title,
+                            content: post.content
                         }}
                         pending={updatePost.isPending}
                         submitLabel="Save"

@@ -1,38 +1,15 @@
 import type { ReviewApprovalRequestInput } from "@nmm/shared";
-import {
-    Badge,
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Separator
-} from "@nmm/ui/components";
-import { Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, Separator } from "@nmm/ui/components";
+import { useParams } from "@tanstack/react-router";
 
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useApproveRequest, useRejectRequest, useRequest } from "../../features/requests/hooks/use-requests";
+import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
+import { useApproveRequest, useRejectRequest, useSuspenseRequest } from "../../features/requests/hooks/use-requests";
 import { approvalRequestStatusLabels } from "../../features/requests/model/request-labels";
 import { RequestReviewForm } from "../../features/requests/ui/request-review-form";
 
 export function RequestDetailPage() {
     const params = useParams({ strict: false }) as { requestId: string };
     const requestId = Number(params.requestId);
-    const currentUser = useCurrentUserQuery().data;
-    const requestQuery = useRequest(requestId);
-    const approveRequest = useApproveRequest(requestId);
-    const rejectRequest = useRejectRequest(requestId);
-    const isReviewPending = approveRequest.isPending || rejectRequest.isPending;
-
-    async function handleApprove(input: ReviewApprovalRequestInput) {
-        await approveRequest.mutateAsync(input);
-    }
-
-    async function handleReject(input: ReviewApprovalRequestInput) {
-        await rejectRequest.mutateAsync(input);
-    }
 
     if (!Number.isInteger(requestId) || requestId <= 0) {
         return (
@@ -44,39 +21,28 @@ export function RequestDetailPage() {
         );
     }
 
-    if (requestQuery.isPending) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Loading request...</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
+    return <RequestDetailContent requestId={requestId} />;
+}
 
-    if (requestQuery.isError) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Could not load request.</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
+function RequestDetailContent({ requestId }: { requestId: number }) {
+    const currentUser = useSuspenseCurrentUserQuery().data;
+    const request = useSuspenseRequest(requestId).data;
+    const approveRequest = useApproveRequest(requestId);
+    const rejectRequest = useRejectRequest(requestId);
+    const isReviewPending = approveRequest.isPending || rejectRequest.isPending;
 
-    const request = requestQuery.data;
     const canReview = currentUser?.role === "ADMIN" && request.status === "PENDING";
+
+    async function handleApprove(input: ReviewApprovalRequestInput) {
+        await approveRequest.mutateAsync(input);
+    }
+
+    async function handleReject(input: ReviewApprovalRequestInput) {
+        await rejectRequest.mutateAsync(input);
+    }
 
     return (
         <article className="grid gap-5">
-            <div>
-                <Button asChild variant="ghost">
-                    <Link to="/requests">
-                        <ArrowLeft />
-                        Requests
-                    </Link>
-                </Button>
-            </div>
             <CardHeader className="px-0">
                 <Badge variant="secondary">{approvalRequestStatusLabels[request.status]}</Badge>
                 <CardTitle>{request.title}</CardTitle>

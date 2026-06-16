@@ -1,3 +1,4 @@
+/* Purpose: List active users for assignment and ownership controls. */
 /* @name ListActiveUsers */
 SELECT
     id,
@@ -8,6 +9,7 @@ FROM "user"
 WHERE status = 'ACTIVE'
 ORDER BY display_name ASC;
 
+/* Purpose: List projects with filters, sorting, and aggregate counts. */
 /* @name ListProjects */
 SELECT
     p.id,
@@ -49,12 +51,14 @@ ORDER BY
 LIMIT :limit::int4
 OFFSET :offset::int4;
 
+/* Purpose: Count projects for paginated list metadata. */
 /* @name CountProjects */
 SELECT count(*)::int4 AS total
 FROM projects p
 WHERE (:search::text IS NULL OR p.name ILIKE '%' || :search::text || '%' OR p.description ILIKE '%' || :search::text || '%')
   AND (:status::text IS NULL OR p.status = :status::text);
 
+/* Purpose: Read a project detail with owner, creator, and aggregate counts. */
 /* @name GetProjectById */
 SELECT
     p.id,
@@ -89,11 +93,13 @@ INNER JOIN "user" owner ON owner.id = p.owner_id
 INNER JOIN "user" creator ON creator.id = p.created_by_id
 WHERE p.id = :projectId::int4;
 
+/* Purpose: Create a project and return its new id. */
 /* @name CreateProject */
 INSERT INTO projects (name, description, status, owner_id, created_by_id)
 VALUES (:name, :description, :status, COALESCE(:ownerId::int4, :createdById::int4), :createdById::int4)
 RETURNING id;
 
+/* Purpose: Update editable project fields. */
 /* @name UpdateProject */
 UPDATE projects
 SET
@@ -105,6 +111,7 @@ SET
 WHERE id = :projectId::int4
 RETURNING id;
 
+/* Purpose: List tasks for a project in work-priority order. */
 /* @name ListTasksByProjectId */
 SELECT
     t.id,
@@ -130,6 +137,7 @@ ORDER BY
     CASE t.priority WHEN 'HIGH' THEN 1 WHEN 'MEDIUM' THEN 2 ELSE 3 END ASC,
     t.created_at DESC;
 
+/* Purpose: Read one task with project and user display data. */
 /* @name GetTaskById */
 SELECT
     t.id,
@@ -151,6 +159,7 @@ INNER JOIN "user" creator ON creator.id = t.created_by_id
 LEFT JOIN "user" assignee ON assignee.id = t.assignee_id
 WHERE t.id = :taskId::int4;
 
+/* Purpose: Create a task only when the target project exists. */
 /* @name CreateTask */
 WITH target_project AS (
     SELECT id
@@ -169,6 +178,7 @@ SELECT
 FROM target_project
 LEFT JOIN created_task ON true;
 
+/* Purpose: Update task fields allowed for the current actor. */
 /* @name UpdateTask */
 WITH target_task AS (
     SELECT id, assignee_id
@@ -203,6 +213,7 @@ SELECT
 FROM target_task
 LEFT JOIN updated_task ON true;
 
+/* Purpose: List approval requests with filters and reviewer metadata. */
 /* @name ListApprovalRequests */
 SELECT
     ar.id,
@@ -232,6 +243,7 @@ ORDER BY
 LIMIT :limit::int4
 OFFSET :offset::int4;
 
+/* Purpose: Count approval requests for paginated list metadata. */
 /* @name CountApprovalRequests */
 SELECT count(*)::int4 AS total
 FROM approval_requests ar
@@ -239,6 +251,7 @@ WHERE (:search::text IS NULL OR ar.title ILIKE '%' || :search::text || '%' OR ar
   AND (:projectId::int4 IS NULL OR ar.project_id = :projectId::int4)
   AND (:status::text IS NULL OR ar.status = :status::text);
 
+/* Purpose: Read one approval request with project and user display data. */
 /* @name GetApprovalRequestById */
 SELECT
     ar.id,
@@ -261,6 +274,7 @@ INNER JOIN "user" requester ON requester.id = ar.requester_id
 LEFT JOIN "user" reviewer ON reviewer.id = ar.reviewer_id
 WHERE ar.id = :requestId::int4;
 
+/* Purpose: Create a pending approval request for an existing project. */
 /* @name CreateApprovalRequest */
 WITH target_project AS (
     SELECT id
@@ -279,6 +293,7 @@ SELECT
 FROM target_project
 LEFT JOIN created_request ON true;
 
+/* Purpose: Review a pending approval request once. */
 /* @name ReviewApprovalRequest */
 WITH target_request AS (
     SELECT id, status
@@ -305,6 +320,7 @@ SELECT
 FROM target_request
 LEFT JOIN reviewed_request ON true;
 
+/* Purpose: Load dashboard summary counts. */
 /* @name GetDashboardCounts */
 SELECT
     (
@@ -318,6 +334,7 @@ SELECT
         WHERE status = 'IN_PROGRESS'
     ) AS "inProgressTaskCount";
 
+/* Purpose: List the current user's open dashboard tasks. */
 /* @name ListDashboardMyTasks */
 SELECT
     t.id,
@@ -345,6 +362,7 @@ ORDER BY
     t.updated_at DESC
 LIMIT :limit::int4;
 
+/* Purpose: List pending approval requests for the dashboard. */
 /* @name ListDashboardPendingRequests */
 SELECT
     ar.id,
@@ -369,6 +387,7 @@ WHERE ar.status = 'PENDING'
 ORDER BY ar.created_at DESC
 LIMIT :limit::int4;
 
+/* Purpose: List recent board posts for the dashboard. */
 /* @name ListDashboardRecentPosts */
 SELECT
     p.id,

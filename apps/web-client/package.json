@@ -24,10 +24,11 @@
         "zod": "^4.2.1"
     },
     "devDependencies": {
+        "@tailwindcss/vite": "^4.3.0",
+        "@tanstack/router-plugin": "^1.168.18",
         "@types/node": "^24.10.1",
         "@types/react": "^19.2.7",
         "@types/react-dom": "^19.2.3",
-        "@tailwindcss/vite": "^4.3.0",
         "@vitejs/plugin-react": "^5.1.1",
         "tailwindcss": "^4.3.0",
         "typescript": "^5.9.3",

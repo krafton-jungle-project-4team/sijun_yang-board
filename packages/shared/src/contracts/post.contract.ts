@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { createPageResultSchema } from "./api.contract";
+
 export const numericIdParamSchema = z.coerce.number().int().positive();
 
 export const postSortSchema = z.enum(["latest", "popular"]).default("latest");
@@ -29,12 +31,7 @@ export const postDetailSchema = postSummarySchema.extend({
     content: z.string().min(1)
 });
 
-export const postListResultSchema = z.object({
-    items: z.array(postSummarySchema),
-    page: z.number().int().min(1),
-    pageSize: z.number().int().min(1),
-    total: z.number().int().nonnegative()
-});
+export const postListResultSchema = createPageResultSchema(postSummarySchema);
 
 export const createPostInputSchema = z.object({
     title: z.string().trim().min(1).max(120),

@@ -1,10 +1,9 @@
 import type { TaskStatus } from "@nmm/shared";
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nmm/ui/components";
-import { Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nmm/ui/components";
+import { useParams } from "@tanstack/react-router";
 
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useTask, useUpdateTask } from "../../features/projects/hooks/use-projects";
+import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
+import { useSuspenseTask, useUpdateTask } from "../../features/projects/hooks/use-projects";
 import { taskPriorityLabels, taskStatusLabels } from "../../features/projects/model/project-labels";
 import { canChangeTaskStatus } from "../../features/projects/model/project-permissions";
 import { TaskStatusControl } from "../../features/projects/ui/task-status-control";
@@ -13,13 +12,6 @@ export function TaskDetailPage() {
     const params = useParams({ strict: false }) as { projectId: string; taskId: string };
     const projectId = Number(params.projectId);
     const taskId = Number(params.taskId);
-    const currentUser = useCurrentUserQuery().data;
-    const taskQuery = useTask(taskId);
-    const updateTask = useUpdateTask(projectId, taskId);
-
-    function handleTaskStatusChange(status: TaskStatus) {
-        updateTask.mutate({ status });
-    }
 
     if (!Number.isInteger(projectId) || projectId <= 0 || !Number.isInteger(taskId) || taskId <= 0) {
         return (
@@ -31,39 +23,22 @@ export function TaskDetailPage() {
         );
     }
 
-    if (taskQuery.isPending) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Loading task...</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
+    return <TaskDetailContent projectId={projectId} taskId={taskId} />;
+}
 
-    if (taskQuery.isError) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Could not load task.</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
+function TaskDetailContent({ projectId, taskId }: { projectId: number; taskId: number }) {
+    const currentUser = useSuspenseCurrentUserQuery().data;
+    const task = useSuspenseTask(taskId).data;
+    const updateTask = useUpdateTask(projectId, taskId);
 
-    const task = taskQuery.data;
     const canUpdateStatus = canChangeTaskStatus(currentUser, task);
+
+    function handleTaskStatusChange(status: TaskStatus) {
+        updateTask.mutate({ status });
+    }
 
     return (
         <article className="grid gap-5">
-            <div>
-                <Button asChild variant="ghost">
-                    <Link to="/projects/$projectId" params={{ projectId: String(projectId) }}>
-                        <ArrowLeft />
-                        Project
-                    </Link>
-                </Button>
-            </div>
             <CardHeader className="px-0">
                 <Badge variant="secondary">{task.projectName}</Badge>
                 <CardTitle>{task.title}</CardTitle>

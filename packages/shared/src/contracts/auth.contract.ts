@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const userRoleSchema = z.enum(["USER", "ADMIN"]);
-export const userStatusSchema = z.enum(["PENDING", "ACTIVE", "SUSPENDED"]);
+export const userStatusSchema = z.enum(["ACTIVE", "SUSPENDED"]);
 
 export const userSchema = z.object({
     id: z.number().int().positive(),
@@ -12,6 +12,8 @@ export const userSchema = z.object({
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime()
 });
+
+export const currentUserSchema = userSchema.nullable();
 
 export const authClaimsSchema = z.object({
     userId: z.number().int().positive(),
@@ -25,8 +27,11 @@ export const loginInputSchema = z.object({
     password: z.string().min(1).max(200)
 });
 
-export const completeSignupInputSchema = z.object({
-    displayName: z.string().trim().min(1).max(80)
+export const signupInputSchema = z.object({
+    loginId: z.string().trim().min(1).max(80),
+    email: z.string().trim().email().max(255),
+    displayName: z.string().trim().min(1).max(80),
+    password: z.string().min(1).max(200)
 });
 
 export const updateMeInputSchema = z.object({
@@ -36,7 +41,8 @@ export const updateMeInputSchema = z.object({
 export type UserRole = z.infer<typeof userRoleSchema>;
 export type UserStatus = z.infer<typeof userStatusSchema>;
 export type User = z.infer<typeof userSchema>;
+export type CurrentUser = z.infer<typeof currentUserSchema>;
 export type AuthClaims = z.infer<typeof authClaimsSchema>;
 export type LoginInput = z.infer<typeof loginInputSchema>;
-export type CompleteSignupInput = z.infer<typeof completeSignupInputSchema>;
+export type SignupInput = z.infer<typeof signupInputSchema>;
 export type UpdateMeInput = z.infer<typeof updateMeInputSchema>;

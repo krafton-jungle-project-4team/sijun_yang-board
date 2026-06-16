@@ -1,13 +1,14 @@
 import type { AuthClaims } from "@nmm/shared";
-import { Body, Controller, Get, Patch, Post, Res, UseGuards } from "@nestjs/common";
-import { completeSignupInputSchema, loginInputSchema, updateMeInputSchema } from "@nmm/shared";
-import type { Response } from "express";
+import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { loginInputSchema, signupInputSchema, updateMeInputSchema } from "@nmm/shared";
+import type { Request, Response } from "express";
 
+import { suspendedAccountError } from "../auth-errors";
 import { AuthCommandService, AuthQueryService } from "../service";
 import { ActiveAccountGuard } from "./active-account.guard";
 import { CurrentAuth } from "./current-auth.decorator";
 import { SessionUserGuard } from "./session-user.guard";
-import { clearSessionCookie, setSessionCookie } from "./session-cookie";
+import { clearSessionCookie, getSessionIdFromRequest, setSessionCookie } from "./session-cookie";
 
 @Controller("account")
 export class AuthController {
@@ -17,12 +18,28 @@ export class AuthController {
     ) {}
 
     @Get("me")
-    @UseGuards(SessionUserGuard)
-    async getMe(@CurrentAuth() auth: AuthClaims) {
+    async getMe(@Req() request: Request) {
+        const sessionId = getSessionIdFromRequest(request);
+
+        if (!sessionId) {
+            return null;
+        }
+
+        const auth = await this.authQuery.getClaimsBySessionId(sessionId);
+
+        if (!auth) {
+            return null;
+        }
+
+        if (auth.status === "SUSPENDED") {
+            throw suspendedAccountError();
+        }
+
         return this.authQuery.getUser(auth.userId);
     }
 
     @Post("login")
+    @HttpCode(HttpStatus.OK)
     async login(@Body() body: unknown, @Res({ passthrough: true }) response: Response) {
         const input = loginInputSchema.parse(body);
         const result = await this.authCommand.login(input);
@@ -32,11 +49,10 @@ export class AuthController {
         return this.authQuery.getUser(result.userId);
     }
 
-    @Post("complete-signup")
-    @UseGuards(SessionUserGuard)
-    async completeSignup(@CurrentAuth() auth: AuthClaims, @Body() body: unknown) {
-        const input = completeSignupInputSchema.parse(body);
-        const result = await this.authCommand.completeSignup(auth.userId, input);
+    @Post("signup")
+    async signup(@Body() body: unknown) {
+        const input = signupInputSchema.parse(body);
+        const result = await this.authCommand.signup(input);
 
         return this.authQuery.getUser(result.id);
     }
@@ -51,6 +67,7 @@ export class AuthController {
     }
 
     @Post("logout")
+    @HttpCode(HttpStatus.OK)
     @UseGuards(SessionUserGuard)
     async logout(@CurrentAuth() auth: AuthClaims, @Res({ passthrough: true }) response: Response) {
         await this.authCommand.expireUserSessions(auth.userId);

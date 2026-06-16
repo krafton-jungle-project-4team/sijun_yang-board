@@ -23,7 +23,15 @@ VALUES
         now(),
         now()
     )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE
+SET
+    login_id = EXCLUDED.login_id,
+    email = EXCLUDED.email,
+    password_hash = EXCLUDED.password_hash,
+    display_name = EXCLUDED.display_name,
+    role = EXCLUDED.role,
+    status = EXCLUDED.status,
+    updated_at = now();
 
 SELECT setval(pg_get_serial_sequence('"user"', 'id'), GREATEST((SELECT max(id) FROM "user"), 1), true);
 

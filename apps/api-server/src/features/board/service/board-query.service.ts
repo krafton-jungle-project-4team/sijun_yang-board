@@ -1,66 +1,49 @@
 import type { AuthClaims, Comment, PostDetail, PostListQuery, PostListResult } from "@nmm/shared";
-import { InjectTransaction, Transactional, type Transaction } from "@nestjs-cls/transactional";
+import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "../../../infra/database";
 import { postNotFoundError } from "../board-errors";
-import {
-    countPosts,
-    getPostById,
-    incrementPostView,
-    listCommentsByPostId,
-    listPosts
-} from "../database/__generated__/board.queries";
-import { toCommentModel, toPostDetail, toPostSummary } from "./board-mappers";
+import { CommentDomain, PostDomain } from "../domain";
+import { CommentReader, PostReader, PostWriter } from "../repository";
 
 @Injectable()
 export class BoardQueryService {
     constructor(
-        @InjectTransaction()
-        private readonly db: Transaction<PgTypedTransactionalAdapter>
+        private readonly postReader: PostReader,
+        private readonly postWriter: PostWriter,
+        private readonly commentReader: CommentReader
     ) {}
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listPosts(query: PostListQuery, auth?: AuthClaims): Promise<PostListResult> {
-        const filters = {
-            search: query.search ?? null,
-            authorId: query.view === "mine" ? (auth?.userId ?? -1) : null
-        };
-        const items = await this.db
-            .query(listPosts, {
-                ...filters,
-                sort: query.sort,
-                limit: query.pageSize,
-                offset: (query.page - 1) * query.pageSize
-            })
-            .multiple();
-        const total = await this.db.query(countPosts, filters).single();
+        const page = await this.postReader.list(query, auth);
 
         return {
-            items: items.map(toPostSummary),
-            page: query.page,
-            pageSize: query.pageSize,
-            total: total.total ?? 0
+            items: page.items.map(PostDomain.toSummary),
+            page: page.page,
+            pageSize: page.pageSize,
+            total: page.total
         };
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async getPost(postId: number): Promise<PostDetail> {
-        await this.db.query(incrementPostView, { postId }).multiple();
+        await this.postWriter.incrementView(postId);
 
-        const post = await this.db.query(getPostById, { postId }).singleOrNull();
+        const post = await this.postReader.findById(postId);
 
         if (!post) {
             throw postNotFoundError();
         }
 
-        return toPostDetail(post);
+        return PostDomain.toDetail(post);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listComments(postId: number): Promise<Comment[]> {
-        const comments = await this.db.query(listCommentsByPostId, { postId }).multiple();
+        const comments = await this.commentReader.listByPostId(postId);
 
-        return comments.map(toCommentModel);
+        return comments.map(CommentDomain.toComment);
     }
 }

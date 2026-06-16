@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { createPageResultSchema } from "./api.contract";
 import { postSummarySchema } from "./post.contract";
 
 export const projectStatusSchema = z.enum(["PLANNED", "ACTIVE", "COMPLETED", "ARCHIVED"]);
@@ -46,12 +47,7 @@ export const projectSummarySchema = z.object({
 
 export const projectDetailSchema = projectSummarySchema;
 
-export const projectListResultSchema = z.object({
-    items: z.array(projectSummarySchema),
-    page: z.number().int().min(1),
-    pageSize: z.number().int().min(1),
-    total: z.number().int().nonnegative()
-});
+export const projectListResultSchema = createPageResultSchema(projectSummarySchema);
 
 export const createProjectInputSchema = z.object({
     name: z.string().trim().min(1).max(120),
@@ -143,12 +139,7 @@ export const approvalRequestSummarySchema = z.object({
 
 export const approvalRequestDetailSchema = approvalRequestSummarySchema;
 
-export const approvalRequestListResultSchema = z.object({
-    items: z.array(approvalRequestSummarySchema),
-    page: z.number().int().min(1),
-    pageSize: z.number().int().min(1),
-    total: z.number().int().nonnegative()
-});
+export const approvalRequestListResultSchema = createPageResultSchema(approvalRequestSummarySchema);
 
 export const createApprovalRequestInputSchema = z.object({
     projectId: z.number().int().positive(),

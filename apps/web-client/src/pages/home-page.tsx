@@ -1,7 +1,4 @@
 import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
     Badge,
     Button,
     Card,
@@ -22,13 +19,11 @@ import {
     ItemGroup,
     ItemMedia,
     ItemSeparator,
-    ItemTitle,
-    Skeleton
+    ItemTitle
 } from "@nmm/ui/components";
 import type { Dashboard } from "@nmm/shared";
 import { Link } from "@tanstack/react-router";
 import {
-    AlertCircleIcon,
     ArrowRightIcon,
     CheckCircle2Icon,
     ClipboardCheckIcon,
@@ -40,9 +35,9 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { useCurrentUserQuery } from "../features/auth/api/auth-queries";
+import { useSuspenseCurrentUserQuery } from "../features/auth/api/auth-queries";
 import { isActiveUser } from "../features/auth/model/user-status";
-import { useDashboard } from "../features/dashboard/hooks/use-dashboard";
+import { useSuspenseDashboard } from "../features/dashboard/hooks/use-dashboard";
 import { taskPriorityLabels, taskStatusLabels } from "../features/projects/model/project-labels";
 import { approvalRequestStatusLabels } from "../features/requests/model/request-labels";
 
@@ -58,33 +53,17 @@ type DashboardRequest = Dashboard["pendingRequests"][number];
 type DashboardPost = Dashboard["recentAnnouncements"][number];
 
 export function HomePage() {
-    const currentUserQuery = useCurrentUserQuery();
-    const currentUser = currentUserQuery.data;
-    const dashboardQuery = useDashboard(isActiveUser(currentUser));
-
-    if (currentUserQuery.isPending) {
-        return <DashboardSkeleton title="Dashboard" description="Loading account..." />;
-    }
+    const currentUser = useSuspenseCurrentUserQuery().data;
 
     if (!isActiveUser(currentUser)) {
         return <SignedOutDashboard />;
     }
 
-    if (dashboardQuery.isPending) {
-        return <DashboardSkeleton title="Dashboard" description="Loading operations snapshot..." />;
-    }
+    return <DashboardContent />;
+}
 
-    if (dashboardQuery.isError) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircleIcon />
-                <AlertTitle>Dashboard unavailable</AlertTitle>
-                <AlertDescription>Could not load the operations snapshot.</AlertDescription>
-            </Alert>
-        );
-    }
-
-    const dashboard = dashboardQuery.data;
+function DashboardContent() {
+    const dashboard = useSuspenseDashboard().data;
     const openWorkCount = dashboard.myTasks.length + dashboard.pendingRequests.length;
     const metricCards: MetricCardProps[] = [
         {
@@ -215,36 +194,13 @@ function SignedOutDashboard() {
             </CardContent>
             <CardFooter>
                 <Button asChild>
-                    <Link to="/me">
-                        Open account
+                    <Link to="/login">
+                        Sign in
                         <ArrowRightIcon data-icon="inline-end" />
                     </Link>
                 </Button>
             </CardFooter>
         </Card>
-    );
-}
-
-function DashboardSkeleton({ title, description }: { title: string; description: string }) {
-    return (
-        <div className="flex flex-col gap-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle>{title}</CardTitle>
-                    <CardDescription>{description}</CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                    <Skeleton className="h-28" />
-                    <Skeleton className="h-28" />
-                    <Skeleton className="h-28" />
-                    <Skeleton className="h-28" />
-                </CardContent>
-            </Card>
-            <div className="grid gap-6 lg:grid-cols-2">
-                <Skeleton className="h-72" />
-                <Skeleton className="h-72" />
-            </div>
-        </div>
     );
 }
 

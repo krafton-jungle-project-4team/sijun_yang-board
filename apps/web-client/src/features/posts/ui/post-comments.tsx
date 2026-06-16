@@ -20,7 +20,7 @@ import { Check, Pencil, Send, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { useController, useForm, type Control, type UseFormSetError } from "react-hook-form";
 
-import { useComments, useCreateComment, useDeleteComment, useUpdateComment } from "../hooks/use-posts";
+import { useCreateComment, useDeleteComment, useSuspenseComments, useUpdateComment } from "../hooks/use-posts";
 import { canManageComment } from "../model/post-permissions";
 import { isActiveUser } from "../../auth/model/user-status";
 
@@ -36,8 +36,7 @@ const commentDateFormatter = new Intl.DateTimeFormat("ko-KR", {
 });
 
 export function PostComments({ currentUser, postId }: PostCommentsProps) {
-    const commentsQuery = useComments(postId);
-    const comments = commentsQuery.data ?? EMPTY_COMMENTS;
+    const comments = useSuspenseComments(postId).data ?? EMPTY_COMMENTS;
 
     return (
         <section className="grid gap-4">
@@ -53,14 +52,7 @@ export function PostComments({ currentUser, postId }: PostCommentsProps) {
                 {comments.map((comment) => (
                     <PostCommentItem key={comment.id} comment={comment} currentUser={currentUser} postId={postId} />
                 ))}
-                {commentsQuery.isPending ? (
-                    <Card>
-                        <CardHeader>
-                            <CardDescription>Loading comments...</CardDescription>
-                        </CardHeader>
-                    </Card>
-                ) : null}
-                {!commentsQuery.isPending && comments.length === 0 ? (
+                {comments.length === 0 ? (
                     <Card>
                         <CardHeader>
                             <CardDescription>No comments yet.</CardDescription>

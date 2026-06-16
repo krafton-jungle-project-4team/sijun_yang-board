@@ -1,12 +1,8 @@
-import type { PostListQuery } from "@nmm/shared";
+import type { PostListQuery, User } from "@nmm/shared";
 import {
     Badge,
     Button,
     ButtonGroup,
-    Card,
-    CardDescription,
-    CardHeader,
-    CardTitle,
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
@@ -16,20 +12,23 @@ import {
     SelectTrigger,
     SelectValue
 } from "@nmm/ui/components";
-import { Link } from "@tanstack/react-router";
-import { LayoutGrid, List, Plus, Search } from "lucide-react";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { LayoutGrid, List, Search } from "lucide-react";
+import { Suspense, type ChangeEvent, type FormEvent, useEffect, useMemo, useState } from "react";
 
+import { SectionSkeleton } from "../../app/section-skeleton";
 import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { usePosts } from "../../features/posts/hooks/use-posts";
+import { useSuspensePosts } from "../../features/posts/hooks/use-posts";
 import {
     getTotalPages,
     toPostListQuery,
     type PostDisplayView,
+    type PostSearchState,
     usePostSearchParams
 } from "../../features/posts/model/post-search";
 import { PostCards } from "../../features/posts/ui/post-cards";
 import { PostTable } from "../../features/posts/ui/post-table";
+
+type SetPostSearch = ReturnType<typeof usePostSearchParams>[1];
 
 const sortOptions: Array<{ label: string; value: PostListQuery["sort"] }> = [
     { label: "Latest", value: "latest" },
@@ -45,16 +44,12 @@ export function PostsPage() {
     const [searchDraft, setSearchDraft] = useState(search.search);
     const query = useMemo(() => toPostListQuery(search), [search]);
     const currentUser = useCurrentUserQuery().data;
-    const postsQuery = usePosts(query);
-    const postsData = postsQuery.data;
-    const currentPage = postsData?.page ?? search.page;
-    const totalPages = getTotalPages(postsData?.total ?? 0);
 
     useEffect(() => {
         setSearchDraft(search.search);
     }, [search.search]);
 
-    function handleSearchInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    function handleSearchInputChange(event: ChangeEvent<HTMLInputElement>) {
         setSearchDraft(event.target.value);
     }
 
@@ -88,18 +83,6 @@ export function PostsPage() {
         setDisplayView("card");
     }
 
-    function handlePreviousPageClick() {
-        void setSearch((current) => ({
-            page: Math.max(1, current.page - 1)
-        }));
-    }
-
-    function handleNextPageClick() {
-        void setSearch((current) => ({
-            page: Math.min(totalPages, current.page + 1)
-        }));
-    }
-
     function setDisplayView(displayView: PostDisplayView) {
         void setSearch({
             displayView
@@ -108,19 +91,6 @@ export function PostsPage() {
 
     return (
         <section className="grid gap-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <CardHeader className="min-w-0 flex-1 px-0">
-                    <CardTitle>Announcements</CardTitle>
-                    <CardDescription>Updates, notes, comments, views.</CardDescription>
-                </CardHeader>
-                <Button asChild>
-                    <Link to="/posts/new">
-                        <Plus />
-                        New announcement
-                    </Link>
-                </Button>
-            </div>
-
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px_170px_auto]">
                 <form className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]" onSubmit={handleSearchSubmit}>
                     <InputGroup>
@@ -185,52 +155,69 @@ export function PostsPage() {
                 </ButtonGroup>
             </div>
 
-            {postsQuery.isError ? (
-                <Card>
-                    <CardHeader>
-                        <CardDescription>Could not load announcements.</CardDescription>
-                    </CardHeader>
-                </Card>
-            ) : null}
-            {postsQuery.isPending ? (
-                <Card>
-                    <CardHeader>
-                        <CardDescription>Loading announcements...</CardDescription>
-                    </CardHeader>
-                </Card>
-            ) : null}
-            {postsData ? (
-                <>
-                    {search.displayView === "table" ? (
-                        <PostTable currentUser={currentUser} posts={postsData.items} />
-                    ) : (
-                        <PostCards currentUser={currentUser} posts={postsData.items} />
-                    )}
-                    <div className="flex items-center justify-between gap-3">
-                        <Badge variant="secondary">
-                            {currentPage} / {totalPages} · {postsData.total} announcements
-                        </Badge>
-                        <ButtonGroup>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={currentPage <= 1}
-                                onClick={handlePreviousPageClick}
-                            >
-                                Previous
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={currentPage >= totalPages}
-                                onClick={handleNextPageClick}
-                            >
-                                Next
-                            </Button>
-                        </ButtonGroup>
-                    </div>
-                </>
-            ) : null}
+            <Suspense
+                fallback={<SectionSkeleton title="Announcements" description="Loading announcements..." rows={4} />}
+            >
+                <PostsResult currentUser={currentUser} query={query} search={search} setSearch={setSearch} />
+            </Suspense>
         </section>
     );
 }
+
+function PostsResult({ currentUser, query, search, setSearch }: PostsResultProps) {
+    const postsData = useSuspensePosts(query).data;
+    const currentPage = postsData.page;
+    const totalPages = getTotalPages(postsData.total);
+
+    function handlePreviousPageClick() {
+        void setSearch((current) => ({
+            page: Math.max(1, current.page - 1)
+        }));
+    }
+
+    function handleNextPageClick() {
+        void setSearch((current) => ({
+            page: Math.min(totalPages, current.page + 1)
+        }));
+    }
+
+    return (
+        <>
+            {search.displayView === "table" ? (
+                <PostTable currentUser={currentUser} posts={postsData.items} />
+            ) : (
+                <PostCards currentUser={currentUser} posts={postsData.items} />
+            )}
+            <div className="flex items-center justify-between gap-3">
+                <Badge variant="secondary">
+                    {currentPage} / {totalPages} · {postsData.total} announcements
+                </Badge>
+                <ButtonGroup>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled={currentPage <= 1}
+                        onClick={handlePreviousPageClick}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled={currentPage >= totalPages}
+                        onClick={handleNextPageClick}
+                    >
+                        Next
+                    </Button>
+                </ButtonGroup>
+            </div>
+        </>
+    );
+}
+
+type PostsResultProps = {
+    currentUser: User | null | undefined;
+    query: PostListQuery;
+    search: PostSearchState;
+    setSearch: SetPostSearch;
+};

@@ -6,6 +6,16 @@ import { DashboardController } from "./controller/dashboard.controller";
 import { ProjectsController } from "./controller/projects.controller";
 import { TasksController } from "./controller/tasks.controller";
 import { UsersController } from "./controller/users.controller";
+import {
+    ApprovalRequestReader,
+    ApprovalRequestWriter,
+    DashboardViewQuery,
+    ProjectReader,
+    ProjectWriter,
+    TaskReader,
+    TaskWriter,
+    UserReader
+} from "./repository";
 import { OperationsCommandService, OperationsQueryService } from "./service";
 
 @Module({
@@ -17,6 +27,17 @@ import { OperationsCommandService, OperationsQueryService } from "./service";
         DashboardController,
         UsersController
     ],
-    providers: [OperationsQueryService, OperationsCommandService]
+    providers: [
+        OperationsQueryService,
+        OperationsCommandService,
+        UserReader,
+        ProjectReader,
+        ProjectWriter,
+        TaskReader,
+        TaskWriter,
+        ApprovalRequestReader,
+        ApprovalRequestWriter,
+        DashboardViewQuery
+    ]
 })
 export class OperationsModule {}

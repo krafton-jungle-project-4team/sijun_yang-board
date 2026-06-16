@@ -5,8 +5,6 @@ import {
     ButtonGroup,
     Card,
     CardDescription,
-    CardHeader,
-    CardTitle,
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
@@ -23,18 +21,21 @@ import {
     TableRow
 } from "@nmm/ui/components";
 import { Link } from "@tanstack/react-router";
-import { Plus, Search } from "lucide-react";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { Suspense, type ChangeEvent, type FormEvent, useEffect, useMemo, useState } from "react";
 
+import { SectionSkeleton } from "../../app/section-skeleton";
 import { useProjects } from "../../features/projects/hooks/use-projects";
 import { toProjectListQuery } from "../../features/projects/model/project-search";
-import { useRequests } from "../../features/requests/hooks/use-requests";
+import { useSuspenseRequests } from "../../features/requests/hooks/use-requests";
 import { approvalRequestStatusLabels } from "../../features/requests/model/request-labels";
 import {
     getRequestTotalPages,
     toRequestListQuery,
     useRequestSearchParams
 } from "../../features/requests/model/request-search";
+
+type SetRequestSearch = ReturnType<typeof useRequestSearchParams>[1];
 
 const requestSortOptions: Array<{ label: string; value: ApprovalRequestListQuery["sort"] }> = [
     { label: "Latest", value: "latest" },
@@ -51,7 +52,6 @@ export function RequestsPage() {
     const [search, setSearch] = useRequestSearchParams();
     const [searchDraft, setSearchDraft] = useState(search.search);
     const query = useMemo(() => toRequestListQuery(search), [search]);
-    const requestsQuery = useRequests(query);
     const projectFilterQuery = useProjects(
         toProjectListQuery({
             page: 1,
@@ -60,16 +60,13 @@ export function RequestsPage() {
             status: "ALL"
         })
     );
-    const requestsData = requestsQuery.data;
-    const currentPage = requestsData?.page ?? search.page;
-    const totalPages = getRequestTotalPages(requestsData?.total ?? 0);
     const selectedProjectValue = search.projectId ? String(search.projectId) : "ALL";
 
     useEffect(() => {
         setSearchDraft(search.search);
     }, [search.search]);
 
-    function handleSearchInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    function handleSearchInputChange(event: ChangeEvent<HTMLInputElement>) {
         setSearchDraft(event.target.value);
     }
 
@@ -102,33 +99,8 @@ export function RequestsPage() {
         });
     }
 
-    function handlePreviousPageClick() {
-        void setSearch((current) => ({
-            page: Math.max(1, current.page - 1)
-        }));
-    }
-
-    function handleNextPageClick() {
-        void setSearch((current) => ({
-            page: Math.min(totalPages, current.page + 1)
-        }));
-    }
-
     return (
         <section className="grid gap-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <CardHeader className="min-w-0 flex-1 px-0">
-                    <CardTitle>Requests</CardTitle>
-                    <CardDescription>Project-linked approvals and review state.</CardDescription>
-                </CardHeader>
-                <Button asChild>
-                    <Link to="/requests/new">
-                        <Plus />
-                        New request
-                    </Link>
-                </Button>
-            </div>
-
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_150px_160px_180px]">
                 <form className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]" onSubmit={handleSearchSubmit}>
                     <InputGroup>
@@ -186,85 +158,93 @@ export function RequestsPage() {
                 </Select>
             </div>
 
-            {requestsQuery.isError ? (
-                <Card>
-                    <CardHeader>
-                        <CardDescription>Could not load requests.</CardDescription>
-                    </CardHeader>
-                </Card>
-            ) : null}
-            {requestsQuery.isPending ? (
-                <Card>
-                    <CardHeader>
-                        <CardDescription>Loading requests...</CardDescription>
-                    </CardHeader>
-                </Card>
-            ) : null}
-            {requestsData ? (
-                <>
-                    <Card className="gap-0 py-0">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Request</TableHead>
-                                    <TableHead className="hidden md:table-cell">Project</TableHead>
-                                    <TableHead className="hidden lg:table-cell">Requester</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {requestsData.items.map((request) => (
-                                    <TableRow key={request.id}>
-                                        <TableCell>
-                                            <div className="grid gap-1">
-                                                <Link
-                                                    to="/requests/$requestId"
-                                                    params={{ requestId: String(request.id) }}
-                                                >
-                                                    {request.title}
-                                                </Link>
-                                                <CardDescription className="line-clamp-1">
-                                                    {request.description}
-                                                </CardDescription>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell">{request.projectName}</TableCell>
-                                        <TableCell className="hidden lg:table-cell">{request.requesterName}</TableCell>
-                                        <TableCell>
-                                            <Badge variant="secondary">
-                                                {approvalRequestStatusLabels[request.status]}
-                                            </Badge>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </Card>
-                    <div className="flex items-center justify-between gap-3">
-                        <Badge variant="secondary">
-                            {currentPage} / {totalPages} · {requestsData.total} requests
-                        </Badge>
-                        <ButtonGroup>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={currentPage <= 1}
-                                onClick={handlePreviousPageClick}
-                            >
-                                Previous
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={currentPage >= totalPages}
-                                onClick={handleNextPageClick}
-                            >
-                                Next
-                            </Button>
-                        </ButtonGroup>
-                    </div>
-                </>
-            ) : null}
+            <Suspense fallback={<SectionSkeleton title="Requests" description="Loading requests..." rows={4} />}>
+                <RequestsResult query={query} setSearch={setSearch} />
+            </Suspense>
         </section>
     );
 }
+
+function RequestsResult({ query, setSearch }: RequestsResultProps) {
+    const requestsData = useSuspenseRequests(query).data;
+    const currentPage = requestsData.page;
+    const totalPages = getRequestTotalPages(requestsData.total);
+
+    function handlePreviousPageClick() {
+        void setSearch((current) => ({
+            page: Math.max(1, current.page - 1)
+        }));
+    }
+
+    function handleNextPageClick() {
+        void setSearch((current) => ({
+            page: Math.min(totalPages, current.page + 1)
+        }));
+    }
+
+    return (
+        <>
+            <Card className="gap-0 py-0">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Request</TableHead>
+                            <TableHead className="hidden md:table-cell">Project</TableHead>
+                            <TableHead className="hidden lg:table-cell">Requester</TableHead>
+                            <TableHead>Status</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {requestsData.items.map((request) => (
+                            <TableRow key={request.id}>
+                                <TableCell>
+                                    <div className="grid gap-1">
+                                        <Link to="/requests/$requestId" params={{ requestId: String(request.id) }}>
+                                            {request.title}
+                                        </Link>
+                                        <CardDescription className="line-clamp-1">
+                                            {request.description}
+                                        </CardDescription>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="hidden md:table-cell">{request.projectName}</TableCell>
+                                <TableCell className="hidden lg:table-cell">{request.requesterName}</TableCell>
+                                <TableCell>
+                                    <Badge variant="secondary">{approvalRequestStatusLabels[request.status]}</Badge>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </Card>
+            <div className="flex items-center justify-between gap-3">
+                <Badge variant="secondary">
+                    {currentPage} / {totalPages} · {requestsData.total} requests
+                </Badge>
+                <ButtonGroup>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled={currentPage <= 1}
+                        onClick={handlePreviousPageClick}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled={currentPage >= totalPages}
+                        onClick={handleNextPageClick}
+                    >
+                        Next
+                    </Button>
+                </ButtonGroup>
+            </div>
+        </>
+    );
+}
+
+type RequestsResultProps = {
+    query: ApprovalRequestListQuery;
+    setSearch: SetRequestSearch;
+};

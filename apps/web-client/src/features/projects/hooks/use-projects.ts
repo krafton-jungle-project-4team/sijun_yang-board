@@ -1,5 +1,5 @@
 import type { ProjectListQuery, TaskDetail, TaskStatus, TaskSummary, UpdateTaskInput } from "@nmm/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { dashboardQueryKeys } from "../../dashboard/hooks/use-dashboard";
 import { projectsApi } from "../api/projects-api";
@@ -20,27 +20,31 @@ export function useProjects(query: ProjectListQuery) {
     });
 }
 
-export function useProject(projectId: number) {
-    return useQuery({
+export function useSuspenseProjects(query: ProjectListQuery) {
+    return useSuspenseQuery({
+        queryKey: projectQueryKeys.list(query),
+        queryFn: ({ signal }) => projectsApi.listProjects(query, { signal })
+    });
+}
+
+export function useSuspenseProject(projectId: number) {
+    return useSuspenseQuery({
         queryKey: projectQueryKeys.detail(projectId),
-        queryFn: ({ signal }) => projectsApi.getProject(projectId, { signal }),
-        enabled: Number.isInteger(projectId) && projectId > 0
+        queryFn: ({ signal }) => projectsApi.getProject(projectId, { signal })
     });
 }
 
-export function useProjectTasks(projectId: number) {
-    return useQuery({
+export function useSuspenseProjectTasks(projectId: number) {
+    return useSuspenseQuery({
         queryKey: projectQueryKeys.tasks(projectId),
-        queryFn: ({ signal }) => projectsApi.listProjectTasks(projectId, { signal }),
-        enabled: Number.isInteger(projectId) && projectId > 0
+        queryFn: ({ signal }) => projectsApi.listProjectTasks(projectId, { signal })
     });
 }
 
-export function useTask(taskId: number) {
-    return useQuery({
+export function useSuspenseTask(taskId: number) {
+    return useSuspenseQuery({
         queryKey: projectQueryKeys.taskDetail(taskId),
-        queryFn: ({ signal }) => projectsApi.getTask(taskId, { signal }),
-        enabled: Number.isInteger(taskId) && taskId > 0
+        queryFn: ({ signal }) => projectsApi.getTask(taskId, { signal })
     });
 }
 

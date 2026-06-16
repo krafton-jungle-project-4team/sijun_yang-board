@@ -17,7 +17,9 @@ import {
     NavigationMenuLink,
     NavigationMenuList
 } from "@nmm/ui/components";
+import { useQueryErrorResetBoundary } from "@tanstack/react-query";
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import {
     ClipboardCheckIcon,
     FolderKanbanIcon,
@@ -29,6 +31,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import { RouteErrorFallback } from "./route-error";
 import { ThemeToggle } from "./theme-toggle";
 
 type AppRoutePath = "/" | "/posts" | "/projects" | "/requests" | "/me";
@@ -164,12 +167,30 @@ function MobileNavigation({ pathname }: { pathname: string }) {
     );
 }
 
-export function RootError() {
+export function RootError({ error, reset }: ErrorComponentProps) {
+    const queryErrorResetBoundary = useQueryErrorResetBoundary();
+
+    function handleRetry() {
+        queryErrorResetBoundary.reset();
+        reset();
+    }
+
+    return (
+        <RouteErrorFallback
+            error={error}
+            fallbackTitle="Something went wrong"
+            fallbackDescription="Refresh the page or try again later."
+            onRetry={handleRetry}
+        />
+    );
+}
+
+export function RootNotFound() {
     return (
         <Card className="mx-auto max-w-xl">
             <CardHeader>
-                <CardTitle>Something went wrong</CardTitle>
-                <CardDescription>Refresh the page or try again later.</CardDescription>
+                <CardTitle>Page not found</CardTitle>
+                <CardDescription>Open a workspace page from the navigation.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button asChild variant="outline">

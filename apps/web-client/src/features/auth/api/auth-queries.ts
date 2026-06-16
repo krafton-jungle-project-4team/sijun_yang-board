@@ -1,5 +1,5 @@
 import type { User } from "@nmm/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { ApiClientError } from "../../../shared/api/http-client";
 import { authApi } from "./auth-api";
@@ -9,20 +9,17 @@ const authQueryKeys = {
 };
 
 export function useCurrentUserQuery() {
-    return useQuery({
-        queryKey: authQueryKeys.currentUser,
-        queryFn: ({ signal }) => fetchCurrentUser(signal)
-    });
+    return useQuery(currentUserQueryOptions());
 }
 
-export function useCompleteSignupMutation() {
-    const queryClient = useQueryClient();
+export function useSuspenseCurrentUserQuery() {
+    return useSuspenseQuery(currentUserQueryOptions());
+}
 
-    return useMutation({
-        mutationFn: authApi.completeSignup,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: authQueryKeys.currentUser });
-        }
+export function currentUserQueryOptions() {
+    return queryOptions({
+        queryKey: authQueryKeys.currentUser,
+        queryFn: ({ signal }) => fetchCurrentUser(signal)
     });
 }
 
@@ -32,8 +29,20 @@ export function useLoginMutation() {
     return useMutation({
         mutationFn: authApi.login,
         onSuccess: async (user) => {
+            queryClient.removeQueries();
             queryClient.setQueryData(authQueryKeys.currentUser, user);
             await queryClient.invalidateQueries();
+        }
+    });
+}
+
+export function useSignupMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: authApi.signup,
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: authQueryKeys.currentUser });
         }
     });
 }
@@ -55,6 +64,7 @@ export function useLogoutMutation() {
     return useMutation({
         mutationFn: authApi.logout,
         onSuccess: () => {
+            queryClient.removeQueries();
             queryClient.setQueryData(authQueryKeys.currentUser, null);
         }
     });

@@ -2,16 +2,16 @@ import type { CreateProjectInput } from "@nmm/shared";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate } from "@tanstack/react-router";
 
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
+import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
 import { useCreateProject } from "../../features/projects/hooks/use-projects";
 import { canManageProjects } from "../../features/projects/model/project-permissions";
 import { ProjectForm } from "../../features/projects/ui/project-form";
-import { useUsers } from "../../features/users/hooks/use-users";
+import { useSuspenseUsers } from "../../features/users/hooks/use-users";
 
 export function NewProjectPage() {
     const navigate = useNavigate();
-    const currentUserQuery = useCurrentUserQuery();
-    const usersQuery = useUsers();
+    const currentUser = useSuspenseCurrentUserQuery().data;
+    const users = useSuspenseUsers().data;
     const createProject = useCreateProject();
 
     async function handleSubmit(input: CreateProjectInput) {
@@ -24,17 +24,7 @@ export function NewProjectPage() {
         void navigate({ to: "/projects" });
     }
 
-    if (currentUserQuery.isPending || usersQuery.isPending) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardDescription>Loading project form...</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
-
-    if (!canManageProjects(currentUserQuery.data)) {
+    if (!canManageProjects(currentUser)) {
         return (
             <Card>
                 <CardHeader>
@@ -56,7 +46,7 @@ export function NewProjectPage() {
                 </CardHeader>
                 <CardContent>
                     <ProjectForm
-                        users={usersQuery.data ?? []}
+                        users={users}
                         pending={createProject.isPending}
                         submitLabel="Create"
                         onCancel={handleCancel}
