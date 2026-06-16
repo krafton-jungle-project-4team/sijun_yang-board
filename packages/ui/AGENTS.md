@@ -4,10 +4,11 @@
 
 - `packages/ui`에 적용한다.
 - 이 package는 app과 무관한 shadcn/Radix primitive를 제공한다.
+- shadcn primitive가 아닌 앱 전용 UI 조합은 이 package에 두지 않는다.
 
 ## 허용
 
-- React primitive component.
+- shadcn/Radix primitive component.
 - shadcn/Radix/lucide/cva/clsx/tailwind-merge 유틸.
 - `#lib/*` 같은 package 내부 import.
 
