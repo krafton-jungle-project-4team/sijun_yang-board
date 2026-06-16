@@ -1,7 +1,7 @@
 import type { DatabaseError as PgDatabaseError } from "pg";
 
 import { AppError } from "../../app-errors";
-import type { QueryErrorPredicateMatcher } from "./tx";
+import type { QueryErrorPredicateMatcher } from "./query-error";
 
 // Reference model:
 // - Spring groups SQLSTATE classes in SQLStateSQLExceptionTranslator:

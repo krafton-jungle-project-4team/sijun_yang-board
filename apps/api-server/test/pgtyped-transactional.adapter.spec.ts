@@ -12,6 +12,8 @@ import {
     pgErrors
 } from "../src/infra/database/database-errors";
 import { PgTypedTransactionalAdapter } from "../src/infra/database/pgtyped-transactional.adapter";
+import { createQueryExecutor } from "../src/infra/database/query-executor";
+import { withQueryResultApi } from "../src/infra/database/query-result";
 import { createTxDb, QueryResultError, type TxDb } from "../src/infra/database/tx";
 import { tx } from "../src/infra/database/tx-compat";
 
@@ -189,6 +191,15 @@ describe("PgTypedTransactionalAdapter", () => {
             /mapped nonEmpty:0/
         );
         assert.deepEqual(await db.query(selectRowsQuery, undefined).nonEmpty(), [{ id: 1 }, { id: 2 }]);
+    });
+
+    it("builds cardinality helpers from the public query executor API", async () => {
+        const executor = new FakePool();
+        const db = withQueryResultApi(createQueryExecutor(executor));
+
+        executor.queueRows([{ id: 1 }]);
+
+        assert.deepEqual(await db.query(selectRowsQuery, undefined).single(), { id: 1 });
     });
 
     it("allows mapErr on multiple for execution errors", async () => {
