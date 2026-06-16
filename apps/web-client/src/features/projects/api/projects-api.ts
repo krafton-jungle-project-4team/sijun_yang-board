@@ -10,22 +10,21 @@ import {
     type UpdateProjectInput,
     type UpdateTaskInput
 } from "@nmm/shared";
-import type { Options } from "ky";
 import { z } from "zod";
 
-import { getJson, patchJson, postJson } from "../../../shared/api/http-client";
+import { getJson, patchJson, postJson, type RequestOptions } from "../../../shared/api/http-client";
 import { serializeProjectListQuery } from "../model/project-search";
 
 const tasksSchema = z.array(taskSummarySchema);
 
 export const projectsApi = {
-    listProjects(query: ProjectListQuery, options?: Options) {
+    listProjects(query: ProjectListQuery, options?: RequestOptions) {
         return getJson("projects", projectListResultSchema, {
             ...options,
             searchParams: serializeProjectListQuery(query)
         });
     },
-    getProject(projectId: number, options?: Options) {
+    getProject(projectId: number, options?: RequestOptions) {
         return getJson(`projects/${projectId}`, projectDetailSchema, options);
     },
     createProject(input: CreateProjectInput) {
@@ -34,13 +33,13 @@ export const projectsApi = {
     updateProject(projectId: number, input: UpdateProjectInput) {
         return patchJson(`projects/${projectId}`, idCommandResultSchema, input);
     },
-    listProjectTasks(projectId: number, options?: Options) {
+    listProjectTasks(projectId: number, options?: RequestOptions) {
         return getJson(`projects/${projectId}/tasks`, tasksSchema, options);
     },
     createTask(projectId: number, input: CreateTaskInput) {
         return postJson(`projects/${projectId}/tasks`, idCommandResultSchema, input);
     },
-    getTask(taskId: number, options?: Options) {
+    getTask(taskId: number, options?: RequestOptions) {
         return getJson(`tasks/${taskId}`, taskDetailSchema, options);
     },
     updateTask(taskId: number, input: UpdateTaskInput) {

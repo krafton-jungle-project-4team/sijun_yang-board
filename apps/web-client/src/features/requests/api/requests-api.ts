@@ -6,19 +6,18 @@ import {
     type CreateApprovalRequestInput,
     type ReviewApprovalRequestInput
 } from "@nmm/shared";
-import type { Options } from "ky";
 
-import { getJson, postJson } from "../../../shared/api/http-client";
+import { getJson, postJson, type RequestOptions } from "../../../shared/api/http-client";
 import { serializeRequestListQuery } from "../model/request-search";
 
 export const requestsApi = {
-    listRequests(query: ApprovalRequestListQuery, options?: Options) {
+    listRequests(query: ApprovalRequestListQuery, options?: RequestOptions) {
         return getJson("requests", approvalRequestListResultSchema, {
             ...options,
             searchParams: serializeRequestListQuery(query)
         });
     },
-    getRequest(requestId: number, options?: Options) {
+    getRequest(requestId: number, options?: RequestOptions) {
         return getJson(`requests/${requestId}`, approvalRequestDetailSchema, options);
     },
     createRequest(input: CreateApprovalRequestInput) {

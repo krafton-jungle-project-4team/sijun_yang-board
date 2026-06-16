@@ -1,11 +1,10 @@
 import type { LoginInput, SignupInput } from "@nmm/shared";
 import { currentUserSchema, logoutResultSchema, userSchema } from "@nmm/shared";
-import type { Options } from "ky";
 
-import { getJson, patchJson, postJson } from "../../../shared/api/http-client";
+import { getJson, patchJson, postJson, type RequestOptions } from "../../../shared/api/http-client";
 
 export const authApi = {
-    getMe(options?: Options) {
+    getMe(options?: RequestOptions) {
         return getJson("account/me", currentUserSchema, options);
     },
     login(input: LoginInput) {

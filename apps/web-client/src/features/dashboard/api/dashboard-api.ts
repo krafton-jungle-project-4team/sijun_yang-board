@@ -1,10 +1,9 @@
 import { dashboardSchema } from "@nmm/shared";
-import type { Options } from "ky";
 
-import { getJson } from "../../../shared/api/http-client";
+import { getJson, type RequestOptions } from "../../../shared/api/http-client";
 
 export const dashboardApi = {
-    getDashboard(options?: Options) {
+    getDashboard(options?: RequestOptions) {
         return getJson("dashboard", dashboardSchema, options);
     }
 };

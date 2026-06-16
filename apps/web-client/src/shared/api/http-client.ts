@@ -1,12 +1,26 @@
 import { apiFailureSchema, createApiSuccessSchema } from "@nmm/shared";
-import ky, { HTTPError, type Options } from "ky";
+import axios, { type AxiosRequestConfig, type Method } from "axios";
 import type { z } from "zod";
 
 import { clientEnv } from "../env/client-env";
 
-const http = ky.create({
-    prefixUrl: new URL(clientEnv.VITE_API_BASE_URL, window.location.origin).toString(),
-    credentials: "include"
+type SearchParams = string | URLSearchParams | Record<string, boolean | number | string | null | undefined>;
+
+export type RequestOptions = Omit<
+    AxiosRequestConfig,
+    "baseURL" | "data" | "method" | "params" | "url" | "withCredentials"
+> & {
+    searchParams?: SearchParams;
+};
+
+type JsonRequestOptions = RequestOptions & {
+    json?: unknown;
+    method: Method;
+};
+
+const http = axios.create({
+    baseURL: new URL(clientEnv.VITE_API_BASE_URL, window.location.origin).toString(),
+    withCredentials: true
 });
 
 export class ApiClientError extends Error {
@@ -19,7 +33,7 @@ export class ApiClientError extends Error {
     }
 }
 
-export async function getJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options?: Options) {
+export async function getJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options?: RequestOptions) {
     return requestJson(path, schema, {
         ...options,
         method: "get"
@@ -30,7 +44,7 @@ export async function postJson<TSchema extends z.ZodType>(
     path: string,
     schema: TSchema,
     json?: unknown,
-    options?: Options
+    options?: RequestOptions
 ) {
     return requestJson(path, schema, {
         ...options,
@@ -43,7 +57,7 @@ export async function patchJson<TSchema extends z.ZodType>(
     path: string,
     schema: TSchema,
     json?: unknown,
-    options?: Options
+    options?: RequestOptions
 ) {
     return requestJson(path, schema, {
         ...options,
@@ -52,23 +66,29 @@ export async function patchJson<TSchema extends z.ZodType>(
     });
 }
 
-export async function deleteJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options?: Options) {
+export async function deleteJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options?: RequestOptions) {
     return requestJson(path, schema, {
         ...options,
         method: "delete"
     });
 }
 
-async function requestJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options: Options) {
+async function requestJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options: JsonRequestOptions) {
     try {
-        const response = await http(path, options).json<unknown>();
-        const envelope = createApiSuccessSchema(schema).parse(response) as { data: z.infer<TSchema> };
+        const { json, method, searchParams, ...requestOptions } = options;
+        const response = await http.request<unknown>({
+            ...requestOptions,
+            data: json,
+            method,
+            params: normalizeSearchParams(searchParams),
+            url: path
+        });
+        const envelope = createApiSuccessSchema(schema).parse(response.data) as { data: z.infer<TSchema> };
 
         return envelope.data;
     } catch (error) {
-        if (error instanceof HTTPError) {
-            const response = await error.response.json().catch(() => null);
-            const parsed = apiFailureSchema.safeParse(response);
+        if (axios.isAxiosError(error)) {
+            const parsed = apiFailureSchema.safeParse(error.response?.data);
 
             if (parsed.success) {
                 throw new ApiClientError(parsed.data.error.code, parsed.data.error.message, parsed.data.requestId);
@@ -77,4 +97,12 @@ async function requestJson<TSchema extends z.ZodType>(path: string, schema: TSch
 
         throw error;
     }
+}
+
+function normalizeSearchParams(searchParams: SearchParams | undefined) {
+    if (typeof searchParams === "string") {
+        return new URLSearchParams(searchParams);
+    }
+
+    return searchParams;
 }

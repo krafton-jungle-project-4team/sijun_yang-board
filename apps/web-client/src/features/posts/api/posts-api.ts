@@ -9,22 +9,21 @@ import {
     type UpdateCommentInput,
     type UpdatePostInput
 } from "@nmm/shared";
-import type { Options } from "ky";
 import { z } from "zod";
 
-import { deleteJson, getJson, patchJson, postJson } from "../../../shared/api/http-client";
+import { deleteJson, getJson, patchJson, postJson, type RequestOptions } from "../../../shared/api/http-client";
 import { serializePostListQuery } from "../model/post-search";
 
 const commentsSchema = z.array(commentSchema);
 
 export const postsApi = {
-    listPosts(query: PostListQuery, options?: Options) {
+    listPosts(query: PostListQuery, options?: RequestOptions) {
         return getJson("posts", postListResultSchema, {
             ...options,
             searchParams: serializePostListQuery(query)
         });
     },
-    getPost(postId: number, options?: Options) {
+    getPost(postId: number, options?: RequestOptions) {
         return getJson(`posts/${postId}`, postDetailSchema, options);
     },
     createPost(input: CreatePostInput) {
@@ -36,7 +35,7 @@ export const postsApi = {
     deletePost(postId: number) {
         return deleteJson(`posts/${postId}`, idCommandResultSchema);
     },
-    listComments(postId: number, options?: Options) {
+    listComments(postId: number, options?: RequestOptions) {
         return getJson(`posts/${postId}/comments`, commentsSchema, options);
     },
     createComment(postId: number, input: CreateCommentInput) {
