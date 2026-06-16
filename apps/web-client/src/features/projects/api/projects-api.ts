@@ -14,6 +14,7 @@ import type { Options } from "ky";
 import { z } from "zod";
 
 import { getJson, patchJson, postJson } from "../../../shared/api/http-client";
+import { serializeProjectListQuery } from "../model/project-search";
 
 const tasksSchema = z.array(taskSummarySchema);
 
@@ -21,7 +22,7 @@ export const projectsApi = {
     listProjects(query: ProjectListQuery, options?: Options) {
         return getJson("projects", projectListResultSchema, {
             ...options,
-            searchParams: toProjectSearchParams(query)
+            searchParams: serializeProjectListQuery(query)
         });
     },
     getProject(projectId: number, options?: Options) {
@@ -46,18 +47,3 @@ export const projectsApi = {
         return patchJson(`tasks/${taskId}`, idCommandResultSchema, input);
     }
 };
-
-function toProjectSearchParams(query: ProjectListQuery) {
-    const searchParams = new URLSearchParams({
-        page: String(query.page),
-        pageSize: String(query.pageSize),
-        sort: query.sort,
-        status: query.status
-    });
-
-    if (query.search) {
-        searchParams.set("search", query.search);
-    }
-
-    return searchParams;
-}

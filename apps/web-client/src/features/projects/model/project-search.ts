@@ -1,7 +1,15 @@
 import type { ProjectListQuery } from "@nmm/shared";
-import { parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
+import { createSerializer, parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
 
 const PROJECT_LIST_PAGE_SIZE = 10;
+
+const projectListQueryParsers = {
+    page: parseAsInteger,
+    pageSize: parseAsInteger,
+    search: parseAsString,
+    sort: parseAsStringEnum<ProjectListQuery["sort"]>(["latest", "oldest", "name"]),
+    status: parseAsStringEnum<ProjectListQuery["status"]>(["ALL", "PLANNED", "ACTIVE", "COMPLETED", "ARCHIVED"])
+};
 
 const projectSearchParsers = {
     page: parseAsInteger.withDefault(1),
@@ -15,6 +23,7 @@ const projectSearchParsers = {
         "ARCHIVED"
     ]).withDefault("ALL")
 };
+const serializeProjectListQueryParams = createSerializer(projectListQueryParsers);
 
 export type ProjectSearchState = {
     page: number;
@@ -35,6 +44,16 @@ export function toProjectListQuery(search: ProjectSearchState): ProjectListQuery
         sort: search.sort,
         status: search.status
     };
+}
+
+export function serializeProjectListQuery(query: ProjectListQuery) {
+    return serializeProjectListQueryParams({
+        page: query.page,
+        pageSize: query.pageSize,
+        search: query.search ?? null,
+        sort: query.sort,
+        status: query.status
+    }).slice(1);
 }
 
 export function getProjectTotalPages(total: number) {

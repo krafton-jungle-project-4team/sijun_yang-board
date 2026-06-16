@@ -1,9 +1,17 @@
 import type { PostListQuery } from "@nmm/shared";
-import { parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
+import { createSerializer, parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
 
 export type PostDisplayView = "table" | "card";
 
 const POST_LIST_PAGE_SIZE = 10;
+
+const postListQueryParsers = {
+    page: parseAsInteger,
+    pageSize: parseAsInteger,
+    search: parseAsString,
+    sort: parseAsStringEnum<PostListQuery["sort"]>(["latest", "popular"]),
+    view: parseAsStringEnum<PostListQuery["view"]>(["all", "mine"])
+};
 
 const postSearchParsers = {
     page: parseAsInteger.withDefault(1),
@@ -12,6 +20,7 @@ const postSearchParsers = {
     view: parseAsStringEnum<PostListQuery["view"]>(["all", "mine"]).withDefault("all"),
     displayView: parseAsStringEnum<PostDisplayView>(["table", "card"]).withDefault("table")
 };
+const serializePostListQueryParams = createSerializer(postListQueryParsers);
 
 export type PostSearchState = {
     page: number;
@@ -33,6 +42,16 @@ export function toPostListQuery(search: PostSearchState): PostListQuery {
         view: search.view,
         search: search.search || undefined
     };
+}
+
+export function serializePostListQuery(query: PostListQuery) {
+    return serializePostListQueryParams({
+        page: query.page,
+        pageSize: query.pageSize,
+        search: query.search ?? null,
+        sort: query.sort,
+        view: query.view
+    }).slice(1);
 }
 
 export function getTotalPages(total: number) {

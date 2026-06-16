@@ -13,6 +13,7 @@ import type { Options } from "ky";
 import { z } from "zod";
 
 import { deleteJson, getJson, patchJson, postJson } from "../../../shared/api/http-client";
+import { serializePostListQuery } from "../model/post-search";
 
 const commentsSchema = z.array(commentSchema);
 
@@ -20,7 +21,7 @@ export const postsApi = {
     listPosts(query: PostListQuery, options?: Options) {
         return getJson("posts", postListResultSchema, {
             ...options,
-            searchParams: toPostSearchParams(query)
+            searchParams: serializePostListQuery(query)
         });
     },
     getPost(postId: number, options?: Options) {
@@ -48,18 +49,3 @@ export const postsApi = {
         return deleteJson(`comments/${commentId}`, idCommandResultSchema);
     }
 };
-
-function toPostSearchParams(query: PostListQuery) {
-    const searchParams = new URLSearchParams({
-        page: String(query.page),
-        pageSize: String(query.pageSize),
-        sort: query.sort,
-        view: query.view
-    });
-
-    if (query.search) {
-        searchParams.set("search", query.search);
-    }
-
-    return searchParams;
-}

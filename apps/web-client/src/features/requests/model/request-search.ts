@@ -1,7 +1,16 @@
 import type { ApprovalRequestListQuery } from "@nmm/shared";
-import { parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
+import { createSerializer, parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
 
 const REQUEST_LIST_PAGE_SIZE = 10;
+
+const requestListQueryParsers = {
+    page: parseAsInteger,
+    pageSize: parseAsInteger,
+    projectId: parseAsInteger,
+    search: parseAsString,
+    sort: parseAsStringEnum<ApprovalRequestListQuery["sort"]>(["latest", "oldest"]),
+    status: parseAsStringEnum<ApprovalRequestListQuery["status"]>(["ALL", "PENDING", "APPROVED", "REJECTED"])
+};
 
 const requestSearchParsers = {
     page: parseAsInteger.withDefault(1),
@@ -15,6 +24,7 @@ const requestSearchParsers = {
         "REJECTED"
     ]).withDefault("ALL")
 };
+const serializeRequestListQueryParams = createSerializer(requestListQueryParsers);
 
 export type RequestSearchState = {
     page: number;
@@ -37,6 +47,17 @@ export function toRequestListQuery(search: RequestSearchState): ApprovalRequestL
         sort: search.sort,
         status: search.status
     };
+}
+
+export function serializeRequestListQuery(query: ApprovalRequestListQuery) {
+    return serializeRequestListQueryParams({
+        page: query.page,
+        pageSize: query.pageSize,
+        projectId: query.projectId ?? null,
+        search: query.search ?? null,
+        sort: query.sort,
+        status: query.status
+    }).slice(1);
 }
 
 export function getRequestTotalPages(total: number) {
