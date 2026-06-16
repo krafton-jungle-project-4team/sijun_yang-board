@@ -1,5 +1,8 @@
 @import "@nmm/ui/styles/globals.css";
 
+@source ".";
+@source "../../../packages/ui/src";
+
 body {
     background: #f7f7f5;
 }
