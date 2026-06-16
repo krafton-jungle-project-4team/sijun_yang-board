@@ -3,16 +3,16 @@ SELECT
     p.id,
     p.title,
     p.content,
-    p.author_id,
-    u.display_name AS author_name,
-    p.view_count,
-    p.created_at,
-    p.updated_at,
+    p.author_id AS "authorId",
+    u.display_name AS "authorName",
+    p.view_count AS "viewCount",
+    p.created_at AS "createdAt",
+    p.updated_at AS "updatedAt",
     (
         SELECT count(*)::int4
         FROM comments c
         WHERE c.post_id = p.id
-    ) AS comment_count
+    ) AS "commentCount"
 FROM posts p
 INNER JOIN "user" u ON u.id = p.author_id
 WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')
@@ -45,7 +45,7 @@ WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.c
 
 /* @name ListTagsByPostIds */
 SELECT
-    ptl.post_id,
+    ptl.post_id AS "postId",
     pt.id,
     pt.name
 FROM post_tag_links ptl
@@ -64,16 +64,16 @@ SELECT
     p.id,
     p.title,
     p.content,
-    p.author_id,
-    u.display_name AS author_name,
-    p.view_count,
-    p.created_at,
-    p.updated_at,
+    p.author_id AS "authorId",
+    u.display_name AS "authorName",
+    p.view_count AS "viewCount",
+    p.created_at AS "createdAt",
+    p.updated_at AS "updatedAt",
     (
         SELECT count(*)::int4
         FROM comments c
         WHERE c.post_id = p.id
-    ) AS comment_count
+    ) AS "commentCount"
 FROM posts p
 INNER JOIN "user" u ON u.id = p.author_id
 WHERE p.id = :postId::int4;
@@ -81,12 +81,12 @@ WHERE p.id = :postId::int4;
 /* @name ListCommentsByPostId */
 SELECT
     c.id,
-    c.post_id,
-    c.author_id,
-    u.display_name AS author_name,
+    c.post_id AS "postId",
+    c.author_id AS "authorId",
+    u.display_name AS "authorName",
     c.content,
-    c.created_at,
-    c.updated_at
+    c.created_at AS "createdAt",
+    c.updated_at AS "updatedAt"
 FROM comments c
 INNER JOIN "user" u ON u.id = c.author_id
 WHERE c.post_id = :postId::int4
@@ -202,8 +202,8 @@ linked_tags AS (
 )
 SELECT
     target_post.id,
-    target_post.author_id,
-    updated_post.id AS updated_id
+    target_post.author_id AS "authorId",
+    updated_post.id AS "updatedId"
 FROM target_post
 LEFT JOIN updated_post ON true;
 
@@ -222,8 +222,8 @@ deleted_post AS (
 )
 SELECT
     target_post.id,
-    target_post.author_id,
-    deleted_post.id AS deleted_id
+    target_post.author_id AS "authorId",
+    deleted_post.id AS "deletedId"
 FROM target_post
 LEFT JOIN deleted_post ON true;
 
@@ -240,8 +240,8 @@ created_comment AS (
     RETURNING id
 )
 SELECT
-    target_post.id AS post_id,
-    created_comment.id AS comment_id
+    target_post.id AS "postId",
+    created_comment.id AS "commentId"
 FROM target_post
 LEFT JOIN created_comment ON true;
 
@@ -263,8 +263,8 @@ updated_comment AS (
 )
 SELECT
     target_comment.id,
-    target_comment.author_id,
-    updated_comment.id AS updated_id
+    target_comment.author_id AS "authorId",
+    updated_comment.id AS "updatedId"
 FROM target_comment
 LEFT JOIN updated_comment ON true;
 
@@ -283,7 +283,7 @@ deleted_comment AS (
 )
 SELECT
     target_comment.id,
-    target_comment.author_id,
-    deleted_comment.id AS deleted_id
+    target_comment.author_id AS "authorId",
+    deleted_comment.id AS "deletedId"
 FROM target_comment
 LEFT JOIN deleted_comment ON true;

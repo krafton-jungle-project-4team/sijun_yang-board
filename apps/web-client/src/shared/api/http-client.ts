@@ -5,7 +5,7 @@ import type { z } from "zod";
 import { clientEnv } from "../env/client-env";
 
 const http = ky.create({
-    prefixUrl: clientEnv.VITE_API_BASE_URL.replace(/^\//, ""),
+    prefixUrl: new URL(clientEnv.VITE_API_BASE_URL, window.location.origin).toString(),
     credentials: "include"
 });
 

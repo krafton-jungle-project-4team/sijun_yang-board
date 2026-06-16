@@ -22,9 +22,9 @@ export interface IGetClaimsBySessionIdQuery {
 
 const getClaimsBySessionIdIR: any = {
     usedParamSet: { sessionId: true },
-    params: [{ name: "sessionId", required: false, transform: { type: "scalar" }, locs: [{ a: 127, b: 136 }] }],
+    params: [{ name: "sessionId", required: false, transform: { type: "scalar" }, locs: [{ a: 139, b: 148 }] }],
     statement:
-        'SELECT\n    s.id,\n    s.user_id,\n    u.role,\n    u.status\nFROM "session" s\nINNER JOIN "user" u ON u.id = s.user_id\nWHERE s.id = :sessionId::uuid\n  AND s.expires_at > now()'
+        'SELECT\n    s.id,\n    s.user_id AS "userId",\n    u.role,\n    u.status\nFROM "session" s\nINNER JOIN "user" u ON u.id = s.user_id\nWHERE s.id = :sessionId::uuid\n  AND s.expires_at > now()'
 };
 
 /**
@@ -32,7 +32,7 @@ const getClaimsBySessionIdIR: any = {
  * ```
  * SELECT
  *     s.id,
- *     s.user_id,
+ *     s.user_id AS "userId",
  *     u.role,
  *     u.status
  * FROM "session" s
@@ -69,9 +69,9 @@ export interface IGetUserByIdQuery {
 
 const getUserByIdIR: any = {
     usedParamSet: { userId: true },
-    params: [{ name: "userId", required: false, transform: { type: "scalar" }, locs: [{ a: 120, b: 126 }] }],
+    params: [{ name: "userId", required: false, transform: { type: "scalar" }, locs: [{ a: 167, b: 173 }] }],
     statement:
-        'SELECT\n    id,\n    email,\n    display_name,\n    role,\n    status,\n    created_at,\n    updated_at\nFROM "user"\nWHERE id = :userId::int4'
+        'SELECT\n    id,\n    email,\n    display_name AS "displayName",\n    role,\n    status,\n    created_at AS "createdAt",\n    updated_at AS "updatedAt"\nFROM "user"\nWHERE id = :userId::int4'
 };
 
 /**
@@ -80,11 +80,11 @@ const getUserByIdIR: any = {
  * SELECT
  *     id,
  *     email,
- *     display_name,
+ *     display_name AS "displayName",
  *     role,
  *     status,
- *     created_at,
- *     updated_at
+ *     created_at AS "createdAt",
+ *     updated_at AS "updatedAt"
  * FROM "user"
  * WHERE id = :userId::int4
  * ```

@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from "@nestjs/common";
 import type { Request, Response } from "express";
 import { ZodError } from "zod";
 
@@ -12,6 +12,8 @@ type ErrorBody = {
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
+    private readonly logger = new Logger(ApiExceptionFilter.name);
+
     catch(error: unknown, host: ArgumentsHost) {
         const context = host.switchToHttp();
         const request = context.getRequest<Request & RequestWithRequestId>();
@@ -19,6 +21,10 @@ export class ApiExceptionFilter implements ExceptionFilter {
         const requestId = request.requestId ?? "missing-request-id";
         const status = this.getStatus(error);
         const body = this.getBody(error);
+
+        if (status >= 500) {
+            this.logger.error(getLogMessage(body.message, error), getErrorStack(error));
+        }
 
         response.status(status).json({
             requestId,
@@ -69,4 +75,20 @@ export class ApiExceptionFilter implements ExceptionFilter {
             message: "Unexpected server error."
         };
     }
+}
+
+function getLogMessage(message: string, error: unknown) {
+    if (error instanceof Error && error.cause instanceof Error) {
+        return `${message}: ${error.cause.message}`;
+    }
+
+    return message;
+}
+
+function getErrorStack(error: unknown) {
+    if (error instanceof Error) {
+        return error.stack;
+    }
+
+    return undefined;
 }

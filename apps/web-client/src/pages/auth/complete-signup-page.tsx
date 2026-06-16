@@ -1,22 +1,41 @@
-import { Button, Card, CardContent, CardHeader, CardTitle, Field, Input, Label } from "@nmm/ui/components";
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import {
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    Field,
+    FieldError,
+    FieldLabel,
+    Input
+} from "@nmm/ui/components";
+import { useNavigate } from "@tanstack/react-router";
+import { type ChangeEvent, type FormEvent, useState } from "react";
 
-import { authApi } from "../../features/auth";
+import { useCompleteSignupMutation } from "../../features/auth";
 
 export function CompleteSignupPage() {
+    const navigate = useNavigate();
     const [displayName, setDisplayName] = useState("");
-    const completeSignup = useMutation({
-        mutationFn: authApi.completeSignup
-    });
+    const [error, setError] = useState<string | null>(null);
+    const completeSignup = useCompleteSignupMutation();
 
-    function handleDisplayNameChange(event: React.ChangeEvent<HTMLInputElement>) {
+    function handleDisplayNameChange(event: ChangeEvent<HTMLInputElement>) {
         setDisplayName(event.target.value);
+        setError(null);
     }
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        await completeSignup.mutateAsync(displayName);
+        const nextDisplayName = displayName.trim();
+
+        if (!nextDisplayName) {
+            setError("Display name is required.");
+            return;
+        }
+
+        await completeSignup.mutateAsync(nextDisplayName);
+        await navigate({ to: "/me" });
     }
 
     return (
@@ -31,8 +50,9 @@ export function CompleteSignupPage() {
                 <CardContent>
                     <form className="form-stack" onSubmit={handleSubmit}>
                         <Field>
-                            <Label htmlFor="displayName">Display name</Label>
+                            <FieldLabel htmlFor="displayName">Display name</FieldLabel>
                             <Input id="displayName" value={displayName} onChange={handleDisplayNameChange} />
+                            {error ? <FieldError>{error}</FieldError> : null}
                         </Field>
                         <Button disabled={completeSignup.isPending} type="submit">
                             {completeSignup.isPending ? "Saving..." : "Complete"}

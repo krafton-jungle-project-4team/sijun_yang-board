@@ -2,16 +2,22 @@ import type { CreatePostInput } from "@nmm/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate } from "@tanstack/react-router";
 
-import { PostForm, useCreatePost } from "../../features/posts";
+import { PostForm, useCreatePost, usePostTags } from "../../features/posts";
 
 export function NewPostPage() {
     const navigate = useNavigate();
     const createPost = useCreatePost();
+    const tagsQuery = usePostTags();
+    const availableTags = tagsQuery.data ?? [];
 
     async function handleSubmit(input: CreatePostInput) {
         const result = await createPost.mutateAsync(input);
 
         await navigate({ to: "/posts/$postId", params: { postId: String(result.id) } });
+    }
+
+    function handleCancel() {
+        void navigate({ to: "/posts" });
     }
 
     return (
@@ -24,7 +30,13 @@ export function NewPostPage() {
                     <CardTitle>Post details</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <PostForm pending={createPost.isPending} submitLabel="Create" onSubmit={handleSubmit} />
+                    <PostForm
+                        availableTags={availableTags}
+                        pending={createPost.isPending}
+                        submitLabel="Create"
+                        onCancel={handleCancel}
+                        onSubmit={handleSubmit}
+                    />
                 </CardContent>
             </Card>
         </div>

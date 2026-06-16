@@ -1,7 +1,7 @@
 /* @name GetClaimsBySessionId */
 SELECT
     s.id,
-    s.user_id,
+    s.user_id AS "userId",
     u.role,
     u.status
 FROM "session" s
@@ -13,11 +13,11 @@ WHERE s.id = :sessionId::uuid
 SELECT
     id,
     email,
-    display_name,
+    display_name AS "displayName",
     role,
     status,
-    created_at,
-    updated_at
+    created_at AS "createdAt",
+    updated_at AS "updatedAt"
 FROM "user"
 WHERE id = :userId::int4;
 

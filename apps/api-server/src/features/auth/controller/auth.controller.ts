@@ -37,4 +37,12 @@ export class AuthController {
 
         return this.authQuery.getUser(result.id);
     }
+
+    @Post("logout")
+    @UseGuards(SessionUserGuard)
+    async logout(@CurrentAuth() auth: AuthClaims) {
+        await this.authCommand.expireUserSessions(auth.userId);
+
+        return { id: auth.userId };
+    }
 }

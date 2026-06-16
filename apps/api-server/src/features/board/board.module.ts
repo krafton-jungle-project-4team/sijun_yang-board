@@ -1,11 +1,13 @@
 import { Module } from "@nestjs/common";
 
+import { AuthModule } from "../auth";
 import { CommentsController } from "./controller/comments.controller";
 import { PostTagsController } from "./controller/post-tags.controller";
 import { PostsController } from "./controller/posts.controller";
 import { BoardCommandService, BoardQueryService } from "./service";
 
 @Module({
+    imports: [AuthModule],
     controllers: [PostsController, CommentsController, PostTagsController],
     providers: [BoardQueryService, BoardCommandService]
 })
