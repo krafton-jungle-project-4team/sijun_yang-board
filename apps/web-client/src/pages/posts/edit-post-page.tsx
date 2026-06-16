@@ -3,8 +3,10 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } fro
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 
-import { useCurrentUserQuery } from "../../features/auth";
-import { canManagePost, PostForm, useDeletePost, usePost, usePostTags, useUpdatePost } from "../../features/posts";
+import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
+import { useDeletePost, usePost, useUpdatePost } from "../../features/posts/hooks/use-posts";
+import { canManagePost } from "../../features/posts/model/post-permissions";
+import { PostForm } from "../../features/posts/ui/post-form";
 
 export function EditPostPage() {
     const navigate = useNavigate();
@@ -12,10 +14,8 @@ export function EditPostPage() {
     const postId = Number(params.postId);
     const currentUserQuery = useCurrentUserQuery();
     const postQuery = usePost(postId);
-    const tagsQuery = usePostTags();
     const updatePost = useUpdatePost(postId);
     const deletePost = useDeletePost(postId);
-    const availableTags = tagsQuery.data ?? [];
 
     async function handleSubmit(input: CreatePostInput) {
         await updatePost.mutateAsync(input);
@@ -76,7 +76,7 @@ export function EditPostPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Edit unavailable</CardTitle>
-                    <CardDescription>Only the author or an admin can edit this post.</CardDescription>
+                    <CardDescription>Author or admin only.</CardDescription>
                 </CardHeader>
             </Card>
         );
@@ -86,8 +86,8 @@ export function EditPostPage() {
         <div className="grid gap-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <CardHeader className="px-0">
-                    <CardTitle>Edit post</CardTitle>
-                    <CardDescription>Update content, tags, or remove the post.</CardDescription>
+                    <CardTitle>Edit announcement</CardTitle>
+                    <CardDescription>Update or remove this announcement.</CardDescription>
                 </CardHeader>
                 <Button
                     type="button"
@@ -101,15 +101,13 @@ export function EditPostPage() {
             </div>
             <Card>
                 <CardHeader>
-                    <CardTitle>Post details</CardTitle>
+                    <CardTitle>Announcement details</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <PostForm
-                        availableTags={availableTags}
                         initialValue={{
                             title: postQuery.data.title,
-                            content: postQuery.data.content,
-                            tags: postQuery.data.tags.map((tag) => tag.name)
+                            content: postQuery.data.content
                         }}
                         pending={updatePost.isPending}
                         submitLabel="Save"

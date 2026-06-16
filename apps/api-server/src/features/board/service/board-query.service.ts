@@ -1,4 +1,4 @@
-import type { AuthClaims, Comment, PostDetail, PostListQuery, PostListResult, Tag } from "@nmm/shared";
+import type { AuthClaims, Comment, PostDetail, PostListQuery, PostListResult } from "@nmm/shared";
 import { InjectTransaction, Transactional, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
@@ -6,15 +6,12 @@ import { PgTypedTransactionalAdapter } from "../../../infra/database";
 import { postNotFoundError } from "../board-errors";
 import {
     countPosts,
-    countPostTagLinks,
     getPostById,
     incrementPostView,
     listCommentsByPostId,
-    listPosts,
-    listTags,
-    listTagsByPostIds
+    listPosts
 } from "../database/__generated__/board.queries";
-import { toCommentModel, toPostDetail, toPostSummary, toTagModel } from "./board-mappers";
+import { toCommentModel, toPostDetail, toPostSummary } from "./board-mappers";
 
 @Injectable()
 export class BoardQueryService {
@@ -27,8 +24,7 @@ export class BoardQueryService {
     async listPosts(query: PostListQuery, auth?: AuthClaims): Promise<PostListResult> {
         const filters = {
             search: query.search ?? null,
-            tag: query.tag ?? null,
-            authorId: query.view === "mine" && auth ? auth.userId : null
+            authorId: query.view === "mine" ? (auth?.userId ?? -1) : null
         };
         const items = await this.db
             .query(listPosts, {
@@ -39,17 +35,9 @@ export class BoardQueryService {
             })
             .multiple();
         const total = await this.db.query(countPosts, filters).single();
-        const tagRows = await this.db.query(listTagsByPostIds, { postIds: items.map((item) => item.id) }).multiple();
-        const tagsByPostId: Record<number, Tag[]> = {};
-
-        for (const tagRow of tagRows) {
-            const tags = tagsByPostId[tagRow.postId] ?? [];
-            tags.push(toTagModel(tagRow));
-            tagsByPostId[tagRow.postId] = tags;
-        }
 
         return {
-            items: items.map((item) => toPostSummary(item, tagsByPostId[item.id] ?? [])),
+            items: items.map(toPostSummary),
             page: query.page,
             pageSize: query.pageSize,
             total: total.total ?? 0
@@ -66,9 +54,7 @@ export class BoardQueryService {
             throw postNotFoundError();
         }
 
-        const tagRows = await this.db.query(listTagsByPostIds, { postIds: [postId] }).multiple();
-
-        return toPostDetail(post, tagRows.map(toTagModel));
+        return toPostDetail(post);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
@@ -76,19 +62,5 @@ export class BoardQueryService {
         const comments = await this.db.query(listCommentsByPostId, { postId }).multiple();
 
         return comments.map(toCommentModel);
-    }
-
-    @Transactional<PgTypedTransactionalAdapter>()
-    async listTags(): Promise<Tag[]> {
-        const tags = await this.db.query(listTags, undefined).multiple();
-
-        return tags.map(toTagModel);
-    }
-
-    @Transactional<PgTypedTransactionalAdapter>()
-    async hasPostTagLinks(postId: number): Promise<boolean> {
-        const result = await this.db.query(countPostTagLinks, { postId }).single();
-
-        return (result.total ?? 0) > 0;
     }
 }

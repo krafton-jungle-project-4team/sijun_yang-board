@@ -26,6 +26,18 @@ export function useCompleteSignupMutation() {
     });
 }
 
+export function useLoginMutation() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: authApi.login,
+        onSuccess: async (user) => {
+            queryClient.setQueryData(authQueryKeys.currentUser, user);
+            await queryClient.invalidateQueries();
+        }
+    });
+}
+
 export function useUpdateMeMutation() {
     const queryClient = useQueryClient();
 

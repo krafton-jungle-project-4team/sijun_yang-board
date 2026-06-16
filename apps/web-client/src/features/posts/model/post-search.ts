@@ -1,35 +1,37 @@
 import type { PostListQuery } from "@nmm/shared";
+import { parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
 
 export type PostDisplayView = "table" | "card";
+
+const POST_LIST_PAGE_SIZE = 10;
+
+const postSearchParsers = {
+    page: parseAsInteger.withDefault(1),
+    search: parseAsString.withDefault(""),
+    sort: parseAsStringEnum<PostListQuery["sort"]>(["latest", "popular"]).withDefault("latest"),
+    view: parseAsStringEnum<PostListQuery["view"]>(["all", "mine"]).withDefault("all"),
+    displayView: parseAsStringEnum<PostDisplayView>(["table", "card"]).withDefault("table")
+};
 
 export type PostSearchState = {
     page: number;
     search: string;
     sort: PostListQuery["sort"];
-    tag: string;
     view: PostListQuery["view"];
     displayView: PostDisplayView;
 };
 
-export const POST_LIST_PAGE_SIZE = 10;
-
-export const defaultPostSearch: PostSearchState = {
-    page: 1,
-    search: "",
-    sort: "latest",
-    tag: "",
-    view: "all",
-    displayView: "table"
-};
+export function usePostSearchParams() {
+    return useQueryStates(postSearchParsers);
+}
 
 export function toPostListQuery(search: PostSearchState): PostListQuery {
     return {
-        page: search.page,
+        page: Math.max(1, search.page),
         pageSize: POST_LIST_PAGE_SIZE,
         sort: search.sort,
         view: search.view,
-        search: search.search || undefined,
-        tag: search.tag || undefined
+        search: search.search || undefined
     };
 }
 

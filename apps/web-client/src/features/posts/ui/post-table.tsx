@@ -15,8 +15,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 
-import { canManagePost } from "../model";
-import { PostTagBadges } from "./post-tag-badges";
+import { canManagePost } from "../model/post-permissions";
 
 type PostTableProps = {
     currentUser: User | null | undefined;
@@ -32,8 +31,9 @@ export function PostTable({ currentUser, posts }: PostTableProps) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Title</TableHead>
+                            <TableHead>Announcement</TableHead>
                             <TableHead className="hidden md:table-cell">Author</TableHead>
+                            <TableHead className="hidden lg:table-cell">Activity</TableHead>
                             {hasManageablePost ? <TableHead className="w-20 text-right">Actions</TableHead> : null}
                         </TableRow>
                     </TableHeader>
@@ -70,10 +70,12 @@ function PostTableRow({ currentUser, hasActionColumn, post }: PostTableRowProps)
                         {post.title}
                     </Link>
                     <CardDescription className="line-clamp-1">{post.excerpt}</CardDescription>
-                    <PostTagBadges tags={post.tags} />
                 </div>
             </TableCell>
             <TableCell className="hidden md:table-cell">{post.authorName}</TableCell>
+            <TableCell className="hidden lg:table-cell">
+                {post.commentCount} comments · {post.viewCount} views
+            </TableCell>
             {hasActionColumn ? (
                 <TableCell>
                     <ButtonGroup className="ml-auto">

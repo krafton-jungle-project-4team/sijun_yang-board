@@ -18,43 +18,41 @@ import {
 } from "@nmm/ui/components";
 import { Link } from "@tanstack/react-router";
 import { LayoutGrid, List, Plus, Search } from "lucide-react";
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 
-import { useCurrentUserQuery } from "../../features/auth";
+import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
+import { usePosts } from "../../features/posts/hooks/use-posts";
 import {
-    defaultPostSearch,
     getTotalPages,
-    PostCards,
-    PostTable,
     toPostListQuery,
-    usePosts,
-    usePostTags,
     type PostDisplayView,
-    type PostSearchState
-} from "../../features/posts";
+    usePostSearchParams
+} from "../../features/posts/model/post-search";
+import { PostCards } from "../../features/posts/ui/post-cards";
+import { PostTable } from "../../features/posts/ui/post-table";
 
-const ALL_TAGS_VALUE = "all";
 const sortOptions: Array<{ label: string; value: PostListQuery["sort"] }> = [
     { label: "Latest", value: "latest" },
     { label: "Popular", value: "popular" }
 ];
 const ownerViewOptions: Array<{ label: string; value: PostListQuery["view"] }> = [
-    { label: "All posts", value: "all" },
-    { label: "My posts", value: "mine" }
+    { label: "All announcements", value: "all" },
+    { label: "My announcements", value: "mine" }
 ];
 
 export function PostsPage() {
-    const [search, setSearch] = useState<PostSearchState>(defaultPostSearch);
-    const [searchDraft, setSearchDraft] = useState(defaultPostSearch.search);
+    const [search, setSearch] = usePostSearchParams();
+    const [searchDraft, setSearchDraft] = useState(search.search);
     const query = useMemo(() => toPostListQuery(search), [search]);
     const currentUser = useCurrentUserQuery().data;
-    const tagsQuery = usePostTags();
     const postsQuery = usePosts(query);
-    const tags = tagsQuery.data ?? [];
     const postsData = postsQuery.data;
     const currentPage = postsData?.page ?? search.page;
     const totalPages = getTotalPages(postsData?.total ?? 0);
-    const selectedTagValue = search.tag || ALL_TAGS_VALUE;
+
+    useEffect(() => {
+        setSearchDraft(search.search);
+    }, [search.search]);
 
     function handleSearchInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         setSearchDraft(event.target.value);
@@ -62,35 +60,24 @@ export function PostsPage() {
 
     function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        setSearch((current) => ({
-            ...current,
+        void setSearch({
             page: 1,
             search: searchDraft.trim()
-        }));
+        });
     }
 
     function handleSortChange(sort: PostListQuery["sort"]) {
-        setSearch((current) => ({
-            ...current,
+        void setSearch({
             page: 1,
             sort
-        }));
+        });
     }
 
     function handleOwnerViewChange(view: PostListQuery["view"]) {
-        setSearch((current) => ({
-            ...current,
+        void setSearch({
             page: 1,
             view
-        }));
-    }
-
-    function handleTagChange(tag: string) {
-        setSearch((current) => ({
-            ...current,
-            page: 1,
-            tag: tag === ALL_TAGS_VALUE ? "" : tag
-        }));
+        });
     }
 
     function handleTableViewClick() {
@@ -102,42 +89,39 @@ export function PostsPage() {
     }
 
     function handlePreviousPageClick() {
-        setSearch((current) => ({
-            ...current,
+        void setSearch((current) => ({
             page: Math.max(1, current.page - 1)
         }));
     }
 
     function handleNextPageClick() {
-        setSearch((current) => ({
-            ...current,
+        void setSearch((current) => ({
             page: Math.min(totalPages, current.page + 1)
         }));
     }
 
     function setDisplayView(displayView: PostDisplayView) {
-        setSearch((current) => ({
-            ...current,
+        void setSearch({
             displayView
-        }));
+        });
     }
 
     return (
         <section className="grid gap-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
-                <CardHeader className="px-0">
-                    <CardTitle>Posts</CardTitle>
-                    <CardDescription>Search, tag filters, comments, and guarded mutations.</CardDescription>
+                <CardHeader className="min-w-0 flex-1 px-0">
+                    <CardTitle>Announcements</CardTitle>
+                    <CardDescription>Updates, notes, comments, views.</CardDescription>
                 </CardHeader>
                 <Button asChild>
                     <Link to="/posts/new">
                         <Plus />
-                        New post
+                        New announcement
                     </Link>
                 </Button>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px_150px_150px_auto]">
+            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px_170px_auto]">
                 <form className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]" onSubmit={handleSearchSubmit}>
                     <InputGroup>
                         <InputGroupAddon>
@@ -145,7 +129,7 @@ export function PostsPage() {
                         </InputGroupAddon>
                         <InputGroupInput
                             name="search"
-                            placeholder="Search posts"
+                            placeholder="Search announcements"
                             value={searchDraft}
                             onChange={handleSearchInputChange}
                         />
@@ -179,19 +163,6 @@ export function PostsPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                <Select value={selectedTagValue} onValueChange={handleTagChange}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value={ALL_TAGS_VALUE}>All tags</SelectItem>
-                        {tags.map((tag) => (
-                            <SelectItem key={tag.id} value={tag.name}>
-                                {tag.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
                 <ButtonGroup>
                     <Button
                         type="button"
@@ -217,14 +188,14 @@ export function PostsPage() {
             {postsQuery.isError ? (
                 <Card>
                     <CardHeader>
-                        <CardDescription>Could not load posts.</CardDescription>
+                        <CardDescription>Could not load announcements.</CardDescription>
                     </CardHeader>
                 </Card>
             ) : null}
             {postsQuery.isPending ? (
                 <Card>
                     <CardHeader>
-                        <CardDescription>Loading posts...</CardDescription>
+                        <CardDescription>Loading announcements...</CardDescription>
                     </CardHeader>
                 </Card>
             ) : null}
@@ -237,7 +208,7 @@ export function PostsPage() {
                     )}
                     <div className="flex items-center justify-between gap-3">
                         <Badge variant="secondary">
-                            {currentPage} / {totalPages} · {postsData.total} posts
+                            {currentPage} / {totalPages} · {postsData.total} announcements
                         </Badge>
                         <ButtonGroup>
                             <Button

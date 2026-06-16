@@ -20,9 +20,9 @@ import { Check, Pencil, Send, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { useController, useForm, type Control, type UseFormSetError } from "react-hook-form";
 
-import { isActiveUser } from "../../auth";
-import { canManageComment } from "../model";
 import { useComments, useCreateComment, useDeleteComment, useUpdateComment } from "../hooks/use-posts";
+import { canManageComment } from "../model/post-permissions";
+import { isActiveUser } from "../../auth/model/user-status";
 
 type PostCommentsProps = {
     currentUser: User | null | undefined;
@@ -114,7 +114,7 @@ function CommentComposer({ currentUser, postId }: PostCommentsProps) {
         return (
             <Card>
                 <CardHeader>
-                    <CardDescription>Sign in with an active account to write comments.</CardDescription>
+                    <CardDescription>Sign in to comment.</CardDescription>
                 </CardHeader>
             </Card>
         );

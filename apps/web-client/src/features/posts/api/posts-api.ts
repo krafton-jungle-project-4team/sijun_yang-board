@@ -3,7 +3,6 @@ import {
     idCommandResultSchema,
     postDetailSchema,
     postListResultSchema,
-    tagSchema,
     type CreateCommentInput,
     type CreatePostInput,
     type PostListQuery,
@@ -16,7 +15,6 @@ import { z } from "zod";
 import { deleteJson, getJson, patchJson, postJson } from "../../../shared/api/http-client";
 
 const commentsSchema = z.array(commentSchema);
-const tagsSchema = z.array(tagSchema);
 
 export const postsApi = {
     listPosts(query: PostListQuery, options?: Options) {
@@ -48,9 +46,6 @@ export const postsApi = {
     },
     deleteComment(commentId: number) {
         return deleteJson(`comments/${commentId}`, idCommandResultSchema);
-    },
-    listTags(options?: Options) {
-        return getJson("post-tags", tagsSchema, options);
     }
 };
 
@@ -64,10 +59,6 @@ function toPostSearchParams(query: PostListQuery) {
 
     if (query.search) {
         searchParams.set("search", query.search);
-    }
-
-    if (query.tag) {
-        searchParams.set("tag", query.tag);
     }
 
     return searchParams;

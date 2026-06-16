@@ -10,13 +10,7 @@ export const postListQuerySchema = z.object({
     pageSize: z.coerce.number().int().min(1).max(50).default(20),
     sort: postSortSchema,
     view: postViewSchema,
-    tag: z.string().trim().min(1).max(40).optional(),
     search: z.string().trim().min(1).max(120).optional()
-});
-
-export const tagSchema = z.object({
-    id: z.number().int().positive(),
-    name: z.string().min(1).max(40)
 });
 
 export const postSummarySchema = z.object({
@@ -27,7 +21,6 @@ export const postSummarySchema = z.object({
     authorName: z.string().min(1),
     commentCount: z.number().int().nonnegative(),
     viewCount: z.number().int().nonnegative(),
-    tags: z.array(tagSchema),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime()
 });
@@ -45,14 +38,13 @@ export const postListResultSchema = z.object({
 
 export const createPostInputSchema = z.object({
     title: z.string().trim().min(1).max(120),
-    content: z.string().trim().min(1).max(10000),
-    tags: z.array(z.string().trim().min(1).max(40)).max(5).default([])
+    content: z.string().trim().min(1).max(10000)
 });
 
 export const updatePostInputSchema = createPostInputSchema
     .partial()
     .refine(
-        (value) => value.title !== undefined || value.content !== undefined || value.tags !== undefined,
+        (value) => value.title !== undefined || value.content !== undefined,
         "At least one post field is required."
     );
 
@@ -73,7 +65,6 @@ export const createCommentInputSchema = z.object({
 export const updateCommentInputSchema = createCommentInputSchema;
 
 export type PostListQuery = z.infer<typeof postListQuerySchema>;
-export type Tag = z.infer<typeof tagSchema>;
 export type PostSummary = z.infer<typeof postSummarySchema>;
 export type PostDetail = z.infer<typeof postDetailSchema>;
 export type PostListResult = z.infer<typeof postListResultSchema>;

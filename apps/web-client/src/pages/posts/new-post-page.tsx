@@ -2,13 +2,12 @@ import type { CreatePostInput } from "@nmm/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate } from "@tanstack/react-router";
 
-import { PostForm, useCreatePost, usePostTags } from "../../features/posts";
+import { useCreatePost } from "../../features/posts/hooks/use-posts";
+import { PostForm } from "../../features/posts/ui/post-form";
 
 export function NewPostPage() {
     const navigate = useNavigate();
     const createPost = useCreatePost();
-    const tagsQuery = usePostTags();
-    const availableTags = tagsQuery.data ?? [];
 
     async function handleSubmit(input: CreatePostInput) {
         const result = await createPost.mutateAsync(input);
@@ -23,15 +22,14 @@ export function NewPostPage() {
     return (
         <div className="grid gap-5">
             <CardHeader className="px-0">
-                <CardTitle>New post</CardTitle>
+                <CardTitle>New announcement</CardTitle>
             </CardHeader>
             <Card>
                 <CardHeader>
-                    <CardTitle>Post details</CardTitle>
+                    <CardTitle>Announcement details</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <PostForm
-                        availableTags={availableTags}
                         pending={createPost.isPending}
                         submitLabel="Create"
                         onCancel={handleCancel}

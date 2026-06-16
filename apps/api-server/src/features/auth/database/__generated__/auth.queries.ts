@@ -91,6 +91,49 @@ const getUserByIdIR: any = {
  */
 export const getUserById = new PreparedQuery<IGetUserByIdParams, IGetUserByIdResult>(getUserByIdIR);
 
+/** 'GetLoginCredentialsByLoginId' parameters type */
+export interface IGetLoginCredentialsByLoginIdParams {
+    loginId?: string | null | void;
+}
+
+/** 'GetLoginCredentialsByLoginId' return type */
+export interface IGetLoginCredentialsByLoginIdResult {
+    id: number;
+    passwordHash: string;
+    role: string;
+    status: string;
+}
+
+/** 'GetLoginCredentialsByLoginId' query type */
+export interface IGetLoginCredentialsByLoginIdQuery {
+    params: IGetLoginCredentialsByLoginIdParams;
+    result: IGetLoginCredentialsByLoginIdResult;
+}
+
+const getLoginCredentialsByLoginIdIR: any = {
+    usedParamSet: { loginId: true },
+    params: [{ name: "loginId", required: false, transform: { type: "scalar" }, locs: [{ a: 102, b: 109 }] }],
+    statement:
+        'SELECT\n    id,\n    password_hash AS "passwordHash",\n    role,\n    status\nFROM "user"\nWHERE login_id = :loginId'
+};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT
+ *     id,
+ *     password_hash AS "passwordHash",
+ *     role,
+ *     status
+ * FROM "user"
+ * WHERE login_id = :loginId
+ * ```
+ */
+export const getLoginCredentialsByLoginId = new PreparedQuery<
+    IGetLoginCredentialsByLoginIdParams,
+    IGetLoginCredentialsByLoginIdResult
+>(getLoginCredentialsByLoginIdIR);
+
 /** 'CompleteSignup' parameters type */
 export interface ICompleteSignupParams {
     displayName?: string | null | void;
@@ -171,6 +214,53 @@ const updateMeIR: any = {
  * ```
  */
 export const updateMe = new PreparedQuery<IUpdateMeParams, IUpdateMeResult>(updateMeIR);
+
+/** 'CreateSessionForUser' parameters type */
+export interface ICreateSessionForUserParams {
+    sessionId?: string | null | void;
+    userId?: number | null | void;
+}
+
+/** 'CreateSessionForUser' return type */
+export interface ICreateSessionForUserResult {
+    id: string;
+    userId: number;
+}
+
+/** 'CreateSessionForUser' query type */
+export interface ICreateSessionForUserQuery {
+    params: ICreateSessionForUserParams;
+    result: ICreateSessionForUserResult;
+}
+
+const createSessionForUserIR: any = {
+    usedParamSet: { sessionId: true, userId: true },
+    params: [
+        { name: "sessionId", required: false, transform: { type: "scalar" }, locs: [{ a: 59, b: 68 }] },
+        { name: "userId", required: false, transform: { type: "scalar" }, locs: [{ a: 145, b: 151 }] }
+    ],
+    statement:
+        'INSERT INTO "session" (id, user_id, expires_at)\nSELECT\n    :sessionId::uuid,\n    u.id,\n    now() + interval \'30 days\'\nFROM "user" u\nWHERE u.id = :userId::int4\nRETURNING\n    id,\n    user_id AS "userId"'
+};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * INSERT INTO "session" (id, user_id, expires_at)
+ * SELECT
+ *     :sessionId::uuid,
+ *     u.id,
+ *     now() + interval '30 days'
+ * FROM "user" u
+ * WHERE u.id = :userId::int4
+ * RETURNING
+ *     id,
+ *     user_id AS "userId"
+ * ```
+ */
+export const createSessionForUser = new PreparedQuery<ICreateSessionForUserParams, ICreateSessionForUserResult>(
+    createSessionForUserIR
+);
 
 /** 'DeleteSessionsByUserId' parameters type */
 export interface IDeleteSessionsByUserIdParams {

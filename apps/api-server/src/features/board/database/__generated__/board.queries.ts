@@ -1,10 +1,6 @@
 /** Types generated for queries found in "apps/api-server/src/features/board/database/board.sql" */
 import { PreparedQuery } from "@pgtyped/runtime";
 
-export type numberArray = number[];
-
-export type stringArray = string[];
-
 /** 'ListPosts' parameters type */
 export interface IListPostsParams {
     authorId?: number | null | void;
@@ -12,7 +8,6 @@ export interface IListPostsParams {
     offset?: number | null | void;
     search?: string | null | void;
     sort?: string | null | void;
-    tag?: string | null | void;
 }
 
 /** 'ListPosts' return type */
@@ -35,7 +30,7 @@ export interface IListPostsQuery {
 }
 
 const listPostsIR: any = {
-    usedParamSet: { search: true, tag: true, authorId: true, sort: true, limit: true, offset: true },
+    usedParamSet: { search: true, authorId: true, sort: true, limit: true, offset: true },
     params: [
         {
             name: "search",
@@ -48,29 +43,20 @@ const listPostsIR: any = {
             ]
         },
         {
-            name: "tag",
-            required: false,
-            transform: { type: "scalar" },
-            locs: [
-                { a: 510, b: 513 },
-                { a: 697, b: 700 }
-            ]
-        },
-        {
             name: "authorId",
             required: false,
             transform: { type: "scalar" },
             locs: [
-                { a: 721, b: 729 },
-                { a: 762, b: 770 }
+                { a: 510, b: 518 },
+                { a: 551, b: 559 }
             ]
         },
-        { name: "sort", required: false, transform: { type: "scalar" }, locs: [{ a: 802, b: 806 }] },
-        { name: "limit", required: false, transform: { type: "scalar" }, locs: [{ a: 887, b: 892 }] },
-        { name: "offset", required: false, transform: { type: "scalar" }, locs: [{ a: 907, b: 913 }] }
+        { name: "sort", required: false, transform: { type: "scalar" }, locs: [{ a: 591, b: 595 }] },
+        { name: "limit", required: false, transform: { type: "scalar" }, locs: [{ a: 676, b: 681 }] },
+        { name: "offset", required: false, transform: { type: "scalar" }, locs: [{ a: 696, b: 702 }] }
     ],
     statement:
-        'SELECT\n    p.id,\n    p.title,\n    p.content,\n    p.author_id AS "authorId",\n    u.display_name AS "authorName",\n    p.view_count AS "viewCount",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM comments c\n        WHERE c.post_id = p.id\n    ) AS "commentCount"\nFROM posts p\nINNER JOIN "user" u ON u.id = p.author_id\nWHERE (:search::text IS NULL OR p.title ILIKE \'%\' || :search::text || \'%\' OR p.content ILIKE \'%\' || :search::text || \'%\')\n  AND (:tag::text IS NULL OR EXISTS (\n      SELECT 1\n      FROM post_tag_links ptl\n      INNER JOIN post_tags pt ON pt.id = ptl.tag_id\n      WHERE ptl.post_id = p.id\n        AND pt.name = lower(:tag::text)\n  ))\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)\nORDER BY\n    CASE WHEN :sort = \'popular\' THEN p.view_count END DESC NULLS LAST,\n    p.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4'
+        'SELECT\n    p.id,\n    p.title,\n    p.content,\n    p.author_id AS "authorId",\n    u.display_name AS "authorName",\n    p.view_count AS "viewCount",\n    p.created_at AS "createdAt",\n    p.updated_at AS "updatedAt",\n    (\n        SELECT count(*)::int4\n        FROM comments c\n        WHERE c.post_id = p.id\n    ) AS "commentCount"\nFROM posts p\nINNER JOIN "user" u ON u.id = p.author_id\nWHERE (:search::text IS NULL OR p.title ILIKE \'%\' || :search::text || \'%\' OR p.content ILIKE \'%\' || :search::text || \'%\')\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)\nORDER BY\n    CASE WHEN :sort = \'popular\' THEN p.view_count END DESC NULLS LAST,\n    p.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4'
 };
 
 /**
@@ -93,13 +79,6 @@ const listPostsIR: any = {
  * FROM posts p
  * INNER JOIN "user" u ON u.id = p.author_id
  * WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')
- *   AND (:tag::text IS NULL OR EXISTS (
- *       SELECT 1
- *       FROM post_tag_links ptl
- *       INNER JOIN post_tags pt ON pt.id = ptl.tag_id
- *       WHERE ptl.post_id = p.id
- *         AND pt.name = lower(:tag::text)
- *   ))
  *   AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)
  * ORDER BY
  *     CASE WHEN :sort = 'popular' THEN p.view_count END DESC NULLS LAST,
@@ -114,7 +93,6 @@ export const listPosts = new PreparedQuery<IListPostsParams, IListPostsResult>(l
 export interface ICountPostsParams {
     authorId?: number | null | void;
     search?: string | null | void;
-    tag?: string | null | void;
 }
 
 /** 'CountPosts' return type */
@@ -129,7 +107,7 @@ export interface ICountPostsQuery {
 }
 
 const countPostsIR: any = {
-    usedParamSet: { search: true, tag: true, authorId: true },
+    usedParamSet: { search: true, authorId: true },
     params: [
         {
             name: "search",
@@ -142,26 +120,17 @@ const countPostsIR: any = {
             ]
         },
         {
-            name: "tag",
-            required: false,
-            transform: { type: "scalar" },
-            locs: [
-                { a: 173, b: 176 },
-                { a: 360, b: 363 }
-            ]
-        },
-        {
             name: "authorId",
             required: false,
             transform: { type: "scalar" },
             locs: [
-                { a: 384, b: 392 },
-                { a: 425, b: 433 }
+                { a: 173, b: 181 },
+                { a: 214, b: 222 }
             ]
         }
     ],
     statement:
-        "SELECT count(*)::int4 AS total\nFROM posts p\nWHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')\n  AND (:tag::text IS NULL OR EXISTS (\n      SELECT 1\n      FROM post_tag_links ptl\n      INNER JOIN post_tags pt ON pt.id = ptl.tag_id\n      WHERE ptl.post_id = p.id\n        AND pt.name = lower(:tag::text)\n  ))\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)"
+        "SELECT count(*)::int4 AS total\nFROM posts p\nWHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)"
 };
 
 /**
@@ -170,59 +139,10 @@ const countPostsIR: any = {
  * SELECT count(*)::int4 AS total
  * FROM posts p
  * WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')
- *   AND (:tag::text IS NULL OR EXISTS (
- *       SELECT 1
- *       FROM post_tag_links ptl
- *       INNER JOIN post_tags pt ON pt.id = ptl.tag_id
- *       WHERE ptl.post_id = p.id
- *         AND pt.name = lower(:tag::text)
- *   ))
  *   AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)
  * ```
  */
 export const countPosts = new PreparedQuery<ICountPostsParams, ICountPostsResult>(countPostsIR);
-
-/** 'ListTagsByPostIds' parameters type */
-export interface IListTagsByPostIdsParams {
-    postIds?: numberArray | null | void;
-}
-
-/** 'ListTagsByPostIds' return type */
-export interface IListTagsByPostIdsResult {
-    id: number;
-    name: string;
-    postId: number;
-}
-
-/** 'ListTagsByPostIds' query type */
-export interface IListTagsByPostIdsQuery {
-    params: IListTagsByPostIdsParams;
-    result: IListTagsByPostIdsResult;
-}
-
-const listTagsByPostIdsIR: any = {
-    usedParamSet: { postIds: true },
-    params: [{ name: "postIds", required: false, transform: { type: "scalar" }, locs: [{ a: 153, b: 160 }] }],
-    statement:
-        'SELECT\n    ptl.post_id AS "postId",\n    pt.id,\n    pt.name\nFROM post_tag_links ptl\nINNER JOIN post_tags pt ON pt.id = ptl.tag_id\nWHERE ptl.post_id = ANY(:postIds::int4[])\nORDER BY pt.name ASC'
-};
-
-/**
- * Query generated from SQL:
- * ```
- * SELECT
- *     ptl.post_id AS "postId",
- *     pt.id,
- *     pt.name
- * FROM post_tag_links ptl
- * INNER JOIN post_tags pt ON pt.id = ptl.tag_id
- * WHERE ptl.post_id = ANY(:postIds::int4[])
- * ORDER BY pt.name ASC
- * ```
- */
-export const listTagsByPostIds = new PreparedQuery<IListTagsByPostIdsParams, IListTagsByPostIdsResult>(
-    listTagsByPostIdsIR
-);
 
 /** 'IncrementPostView' parameters type */
 export interface IIncrementPostViewParams {
@@ -364,78 +284,10 @@ export const listCommentsByPostId = new PreparedQuery<IListCommentsByPostIdParam
     listCommentsByPostIdIR
 );
 
-/** 'ListTags' parameters type */
-export type IListTagsParams = void;
-
-/** 'ListTags' return type */
-export interface IListTagsResult {
-    id: number;
-    name: string;
-}
-
-/** 'ListTags' query type */
-export interface IListTagsQuery {
-    params: IListTagsParams;
-    result: IListTagsResult;
-}
-
-const listTagsIR: any = {
-    usedParamSet: {},
-    params: [],
-    statement: "SELECT\n    id,\n    name\nFROM post_tags\nORDER BY name ASC"
-};
-
-/**
- * Query generated from SQL:
- * ```
- * SELECT
- *     id,
- *     name
- * FROM post_tags
- * ORDER BY name ASC
- * ```
- */
-export const listTags = new PreparedQuery<IListTagsParams, IListTagsResult>(listTagsIR);
-
-/** 'CountPostTagLinks' parameters type */
-export interface ICountPostTagLinksParams {
-    postId?: number | null | void;
-}
-
-/** 'CountPostTagLinks' return type */
-export interface ICountPostTagLinksResult {
-    total: number | null;
-}
-
-/** 'CountPostTagLinks' query type */
-export interface ICountPostTagLinksQuery {
-    params: ICountPostTagLinksParams;
-    result: ICountPostTagLinksResult;
-}
-
-const countPostTagLinksIR: any = {
-    usedParamSet: { postId: true },
-    params: [{ name: "postId", required: false, transform: { type: "scalar" }, locs: [{ a: 67, b: 73 }] }],
-    statement: "SELECT count(*)::int4 AS total\nFROM post_tag_links\nWHERE post_id = :postId::int4"
-};
-
-/**
- * Query generated from SQL:
- * ```
- * SELECT count(*)::int4 AS total
- * FROM post_tag_links
- * WHERE post_id = :postId::int4
- * ```
- */
-export const countPostTagLinks = new PreparedQuery<ICountPostTagLinksParams, ICountPostTagLinksResult>(
-    countPostTagLinksIR
-);
-
 /** 'CreatePost' parameters type */
 export interface ICreatePostParams {
     authorId?: number | null | void;
     content?: string | null | void;
-    tagNames?: stringArray | null | void;
     title?: string | null | void;
 }
 
@@ -451,15 +303,14 @@ export interface ICreatePostQuery {
 }
 
 const createPostIR: any = {
-    usedParamSet: { title: true, content: true, authorId: true, tagNames: true },
+    usedParamSet: { title: true, content: true, authorId: true },
     params: [
         { name: "title", required: false, transform: { type: "scalar" }, locs: [{ a: 85, b: 90 }] },
         { name: "content", required: false, transform: { type: "scalar" }, locs: [{ a: 93, b: 100 }] },
-        { name: "authorId", required: false, transform: { type: "scalar" }, locs: [{ a: 103, b: 111 }] },
-        { name: "tagNames", required: false, transform: { type: "scalar" }, locs: [{ a: 178, b: 186 }] }
+        { name: "authorId", required: false, transform: { type: "scalar" }, locs: [{ a: 103, b: 111 }] }
     ],
     statement:
-        "WITH created_post AS (\n    INSERT INTO posts (title, content, author_id)\n    VALUES (:title, :content, :authorId::int4)\n    RETURNING id\n),\nrequested_tags AS (\n    SELECT unnest(:tagNames::text[]) AS name\n),\nupserted_tags AS (\n    INSERT INTO post_tags (name)\n    SELECT name\n    FROM requested_tags\n    ON CONFLICT (name) DO NOTHING\n    RETURNING id, name\n),\nexisting_tags AS (\n    SELECT id\n    FROM post_tags\n    WHERE name IN (SELECT name FROM requested_tags)\n),\nall_tags AS (\n    SELECT id\n    FROM existing_tags\n    UNION\n    SELECT id\n    FROM upserted_tags\n),\nlinked_tags AS (\n    INSERT INTO post_tag_links (post_id, tag_id)\n    SELECT created_post.id, all_tags.id\n    FROM created_post\n    CROSS JOIN all_tags\n    ON CONFLICT (post_id, tag_id) DO NOTHING\n    RETURNING post_id\n)\nSELECT id\nFROM created_post"
+        "WITH created_post AS (\n    INSERT INTO posts (title, content, author_id)\n    VALUES (:title, :content, :authorId::int4)\n    RETURNING id\n)\nSELECT id\nFROM created_post"
 };
 
 /**
@@ -469,36 +320,6 @@ const createPostIR: any = {
  *     INSERT INTO posts (title, content, author_id)
  *     VALUES (:title, :content, :authorId::int4)
  *     RETURNING id
- * ),
- * requested_tags AS (
- *     SELECT unnest(:tagNames::text[]) AS name
- * ),
- * upserted_tags AS (
- *     INSERT INTO post_tags (name)
- *     SELECT name
- *     FROM requested_tags
- *     ON CONFLICT (name) DO NOTHING
- *     RETURNING id, name
- * ),
- * existing_tags AS (
- *     SELECT id
- *     FROM post_tags
- *     WHERE name IN (SELECT name FROM requested_tags)
- * ),
- * all_tags AS (
- *     SELECT id
- *     FROM existing_tags
- *     UNION
- *     SELECT id
- *     FROM upserted_tags
- * ),
- * linked_tags AS (
- *     INSERT INTO post_tag_links (post_id, tag_id)
- *     SELECT created_post.id, all_tags.id
- *     FROM created_post
- *     CROSS JOIN all_tags
- *     ON CONFLICT (post_id, tag_id) DO NOTHING
- *     RETURNING post_id
  * )
  * SELECT id
  * FROM created_post
@@ -512,8 +333,6 @@ export interface IUpdatePostParams {
     actorRole?: string | null | void;
     content?: string | null | void;
     postId?: number | null | void;
-    replaceTags?: boolean | null | void;
-    tagNames?: stringArray | null | void;
     title?: string | null | void;
 }
 
@@ -531,44 +350,16 @@ export interface IUpdatePostQuery {
 }
 
 const updatePostIR: any = {
-    usedParamSet: {
-        postId: true,
-        title: true,
-        content: true,
-        actorId: true,
-        actorRole: true,
-        tagNames: true,
-        replaceTags: true
-    },
+    usedParamSet: { postId: true, title: true, content: true, actorId: true, actorRole: true },
     params: [
-        {
-            name: "postId",
-            required: false,
-            transform: { type: "scalar" },
-            locs: [
-                { a: 77, b: 83 },
-                { a: 552, b: 558 },
-                { a: 1253, b: 1259 }
-            ]
-        },
+        { name: "postId", required: false, transform: { type: "scalar" }, locs: [{ a: 77, b: 83 }] },
         { name: "title", required: false, transform: { type: "scalar" }, locs: [{ a: 164, b: 169 }] },
         { name: "content", required: false, transform: { type: "scalar" }, locs: [{ a: 209, b: 216 }] },
         { name: "actorId", required: false, transform: { type: "scalar" }, locs: [{ a: 346, b: 353 }] },
-        { name: "actorRole", required: false, transform: { type: "scalar" }, locs: [{ a: 364, b: 373 }] },
-        { name: "tagNames", required: false, transform: { type: "scalar" }, locs: [{ a: 452, b: 460 }] },
-        {
-            name: "replaceTags",
-            required: false,
-            transform: { type: "scalar" },
-            locs: [
-                { a: 576, b: 587 },
-                { a: 768, b: 779 },
-                { a: 955, b: 966 }
-            ]
-        }
+        { name: "actorRole", required: false, transform: { type: "scalar" }, locs: [{ a: 364, b: 373 }] }
     ],
     statement:
-        'WITH target_post AS (\n    SELECT id, author_id\n    FROM posts\n    WHERE id = :postId::int4\n),\nupdated_post AS (\n    UPDATE posts p\n    SET\n        title = COALESCE(:title, p.title),\n        content = COALESCE(:content, p.content),\n        updated_at = now()\n    FROM target_post\n    WHERE p.id = target_post.id\n      AND (target_post.author_id = :actorId::int4 OR :actorRole::text = \'ADMIN\')\n    RETURNING p.id\n),\nrequested_tags AS (\n    SELECT unnest(:tagNames::text[]) AS name\n),\ndeleted_links AS (\n    DELETE FROM post_tag_links\n    WHERE post_id = :postId::int4\n      AND :replaceTags::bool\n      AND EXISTS (SELECT 1 FROM updated_post)\n    RETURNING post_id\n),\nupserted_tags AS (\n    INSERT INTO post_tags (name)\n    SELECT name\n    FROM requested_tags\n    WHERE :replaceTags::bool\n      AND EXISTS (SELECT 1 FROM updated_post)\n    ON CONFLICT (name) DO NOTHING\n    RETURNING id, name\n),\nexisting_tags AS (\n    SELECT id\n    FROM post_tags\n    WHERE :replaceTags::bool\n      AND EXISTS (SELECT 1 FROM updated_post)\n      AND name IN (SELECT name FROM requested_tags)\n),\nall_tags AS (\n    SELECT id\n    FROM existing_tags\n    UNION\n    SELECT id\n    FROM upserted_tags\n),\nlinked_tags AS (\n    INSERT INTO post_tag_links (post_id, tag_id)\n    SELECT :postId::int4, all_tags.id\n    FROM all_tags\n    ON CONFLICT (post_id, tag_id) DO NOTHING\n    RETURNING post_id\n)\nSELECT\n    target_post.id,\n    target_post.author_id AS "authorId",\n    updated_post.id AS "updatedId"\nFROM target_post\nLEFT JOIN updated_post ON true'
+        'WITH target_post AS (\n    SELECT id, author_id\n    FROM posts\n    WHERE id = :postId::int4\n),\nupdated_post AS (\n    UPDATE posts p\n    SET\n        title = COALESCE(:title, p.title),\n        content = COALESCE(:content, p.content),\n        updated_at = now()\n    FROM target_post\n    WHERE p.id = target_post.id\n      AND (target_post.author_id = :actorId::int4 OR :actorRole::text = \'ADMIN\')\n    RETURNING p.id\n)\nSELECT\n    target_post.id,\n    target_post.author_id AS "authorId",\n    updated_post.id AS "updatedId"\nFROM target_post\nLEFT JOIN updated_post ON true'
 };
 
 /**
@@ -589,46 +380,6 @@ const updatePostIR: any = {
  *     WHERE p.id = target_post.id
  *       AND (target_post.author_id = :actorId::int4 OR :actorRole::text = 'ADMIN')
  *     RETURNING p.id
- * ),
- * requested_tags AS (
- *     SELECT unnest(:tagNames::text[]) AS name
- * ),
- * deleted_links AS (
- *     DELETE FROM post_tag_links
- *     WHERE post_id = :postId::int4
- *       AND :replaceTags::bool
- *       AND EXISTS (SELECT 1 FROM updated_post)
- *     RETURNING post_id
- * ),
- * upserted_tags AS (
- *     INSERT INTO post_tags (name)
- *     SELECT name
- *     FROM requested_tags
- *     WHERE :replaceTags::bool
- *       AND EXISTS (SELECT 1 FROM updated_post)
- *     ON CONFLICT (name) DO NOTHING
- *     RETURNING id, name
- * ),
- * existing_tags AS (
- *     SELECT id
- *     FROM post_tags
- *     WHERE :replaceTags::bool
- *       AND EXISTS (SELECT 1 FROM updated_post)
- *       AND name IN (SELECT name FROM requested_tags)
- * ),
- * all_tags AS (
- *     SELECT id
- *     FROM existing_tags
- *     UNION
- *     SELECT id
- *     FROM upserted_tags
- * ),
- * linked_tags AS (
- *     INSERT INTO post_tag_links (post_id, tag_id)
- *     SELECT :postId::int4, all_tags.id
- *     FROM all_tags
- *     ON CONFLICT (post_id, tag_id) DO NOTHING
- *     RETURNING post_id
  * )
  * SELECT
  *     target_post.id,

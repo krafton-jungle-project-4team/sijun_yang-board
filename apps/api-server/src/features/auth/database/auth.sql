@@ -21,6 +21,15 @@ SELECT
 FROM "user"
 WHERE id = :userId::int4;
 
+/* @name GetLoginCredentialsByLoginId */
+SELECT
+    id,
+    password_hash AS "passwordHash",
+    role,
+    status
+FROM "user"
+WHERE login_id = :loginId;
+
 /* @name CompleteSignup */
 UPDATE "user"
 SET
@@ -37,6 +46,18 @@ SET
     updated_at = now()
 WHERE id = :userId::int4
 RETURNING id;
+
+/* @name CreateSessionForUser */
+INSERT INTO "session" (id, user_id, expires_at)
+SELECT
+    :sessionId::uuid,
+    u.id,
+    now() + interval '30 days'
+FROM "user" u
+WHERE u.id = :userId::int4
+RETURNING
+    id,
+    user_id AS "userId";
 
 /* @name DeleteSessionsByUserId */
 DELETE FROM "session"

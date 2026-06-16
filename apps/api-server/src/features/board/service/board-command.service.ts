@@ -29,13 +29,11 @@ export class BoardCommandService {
 
     @Transactional<PgTypedTransactionalAdapter>()
     async createPost(auth: AuthClaims, input: CreatePostInput): Promise<IdCommandResult> {
-        const tagNames = [...new Set(input.tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean))];
         const post = await this.db
             .query(createPost, {
                 title: input.title,
                 content: input.content,
-                authorId: auth.userId,
-                tagNames
+                authorId: auth.userId
             })
             .single();
 
@@ -44,20 +42,13 @@ export class BoardCommandService {
 
     @Transactional<PgTypedTransactionalAdapter>()
     async updatePost(auth: AuthClaims, postId: number, input: UpdatePostInput): Promise<IdCommandResult> {
-        const replaceTags = input.tags !== undefined;
-        const tagNames =
-            input.tags === undefined
-                ? []
-                : [...new Set(input.tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean))];
         const post = await this.db
             .query(updatePost, {
                 postId,
                 title: input.title ?? null,
                 content: input.content ?? null,
                 actorId: auth.userId,
-                actorRole: auth.role,
-                replaceTags,
-                tagNames
+                actorRole: auth.role
             })
             .singleOrNull();
 

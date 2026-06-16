@@ -13,19 +13,36 @@ import {
     FieldLabel,
     Input
 } from "@nmm/ui/components";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type LoginInput, loginInputSchema } from "@nmm/shared";
 import { useNavigate } from "@tanstack/react-router";
 import { type ChangeEvent, type FormEvent, useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { needsSignup, useCurrentUserQuery, useLogoutMutation, useUpdateMeMutation } from "../../features/auth";
+import {
+    useCurrentUserQuery,
+    useLoginMutation,
+    useLogoutMutation,
+    useUpdateMeMutation
+} from "../../features/auth/api/auth-queries";
+import { needsSignup } from "../../features/auth/model/user-status";
 
 export function MePage() {
     const navigate = useNavigate();
     const meQuery = useCurrentUserQuery();
+    const login = useLoginMutation();
     const updateMe = useUpdateMeMutation();
     const logout = useLogoutMutation();
     const currentUser = meQuery.data;
     const [displayName, setDisplayName] = useState("");
     const [message, setMessage] = useState<string | null>(null);
+    const loginForm = useForm<LoginInput>({
+        defaultValues: {
+            loginId: "",
+            password: ""
+        },
+        resolver: zodResolver(loginInputSchema)
+    });
 
     if (meQuery.isPending) {
         return (
@@ -54,8 +71,46 @@ export function MePage() {
             <Card>
                 <CardHeader>
                     <CardTitle>My account</CardTitle>
-                    <CardDescription>Use a seeded session cookie or bearer token to view this page.</CardDescription>
+                    <CardDescription>Sign in with your ID and password.</CardDescription>
                 </CardHeader>
+                <CardContent>
+                    <form onSubmit={loginForm.handleSubmit(handleLoginSubmit)}>
+                        <FieldGroup>
+                            <Field data-invalid={Boolean(loginForm.formState.errors.loginId)}>
+                                <FieldLabel htmlFor="loginId">ID</FieldLabel>
+                                <Input
+                                    id="loginId"
+                                    autoComplete="username"
+                                    aria-invalid={Boolean(loginForm.formState.errors.loginId)}
+                                    {...loginForm.register("loginId")}
+                                />
+                                {loginForm.formState.errors.loginId ? (
+                                    <FieldError>{loginForm.formState.errors.loginId.message}</FieldError>
+                                ) : null}
+                            </Field>
+                            <Field data-invalid={Boolean(loginForm.formState.errors.password)}>
+                                <FieldLabel htmlFor="password">Password</FieldLabel>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    autoComplete="current-password"
+                                    aria-invalid={Boolean(loginForm.formState.errors.password)}
+                                    {...loginForm.register("password")}
+                                />
+                                {loginForm.formState.errors.password ? (
+                                    <FieldError>{loginForm.formState.errors.password.message}</FieldError>
+                                ) : null}
+                            </Field>
+                            {loginForm.formState.errors.root ? (
+                                <FieldError>{loginForm.formState.errors.root.message}</FieldError>
+                            ) : null}
+                            <Button type="submit" disabled={login.isPending}>
+                                Sign in
+                            </Button>
+                            <CardDescription>Try admin/admin or user/user.</CardDescription>
+                        </FieldGroup>
+                    </form>
+                </CardContent>
             </Card>
         );
     }
@@ -65,7 +120,7 @@ export function MePage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Complete signup</CardTitle>
-                    <CardDescription>Choose a display name before writing posts or comments.</CardDescription>
+                    <CardDescription>Set a display name before posting.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Button type="button" onClick={handleCompleteSignupClick}>
@@ -78,6 +133,19 @@ export function MePage() {
 
     function handleCompleteSignupClick() {
         void navigate({ to: "/auth/complete-signup" });
+    }
+
+    async function handleLoginSubmit(input: LoginInput) {
+        loginForm.clearErrors("root");
+
+        try {
+            await login.mutateAsync(input);
+            loginForm.reset();
+        } catch {
+            loginForm.setError("root", {
+                message: "Invalid ID or password."
+            });
+        }
     }
 
     function handleDisplayNameChange(event: ChangeEvent<HTMLInputElement>) {

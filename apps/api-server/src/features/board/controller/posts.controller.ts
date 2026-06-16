@@ -1,20 +1,25 @@
 import type { AuthClaims } from "@nmm/shared";
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { createPostInputSchema, numericIdParamSchema, postListQuerySchema, updatePostInputSchema } from "@nmm/shared";
+import type { Request } from "express";
 
-import { ActiveAccountGuard, CurrentAuth, SessionUserGuard } from "../../auth";
+import { ActiveAccountGuard, AuthQueryService, CurrentAuth, SessionUserGuard } from "../../auth";
+import { getSessionIdFromRequest } from "../../auth/controller/session-cookie";
 import { BoardCommandService, BoardQueryService } from "../service";
 
 @Controller("posts")
 export class PostsController {
     constructor(
         private readonly boardQuery: BoardQueryService,
-        private readonly boardCommand: BoardCommandService
+        private readonly boardCommand: BoardCommandService,
+        private readonly authQuery: AuthQueryService
     ) {}
 
     @Get()
-    async listPosts(@Query() query: unknown) {
-        return this.boardQuery.listPosts(postListQuerySchema.parse(query));
+    async listPosts(@Query() query: unknown, @Req() request: Request) {
+        const auth = await this.getOptionalAuth(request);
+
+        return this.boardQuery.listPosts(postListQuerySchema.parse(query), auth);
     }
 
     @Get(":postId")
@@ -42,5 +47,21 @@ export class PostsController {
     @UseGuards(SessionUserGuard, ActiveAccountGuard)
     async deletePost(@CurrentAuth() auth: AuthClaims, @Param("postId") postId: string) {
         return this.boardCommand.deletePost(auth, numericIdParamSchema.parse(postId));
+    }
+
+    private async getOptionalAuth(request: Request): Promise<AuthClaims | undefined> {
+        const sessionId = getSessionIdFromRequest(request);
+
+        if (!sessionId) {
+            return undefined;
+        }
+
+        const claims = await this.authQuery.getClaimsBySessionId(sessionId);
+
+        if (!claims || claims.status === "SUSPENDED") {
+            return undefined;
+        }
+
+        return claims;
     }
 }

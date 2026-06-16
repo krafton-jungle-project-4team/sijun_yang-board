@@ -1,24 +1,14 @@
-import type { Comment, PostDetail, PostSummary, Tag } from "@nmm/shared";
+import type { Comment, PostDetail, PostSummary } from "@nmm/shared";
 
 import type {
     IGetPostByIdResult,
     IListCommentsByPostIdResult,
-    IListPostsResult,
-    IListTagsByPostIdsResult,
-    IListTagsResult
+    IListPostsResult
 } from "../database/__generated__/board.queries";
 
-type TagRow = IListTagsResult | IListTagsByPostIdsResult;
 type PostRow = IListPostsResult | IGetPostByIdResult;
 
-export function toTagModel(tag: TagRow): Tag {
-    return {
-        id: tag.id,
-        name: tag.name
-    };
-}
-
-export function toPostSummary(post: PostRow, tags: Tag[] = []): PostSummary {
+export function toPostSummary(post: PostRow): PostSummary {
     const excerpt = post.content.length > 160 ? `${post.content.slice(0, 157)}...` : post.content;
 
     return {
@@ -29,15 +19,14 @@ export function toPostSummary(post: PostRow, tags: Tag[] = []): PostSummary {
         authorName: post.authorName,
         commentCount: post.commentCount ?? 0,
         viewCount: post.viewCount,
-        tags,
         createdAt: post.createdAt.toISOString(),
         updatedAt: post.updatedAt.toISOString()
     };
 }
 
-export function toPostDetail(post: IGetPostByIdResult, tags: Tag[] = []): PostDetail {
+export function toPostDetail(post: IGetPostByIdResult): PostDetail {
     return {
-        ...toPostSummary(post, tags),
+        ...toPostSummary(post),
         content: post.content
     };
 }

@@ -6,6 +6,7 @@ import { LoggerModule } from "nestjs-pino";
 import { AuthModule } from "./features/auth";
 import { BoardModule } from "./features/board";
 import { HealthModule } from "./features/health/health.module";
+import { OperationsModule } from "./features/operations";
 import { DatabaseModule, PgTypedTransactionalAdapter } from "./infra/database";
 import { serverEnv } from "./infra/env";
 
@@ -32,6 +33,7 @@ import { serverEnv } from "./infra/env";
         }),
         AuthModule,
         BoardModule,
+        OperationsModule,
         HealthModule
     ]
 })

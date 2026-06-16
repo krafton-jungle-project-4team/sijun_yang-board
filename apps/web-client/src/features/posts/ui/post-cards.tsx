@@ -12,8 +12,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 
-import { canManagePost } from "../model";
-import { PostTagBadges } from "./post-tag-badges";
+import { canManagePost } from "../model/post-permissions";
 
 type PostCardsProps = {
     currentUser: User | null | undefined;
@@ -79,7 +78,6 @@ function PostCardContent({ post }: PostCardProps) {
             <CardContent>
                 <div className="grid gap-3">
                     <CardDescription className="line-clamp-3">{post.excerpt}</CardDescription>
-                    <PostTagBadges tags={post.tags} />
                 </div>
             </CardContent>
         </>

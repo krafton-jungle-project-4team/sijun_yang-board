@@ -17,18 +17,28 @@ export function RootLayout() {
             <header className="sticky top-0 z-10 border-b bg-background/95">
                 <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
                     <Button asChild variant="ghost">
-                        <Link to="/">Project Starter</Link>
+                        <Link to="/">OpsDesk</Link>
                     </Button>
                     <NavigationMenu viewport={false}>
                         <NavigationMenuList>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild>
-                                    <Link to="/posts">Posts</Link>
+                                    <Link to="/">Dashboard</Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild>
-                                    <Link to="/posts/new">New post</Link>
+                                    <Link to="/posts">Announcements</Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link to="/projects">Projects</Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link to="/requests">Requests</Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>

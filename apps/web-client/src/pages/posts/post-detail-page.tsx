@@ -11,8 +11,10 @@ import {
 import { Link, useParams } from "@tanstack/react-router";
 import { ArrowLeft, Pencil } from "lucide-react";
 
-import { useCurrentUserQuery } from "../../features/auth";
-import { canManagePost, PostComments, PostTagBadges, usePost } from "../../features/posts";
+import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
+import { usePost } from "../../features/posts/hooks/use-posts";
+import { canManagePost } from "../../features/posts/model/post-permissions";
+import { PostComments } from "../../features/posts/ui/post-comments";
 
 export function PostDetailPage() {
     const params = useParams({ strict: false }) as { postId: string };
@@ -59,7 +61,7 @@ export function PostDetailPage() {
                 <Button asChild variant="ghost">
                     <Link to="/posts">
                         <ArrowLeft />
-                        Posts
+                        Announcements
                     </Link>
                 </Button>
                 {canEdit ? (
@@ -78,7 +80,6 @@ export function PostDetailPage() {
                 <CardDescription>
                     {post.commentCount} comments · {post.viewCount} views
                 </CardDescription>
-                <PostTagBadges tags={post.tags} />
             </CardHeader>
 
             <Separator />

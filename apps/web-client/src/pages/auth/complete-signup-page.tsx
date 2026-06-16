@@ -13,7 +13,7 @@ import {
 import { useNavigate } from "@tanstack/react-router";
 import { type ChangeEvent, type FormEvent, useState } from "react";
 
-import { useCompleteSignupMutation } from "../../features/auth";
+import { useCompleteSignupMutation } from "../../features/auth/api/auth-queries";
 
 export function CompleteSignupPage() {
     const navigate = useNavigate();

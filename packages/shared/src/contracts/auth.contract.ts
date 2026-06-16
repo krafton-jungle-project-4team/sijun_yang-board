@@ -20,6 +20,11 @@ export const authClaimsSchema = z.object({
     status: userStatusSchema
 });
 
+export const loginInputSchema = z.object({
+    loginId: z.string().trim().min(1).max(80),
+    password: z.string().min(1).max(200)
+});
+
 export const completeSignupInputSchema = z.object({
     displayName: z.string().trim().min(1).max(80)
 });
@@ -32,5 +37,6 @@ export type UserRole = z.infer<typeof userRoleSchema>;
 export type UserStatus = z.infer<typeof userStatusSchema>;
 export type User = z.infer<typeof userSchema>;
 export type AuthClaims = z.infer<typeof authClaimsSchema>;
+export type LoginInput = z.infer<typeof loginInputSchema>;
 export type CompleteSignupInput = z.infer<typeof completeSignupInputSchema>;
 export type UpdateMeInput = z.infer<typeof updateMeInputSchema>;
