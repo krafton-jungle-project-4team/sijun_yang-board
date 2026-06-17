@@ -1,106 +1,174 @@
-import { ArgumentsHost, Catch, HttpException, HttpStatus, Logger, type ExceptionFilter } from "@nestjs/common";
-import { DomainError } from "../../app-errors";
-import { getRequestId, type ApiErrorResponse, type ApiRequest, type ApiResponse } from "./api-response";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from "@nestjs/common";
+import type { ApiError } from "@nmm/shared";
+import type { Response } from "express";
+import { ZodError } from "zod";
 
-type HttpApiError = {
-    statusCode: number;
-    code: string;
-    message: string;
-};
-
-type WritableApiResponse = ApiResponse & {
-    headersSent?: boolean;
-    status(statusCode: number): WritableApiResponse;
-    json(body: ApiErrorResponse): void;
-};
+import { AppError } from "@/app-errors";
+import { createApiFailure, ensureRequestId, setRequestIdHeader, type RequestWithRequestId } from "./api-response";
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(ApiExceptionFilter.name);
 
-    catch(exception: unknown, host: ArgumentsHost) {
-        const http = host.switchToHttp();
-        const request = http.getRequest<ApiRequest>();
-        const response = http.getResponse<WritableApiResponse>();
+    catch(error: unknown, host: ArgumentsHost) {
+        const context = host.switchToHttp();
+        const request = context.getRequest<RequestWithRequestId>();
+        const response = context.getResponse<Response>();
+        const requestId = ensureRequestId(request);
+        const status = this.getStatus(error);
+        const body = this.getBody(error, status);
 
-        if (response.headersSent) {
+        this.logFailure(request, requestId, status, body, error);
+
+        const failure = createApiFailure(requestId, body);
+        setRequestIdHeader(response, requestId);
+        response.status(status).json(failure);
+    }
+
+    private logFailure(
+        request: RequestWithRequestId,
+        requestId: string,
+        statusCode: number,
+        body: ApiError,
+        error: unknown
+    ) {
+        const details: ErrorResponseLog = {
+            requestId,
+            statusCode,
+            code: body.code,
+            method: request.method,
+            path: request.originalUrl || request.url,
+            errorMessage: getLogMessage(body.message, error)
+        };
+
+        if (statusCode >= 500) {
+            details.stack = getErrorStack(error);
+            this.logger.error(details, "Returning error response");
             return;
         }
 
-        const requestId = getRequestId(request, response);
-        const error = this.toHttpError(exception);
-
-        if (error.statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) {
-            this.logger.error(
-                `Unhandled exception for request ${requestId}`,
-                exception instanceof Error ? exception.stack : String(exception)
-            );
-        }
-
-        response.status(error.statusCode).json({
-            requestId,
-            error: {
-                code: error.code,
-                message: error.message
-            }
-        });
+        this.logger.warn(details, "Returning error response");
     }
 
-    private toHttpError(exception: unknown): HttpApiError {
-        if (exception instanceof DomainError) {
+    private getStatus(error: unknown) {
+        if (error instanceof AppError) {
+            return error.statusCode;
+        }
+
+        if (error instanceof ZodError) {
+            return 400;
+        }
+
+        if (error instanceof HttpException) {
+            return error.getStatus();
+        }
+
+        return 500;
+    }
+
+    private getBody(error: unknown, statusCode: number): ApiError {
+        if (error instanceof AppError) {
             return {
-                statusCode: exception.statusCode,
-                code: exception.code,
-                message: exception.message
+                statusCode,
+                code: error.code,
+                message: error.message
             };
         }
 
-        if (this.isValidationError(exception)) {
+        if (error instanceof ZodError) {
             return {
-                statusCode: HttpStatus.BAD_REQUEST,
-                code: "VALIDATION_ERROR",
-                message: "요청 형식이 올바르지 않습니다."
+                statusCode,
+                code: "VALIDATION_FAILED",
+                message: error.issues.map((issue) => issue.message).join(", ")
             };
         }
 
-        if (exception instanceof HttpException) {
+        if (error instanceof HttpException) {
             return {
-                statusCode: exception.getStatus(),
-                code: "HTTP_ERROR",
-                message: this.readHttpExceptionMessage(exception)
+                statusCode,
+                code: getHttpErrorCode(error),
+                message: getHttpErrorMessage(error, statusCode)
             };
         }
 
         return {
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            statusCode,
             code: "INTERNAL_SERVER_ERROR",
-            message: "서버 오류가 발생했습니다."
+            message: "Unexpected server error."
         };
     }
-
-    private isValidationError(exception: unknown) {
-        return exception instanceof Error && exception.name === "ZodError";
-    }
-
-    private readHttpExceptionMessage(exception: HttpException) {
-        const response = exception.getResponse();
-
-        if (typeof response === "string") {
-            return response;
-        }
-
-        if (response && typeof response === "object" && "message" in response) {
-            const message = (response as { message?: unknown }).message;
-
-            if (typeof message === "string") {
-                return message;
-            }
-
-            if (Array.isArray(message) && typeof message[0] === "string") {
-                return message[0];
-            }
-        }
-
-        return exception.message || "요청을 처리할 수 없습니다.";
-    }
 }
+
+type ErrorResponseLog = {
+    requestId: string;
+    statusCode: number;
+    code: string;
+    method: string;
+    path: string;
+    errorMessage: string;
+    stack?: string;
+};
+
+function getHttpErrorCode(error: HttpException) {
+    const body = error.getResponse();
+
+    if (isRecord(body) && typeof body.code === "string" && body.code.length > 0) {
+        return body.code;
+    }
+
+    return httpStatusErrorCodes[error.getStatus()] ?? "HTTP_ERROR";
+}
+
+function getHttpErrorMessage(error: HttpException, status: number) {
+    const body = error.getResponse();
+
+    if (typeof body === "string" && body.length > 0) {
+        return body;
+    }
+
+    if (isRecord(body) && typeof body.message === "string" && body.message.length > 0) {
+        return body.message;
+    }
+
+    if (isRecord(body) && Array.isArray(body.message) && body.message.every((message) => typeof message === "string")) {
+        return body.message.join(", ");
+    }
+
+    return error.message || httpStatusErrorMessages[status] || "HTTP error.";
+}
+
+function getLogMessage(message: string, error: unknown) {
+    if (error instanceof Error && error.cause instanceof Error) {
+        return `${message}: ${error.cause.message}`;
+    }
+
+    return message;
+}
+
+function getErrorStack(error: unknown) {
+    if (error instanceof Error) {
+        return error.stack;
+    }
+
+    return undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
+}
+
+const httpStatusErrorCodes: Record<number, string> = {
+    400: "BAD_REQUEST",
+    401: "UNAUTHENTICATED",
+    403: "FORBIDDEN",
+    404: "NOT_FOUND",
+    409: "CONFLICT"
+};
+
+const httpStatusErrorMessages: Record<number, string> = {
+    400: "Bad request.",
+    401: "Authentication is required.",
+    403: "Forbidden.",
+    404: "Not found.",
+    409: "Conflict."
+};

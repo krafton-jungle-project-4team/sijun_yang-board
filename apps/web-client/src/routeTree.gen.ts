@@ -9,38 +9,334 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as MeRouteImport } from './routes/me'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RequestsRouteRouteImport } from './routes/requests/route'
+import { Route as ProjectsRouteRouteImport } from './routes/projects/route'
+import { Route as PostsRouteRouteImport } from './routes/posts/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RequestsIndexRouteImport } from './routes/requests/index'
+import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
+import { Route as PostsIndexRouteImport } from './routes/posts/index'
+import { Route as RequestsNewRouteImport } from './routes/requests/new'
+import { Route as RequestsRequestIdRouteImport } from './routes/requests/$requestId'
+import { Route as ProjectsNewRouteImport } from './routes/projects/new'
+import { Route as PostsNewRouteImport } from './routes/posts/new'
+import { Route as AuthErrorRouteImport } from './routes/auth.error'
+import { Route as ProjectsProjectIdRouteRouteImport } from './routes/projects/$projectId/route'
+import { Route as PostsPostIdRouteRouteImport } from './routes/posts/$postId/route'
+import { Route as ProjectsProjectIdIndexRouteImport } from './routes/projects/$projectId/index'
+import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/index'
+import { Route as ProjectsProjectIdEditRouteImport } from './routes/projects/$projectId/edit'
+import { Route as PostsPostIdEditRouteImport } from './routes/posts/$postId/edit'
+import { Route as ProjectsProjectIdTasksTaskIdRouteImport } from './routes/projects/$projectId/tasks/$taskId'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeRoute = MeRouteImport.update({
+  id: '/me',
+  path: '/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestsRouteRoute = RequestsRouteRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsRouteRoute = ProjectsRouteRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsRouteRoute = PostsRouteRouteImport.update({
+  id: '/posts',
+  path: '/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RequestsIndexRoute = RequestsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RequestsRouteRoute,
+} as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectsRouteRoute,
+} as any)
+const PostsIndexRoute = PostsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PostsRouteRoute,
+} as any)
+const RequestsNewRoute = RequestsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => RequestsRouteRoute,
+} as any)
+const RequestsRequestIdRoute = RequestsRequestIdRouteImport.update({
+  id: '/$requestId',
+  path: '/$requestId',
+  getParentRoute: () => RequestsRouteRoute,
+} as any)
+const ProjectsNewRoute = ProjectsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => ProjectsRouteRoute,
+} as any)
+const PostsNewRoute = PostsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => PostsRouteRoute,
+} as any)
+const AuthErrorRoute = AuthErrorRouteImport.update({
+  id: '/auth/error',
+  path: '/auth/error',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsProjectIdRouteRoute = ProjectsProjectIdRouteRouteImport.update({
+  id: '/$projectId',
+  path: '/$projectId',
+  getParentRoute: () => ProjectsRouteRoute,
+} as any)
+const PostsPostIdRouteRoute = PostsPostIdRouteRouteImport.update({
+  id: '/$postId',
+  path: '/$postId',
+  getParentRoute: () => PostsRouteRoute,
+} as any)
+const ProjectsProjectIdIndexRoute = ProjectsProjectIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectsProjectIdRouteRoute,
+} as any)
+const PostsPostIdIndexRoute = PostsPostIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PostsPostIdRouteRoute,
+} as any)
+const ProjectsProjectIdEditRoute = ProjectsProjectIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ProjectsProjectIdRouteRoute,
+} as any)
+const PostsPostIdEditRoute = PostsPostIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => PostsPostIdRouteRoute,
+} as any)
+const ProjectsProjectIdTasksTaskIdRoute =
+  ProjectsProjectIdTasksTaskIdRouteImport.update({
+    id: '/tasks/$taskId',
+    path: '/tasks/$taskId',
+    getParentRoute: () => ProjectsProjectIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/posts': typeof PostsRouteRouteWithChildren
+  '/projects': typeof ProjectsRouteRouteWithChildren
+  '/requests': typeof RequestsRouteRouteWithChildren
+  '/login': typeof LoginRoute
+  '/me': typeof MeRoute
+  '/signup': typeof SignupRoute
+  '/posts/$postId': typeof PostsPostIdRouteRouteWithChildren
+  '/projects/$projectId': typeof ProjectsProjectIdRouteRouteWithChildren
+  '/auth/error': typeof AuthErrorRoute
+  '/posts/new': typeof PostsNewRoute
+  '/projects/new': typeof ProjectsNewRoute
+  '/requests/$requestId': typeof RequestsRequestIdRoute
+  '/requests/new': typeof RequestsNewRoute
+  '/posts/': typeof PostsIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/requests/': typeof RequestsIndexRoute
+  '/posts/$postId/edit': typeof PostsPostIdEditRoute
+  '/projects/$projectId/edit': typeof ProjectsProjectIdEditRoute
+  '/posts/$postId/': typeof PostsPostIdIndexRoute
+  '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
+  '/projects/$projectId/tasks/$taskId': typeof ProjectsProjectIdTasksTaskIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/me': typeof MeRoute
+  '/signup': typeof SignupRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/posts/new': typeof PostsNewRoute
+  '/projects/new': typeof ProjectsNewRoute
+  '/requests/$requestId': typeof RequestsRequestIdRoute
+  '/requests/new': typeof RequestsNewRoute
+  '/posts': typeof PostsIndexRoute
+  '/projects': typeof ProjectsIndexRoute
+  '/requests': typeof RequestsIndexRoute
+  '/posts/$postId/edit': typeof PostsPostIdEditRoute
+  '/projects/$projectId/edit': typeof ProjectsProjectIdEditRoute
+  '/posts/$postId': typeof PostsPostIdIndexRoute
+  '/projects/$projectId': typeof ProjectsProjectIdIndexRoute
+  '/projects/$projectId/tasks/$taskId': typeof ProjectsProjectIdTasksTaskIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/posts': typeof PostsRouteRouteWithChildren
+  '/projects': typeof ProjectsRouteRouteWithChildren
+  '/requests': typeof RequestsRouteRouteWithChildren
+  '/login': typeof LoginRoute
+  '/me': typeof MeRoute
+  '/signup': typeof SignupRoute
+  '/posts/$postId': typeof PostsPostIdRouteRouteWithChildren
+  '/projects/$projectId': typeof ProjectsProjectIdRouteRouteWithChildren
+  '/auth/error': typeof AuthErrorRoute
+  '/posts/new': typeof PostsNewRoute
+  '/projects/new': typeof ProjectsNewRoute
+  '/requests/$requestId': typeof RequestsRequestIdRoute
+  '/requests/new': typeof RequestsNewRoute
+  '/posts/': typeof PostsIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/requests/': typeof RequestsIndexRoute
+  '/posts/$postId/edit': typeof PostsPostIdEditRoute
+  '/projects/$projectId/edit': typeof ProjectsProjectIdEditRoute
+  '/posts/$postId/': typeof PostsPostIdIndexRoute
+  '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
+  '/projects/$projectId/tasks/$taskId': typeof ProjectsProjectIdTasksTaskIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/posts'
+    | '/projects'
+    | '/requests'
+    | '/login'
+    | '/me'
+    | '/signup'
+    | '/posts/$postId'
+    | '/projects/$projectId'
+    | '/auth/error'
+    | '/posts/new'
+    | '/projects/new'
+    | '/requests/$requestId'
+    | '/requests/new'
+    | '/posts/'
+    | '/projects/'
+    | '/requests/'
+    | '/posts/$postId/edit'
+    | '/projects/$projectId/edit'
+    | '/posts/$postId/'
+    | '/projects/$projectId/'
+    | '/projects/$projectId/tasks/$taskId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/me'
+    | '/signup'
+    | '/auth/error'
+    | '/posts/new'
+    | '/projects/new'
+    | '/requests/$requestId'
+    | '/requests/new'
+    | '/posts'
+    | '/projects'
+    | '/requests'
+    | '/posts/$postId/edit'
+    | '/projects/$projectId/edit'
+    | '/posts/$postId'
+    | '/projects/$projectId'
+    | '/projects/$projectId/tasks/$taskId'
+  id:
+    | '__root__'
+    | '/'
+    | '/posts'
+    | '/projects'
+    | '/requests'
+    | '/login'
+    | '/me'
+    | '/signup'
+    | '/posts/$postId'
+    | '/projects/$projectId'
+    | '/auth/error'
+    | '/posts/new'
+    | '/projects/new'
+    | '/requests/$requestId'
+    | '/requests/new'
+    | '/posts/'
+    | '/projects/'
+    | '/requests/'
+    | '/posts/$postId/edit'
+    | '/projects/$projectId/edit'
+    | '/posts/$postId/'
+    | '/projects/$projectId/'
+    | '/projects/$projectId/tasks/$taskId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PostsRouteRoute: typeof PostsRouteRouteWithChildren
+  ProjectsRouteRoute: typeof ProjectsRouteRouteWithChildren
+  RequestsRouteRoute: typeof RequestsRouteRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  MeRoute: typeof MeRoute
+  SignupRoute: typeof SignupRoute
+  AuthErrorRoute: typeof AuthErrorRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/me': {
+      id: '/me'
+      path: '/me'
+      fullPath: '/me'
+      preLoaderRoute: typeof MeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requests': {
+      id: '/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof RequestsRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts': {
+      id: '/posts'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof PostsRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +344,202 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/requests/': {
+      id: '/requests/'
+      path: '/'
+      fullPath: '/requests/'
+      preLoaderRoute: typeof RequestsIndexRouteImport
+      parentRoute: typeof RequestsRouteRoute
+    }
+    '/projects/': {
+      id: '/projects/'
+      path: '/'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof ProjectsRouteRoute
+    }
+    '/posts/': {
+      id: '/posts/'
+      path: '/'
+      fullPath: '/posts/'
+      preLoaderRoute: typeof PostsIndexRouteImport
+      parentRoute: typeof PostsRouteRoute
+    }
+    '/requests/new': {
+      id: '/requests/new'
+      path: '/new'
+      fullPath: '/requests/new'
+      preLoaderRoute: typeof RequestsNewRouteImport
+      parentRoute: typeof RequestsRouteRoute
+    }
+    '/requests/$requestId': {
+      id: '/requests/$requestId'
+      path: '/$requestId'
+      fullPath: '/requests/$requestId'
+      preLoaderRoute: typeof RequestsRequestIdRouteImport
+      parentRoute: typeof RequestsRouteRoute
+    }
+    '/projects/new': {
+      id: '/projects/new'
+      path: '/new'
+      fullPath: '/projects/new'
+      preLoaderRoute: typeof ProjectsNewRouteImport
+      parentRoute: typeof ProjectsRouteRoute
+    }
+    '/posts/new': {
+      id: '/posts/new'
+      path: '/new'
+      fullPath: '/posts/new'
+      preLoaderRoute: typeof PostsNewRouteImport
+      parentRoute: typeof PostsRouteRoute
+    }
+    '/auth/error': {
+      id: '/auth/error'
+      path: '/auth/error'
+      fullPath: '/auth/error'
+      preLoaderRoute: typeof AuthErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$projectId': {
+      id: '/projects/$projectId'
+      path: '/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof ProjectsProjectIdRouteRouteImport
+      parentRoute: typeof ProjectsRouteRoute
+    }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteRouteImport
+      parentRoute: typeof PostsRouteRoute
+    }
+    '/projects/$projectId/': {
+      id: '/projects/$projectId/'
+      path: '/'
+      fullPath: '/projects/$projectId/'
+      preLoaderRoute: typeof ProjectsProjectIdIndexRouteImport
+      parentRoute: typeof ProjectsProjectIdRouteRoute
+    }
+    '/posts/$postId/': {
+      id: '/posts/$postId/'
+      path: '/'
+      fullPath: '/posts/$postId/'
+      preLoaderRoute: typeof PostsPostIdIndexRouteImport
+      parentRoute: typeof PostsPostIdRouteRoute
+    }
+    '/projects/$projectId/edit': {
+      id: '/projects/$projectId/edit'
+      path: '/edit'
+      fullPath: '/projects/$projectId/edit'
+      preLoaderRoute: typeof ProjectsProjectIdEditRouteImport
+      parentRoute: typeof ProjectsProjectIdRouteRoute
+    }
+    '/posts/$postId/edit': {
+      id: '/posts/$postId/edit'
+      path: '/edit'
+      fullPath: '/posts/$postId/edit'
+      preLoaderRoute: typeof PostsPostIdEditRouteImport
+      parentRoute: typeof PostsPostIdRouteRoute
+    }
+    '/projects/$projectId/tasks/$taskId': {
+      id: '/projects/$projectId/tasks/$taskId'
+      path: '/tasks/$taskId'
+      fullPath: '/projects/$projectId/tasks/$taskId'
+      preLoaderRoute: typeof ProjectsProjectIdTasksTaskIdRouteImport
+      parentRoute: typeof ProjectsProjectIdRouteRoute
+    }
   }
 }
 
+interface PostsPostIdRouteRouteChildren {
+  PostsPostIdEditRoute: typeof PostsPostIdEditRoute
+  PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
+}
+
+const PostsPostIdRouteRouteChildren: PostsPostIdRouteRouteChildren = {
+  PostsPostIdEditRoute: PostsPostIdEditRoute,
+  PostsPostIdIndexRoute: PostsPostIdIndexRoute,
+}
+
+const PostsPostIdRouteRouteWithChildren =
+  PostsPostIdRouteRoute._addFileChildren(PostsPostIdRouteRouteChildren)
+
+interface PostsRouteRouteChildren {
+  PostsPostIdRouteRoute: typeof PostsPostIdRouteRouteWithChildren
+  PostsNewRoute: typeof PostsNewRoute
+  PostsIndexRoute: typeof PostsIndexRoute
+}
+
+const PostsRouteRouteChildren: PostsRouteRouteChildren = {
+  PostsPostIdRouteRoute: PostsPostIdRouteRouteWithChildren,
+  PostsNewRoute: PostsNewRoute,
+  PostsIndexRoute: PostsIndexRoute,
+}
+
+const PostsRouteRouteWithChildren = PostsRouteRoute._addFileChildren(
+  PostsRouteRouteChildren,
+)
+
+interface ProjectsProjectIdRouteRouteChildren {
+  ProjectsProjectIdEditRoute: typeof ProjectsProjectIdEditRoute
+  ProjectsProjectIdIndexRoute: typeof ProjectsProjectIdIndexRoute
+  ProjectsProjectIdTasksTaskIdRoute: typeof ProjectsProjectIdTasksTaskIdRoute
+}
+
+const ProjectsProjectIdRouteRouteChildren: ProjectsProjectIdRouteRouteChildren =
+  {
+    ProjectsProjectIdEditRoute: ProjectsProjectIdEditRoute,
+    ProjectsProjectIdIndexRoute: ProjectsProjectIdIndexRoute,
+    ProjectsProjectIdTasksTaskIdRoute: ProjectsProjectIdTasksTaskIdRoute,
+  }
+
+const ProjectsProjectIdRouteRouteWithChildren =
+  ProjectsProjectIdRouteRoute._addFileChildren(
+    ProjectsProjectIdRouteRouteChildren,
+  )
+
+interface ProjectsRouteRouteChildren {
+  ProjectsProjectIdRouteRoute: typeof ProjectsProjectIdRouteRouteWithChildren
+  ProjectsNewRoute: typeof ProjectsNewRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
+}
+
+const ProjectsRouteRouteChildren: ProjectsRouteRouteChildren = {
+  ProjectsProjectIdRouteRoute: ProjectsProjectIdRouteRouteWithChildren,
+  ProjectsNewRoute: ProjectsNewRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
+}
+
+const ProjectsRouteRouteWithChildren = ProjectsRouteRoute._addFileChildren(
+  ProjectsRouteRouteChildren,
+)
+
+interface RequestsRouteRouteChildren {
+  RequestsRequestIdRoute: typeof RequestsRequestIdRoute
+  RequestsNewRoute: typeof RequestsNewRoute
+  RequestsIndexRoute: typeof RequestsIndexRoute
+}
+
+const RequestsRouteRouteChildren: RequestsRouteRouteChildren = {
+  RequestsRequestIdRoute: RequestsRequestIdRoute,
+  RequestsNewRoute: RequestsNewRoute,
+  RequestsIndexRoute: RequestsIndexRoute,
+}
+
+const RequestsRouteRouteWithChildren = RequestsRouteRoute._addFileChildren(
+  RequestsRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PostsRouteRoute: PostsRouteRouteWithChildren,
+  ProjectsRouteRoute: ProjectsRouteRouteWithChildren,
+  RequestsRouteRoute: RequestsRouteRouteWithChildren,
+  LoginRoute: LoginRoute,
+  MeRoute: MeRoute,
+  SignupRoute: SignupRoute,
+  AuthErrorRoute: AuthErrorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

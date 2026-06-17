@@ -1,51 +1,35 @@
 import { randomUUID } from "node:crypto";
 
-export type ApiSuccessResponse<TData> = {
-    requestId: string;
-    data: TData;
-};
+import type { ApiError, ApiFailure, ApiSuccess } from "@nmm/shared";
+import type { Request, Response } from "express";
 
-export type ApiErrorResponse = {
-    requestId: string;
-    error: {
-        code: string;
-        message: string;
-    };
-};
+export const REQUEST_ID_HEADER = "x-request-id";
 
-type HttpHeaderValue = string | string[] | undefined;
-
-export type ApiRequest = {
+export type RequestWithRequestId = Request & {
     requestId?: string;
-    headers?: Record<string, HttpHeaderValue>;
 };
 
-export type ApiResponse = {
-    setHeader(name: string, value: string): void;
-};
-
-export function getRequestId(request: ApiRequest, response?: ApiResponse) {
-    const existingRequestId = request.requestId;
-
-    if (existingRequestId) {
-        request.requestId = existingRequestId;
-        response?.setHeader("x-request-id", existingRequestId);
-
-        return existingRequestId;
-    }
-
-    const headerRequestId = request.headers?.["x-request-id"];
-    const requestId = readHeaderValue(headerRequestId) ?? randomUUID();
+export function ensureRequestId(request: RequestWithRequestId) {
+    const requestId = request.requestId || request.header(REQUEST_ID_HEADER) || randomUUID();
 
     request.requestId = requestId;
-    response?.setHeader("x-request-id", requestId);
-
     return requestId;
 }
 
-function readHeaderValue(value: HttpHeaderValue) {
-    const firstValue = Array.isArray(value) ? value[0] : value;
-    const trimmedValue = firstValue?.trim();
+export function setRequestIdHeader(response: Response, requestId: string) {
+    response.setHeader(REQUEST_ID_HEADER, requestId);
+}
 
-    return trimmedValue && trimmedValue.length > 0 ? trimmedValue : undefined;
+export function createApiSuccess<TData>(requestId: string, data: TData): ApiSuccess<TData> {
+    return {
+        requestId,
+        data
+    };
+}
+
+export function createApiFailure(requestId: string, error: ApiError): ApiFailure {
+    return {
+        requestId,
+        error
+    };
 }

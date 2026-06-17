@@ -1,0 +1,35 @@
+{
+    "version": 1,
+    "skills": {
+        "shadcn": {
+            "source": "shadcn/ui",
+            "sourceType": "github",
+            "skillPath": "skills/shadcn/SKILL.md",
+            "computedHash": "dc4a43fa3f76f11682abf96003cd5c2f2e7cedafff7c86952ede27604bcc3857"
+        },
+        "toss-frontend-fundamentals": {
+            "source": "toss/frontend-fundamentals",
+            "sourceType": "github",
+            "skillPath": "skills/toss-frontend-fundamentals/SKILL.md",
+            "computedHash": "4a5bf18a1cec3eb9ccac0cbcfeb73551d1ac2fc351cdd2230226cf7612db6ac9"
+        },
+        "vercel-composition-patterns": {
+            "source": "vercel-labs/agent-skills",
+            "sourceType": "github",
+            "skillPath": "skills/vercel-composition-patterns/SKILL.md",
+            "computedHash": "90f0b68580f18da31d54a26c92f36b7a17a980dd46742bb6de9956490416a8fe"
+        },
+        "vercel-react-best-practices": {
+            "source": "vercel-labs/agent-skills",
+            "sourceType": "github",
+            "skillPath": "skills/vercel-react-best-practices/SKILL.md",
+            "computedHash": "efe1d145caa72306fb0f0e78f65d3b299de8710281d2b8af240a5d58f903ff0c"
+        },
+        "web-design-guidelines": {
+            "source": "vercel-labs/agent-skills",
+            "sourceType": "github",
+            "skillPath": "skills/web-design-guidelines/SKILL.md",
+            "computedHash": "38b50cbbb5ec48c39462d35745e9af5dd24851f8612c7df0912b62eda022db21"
+        }
+    }
+}

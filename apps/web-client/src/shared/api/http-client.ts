@@ -1,51 +1,114 @@
-import { ApiErrorResponseSchema, createApiSuccessResponseSchema } from "@nmm/shared";
-import type { ApiErrorPayload } from "@nmm/shared";
-import ky, { HTTPError, type Options } from "ky";
+import { apiFailureSchema, createApiSuccessSchema } from "@nmm/shared";
+import axios, { type AxiosRequestConfig, type Method } from "axios";
 import type { z } from "zod";
 
-type ApiRequestOptions = Omit<Options, "prefix">;
+import { clientEnv } from "@/shared/env/client-env";
 
-const apiClient = ky.create({
-    prefix: "/api",
-    credentials: "include",
-    retry: 3,
-    timeout: 1000
+type SearchParams = string | URLSearchParams | Record<string, boolean | number | string | null | undefined>;
+
+export type RequestOptions = Omit<
+    AxiosRequestConfig,
+    "baseURL" | "data" | "method" | "params" | "url" | "withCredentials"
+> & {
+    searchParams?: SearchParams;
+};
+
+type JsonRequestOptions = RequestOptions & {
+    json?: unknown;
+    method: Method;
+};
+
+const http = axios.create({
+    baseURL: new URL(clientEnv.VITE_API_BASE_URL, window.location.origin).toString(),
+    withCredentials: true
 });
 
 export class ApiClientError extends Error {
     constructor(
-        readonly status: number,
-        readonly requestId: string | undefined,
-        readonly error: ApiErrorPayload
+        public readonly code: string,
+        message: string,
+        public readonly requestId: string,
+        public readonly statusCode: number
     ) {
-        super(error.message);
-        this.name = "ApiClientError";
+        super(message);
     }
 }
 
-export async function requestApiData<TData>(
+export async function getJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options?: RequestOptions) {
+    return requestJson(path, schema, {
+        ...options,
+        method: "get"
+    });
+}
+
+export async function postJson<TSchema extends z.ZodType>(
     path: string,
-    dataSchema: z.ZodType<TData>,
-    options: ApiRequestOptions = {}
-): Promise<TData> {
+    schema: TSchema,
+    json?: unknown,
+    options?: RequestOptions
+) {
+    return requestJson(path, schema, {
+        ...options,
+        json,
+        method: "post"
+    });
+}
+
+export async function patchJson<TSchema extends z.ZodType>(
+    path: string,
+    schema: TSchema,
+    json?: unknown,
+    options?: RequestOptions
+) {
+    return requestJson(path, schema, {
+        ...options,
+        json,
+        method: "patch"
+    });
+}
+
+export async function deleteJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options?: RequestOptions) {
+    return requestJson(path, schema, {
+        ...options,
+        method: "delete"
+    });
+}
+
+async function requestJson<TSchema extends z.ZodType>(path: string, schema: TSchema, options: JsonRequestOptions) {
     try {
-        const body = await apiClient(path, options).json<unknown>();
+        const { json, method, searchParams, ...requestOptions } = options;
+        const response = await http.request<unknown>({
+            ...requestOptions,
+            data: json,
+            method,
+            params: normalizeSearchParams(searchParams),
+            url: path
+        });
+        const envelope = createApiSuccessSchema(schema).parse(response.data) as { data: z.infer<TSchema> };
 
-        return createApiSuccessResponseSchema(dataSchema).parse(body).data;
+        return envelope.data;
     } catch (error) {
-        if (error instanceof HTTPError) {
-            const errorResponse = ApiErrorResponseSchema.safeParse(error.data);
+        if (axios.isAxiosError(error)) {
+            const parsed = apiFailureSchema.safeParse(error.response?.data);
 
-            throw new ApiClientError(
-                error.response.status,
-                errorResponse.data?.requestId,
-                errorResponse.data?.error ?? {
-                    code: "HTTP_ERROR",
-                    message: "API 요청에 실패했습니다."
-                }
-            );
+            if (parsed.success) {
+                throw new ApiClientError(
+                    parsed.data.error.code,
+                    parsed.data.error.message,
+                    parsed.data.requestId,
+                    parsed.data.error.statusCode
+                );
+            }
         }
 
         throw error;
     }
+}
+
+function normalizeSearchParams(searchParams: SearchParams | undefined) {
+    if (typeof searchParams === "string") {
+        return new URLSearchParams(searchParams);
+    }
+
+    return searchParams;
 }

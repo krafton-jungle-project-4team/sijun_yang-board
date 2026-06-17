@@ -4,10 +4,11 @@
 
 - `packages/ui`에 적용한다.
 - 이 package는 app과 무관한 shadcn/Radix primitive를 제공한다.
+- shadcn primitive가 아닌 앱 전용 UI 조합은 이 package에 두지 않는다.
 
 ## 허용
 
-- React primitive component.
+- shadcn/Radix primitive component.
 - shadcn/Radix/lucide/cva/clsx/tailwind-merge 유틸.
 - `#lib/*` 같은 package 내부 import.
 
@@ -30,6 +31,8 @@
 
 ## 스킬
 
+- shadcn primitive 검색, 추가, 업데이트, 조합에는 설치된 `shadcn` skill을 참고한다.
+- `shadcn` skill과 충돌하면 이 파일의 package 경계, export, CLI 대상, 검증 규칙을 우선한다.
 - Primitive API 판단에는 `vercel-composition-patterns`를 적용한다.
 - UI 품질에는 `toss-frontend-fundamentals`, `web-design-guidelines`를 적용한다.
 

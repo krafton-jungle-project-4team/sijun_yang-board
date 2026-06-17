@@ -1,21 +1,23 @@
-export type DomainErrorDefinition = {
-    statusCode: number;
-    code: string;
-    message: string;
-};
+export class AppError extends Error {
+    public override readonly cause?: unknown;
 
-export class DomainError extends Error {
-    readonly statusCode: number;
-    readonly code: string;
-
-    constructor(error: DomainErrorDefinition) {
-        super(error.message);
-        this.name = "DomainError";
-        this.statusCode = error.statusCode;
-        this.code = error.code;
+    constructor(
+        public readonly code: string,
+        message: string,
+        public readonly statusCode = 400,
+        options?: ErrorOptions
+    ) {
+        super(message, options);
+        this.cause = options?.cause;
     }
 }
 
-export function createDomainError(error: DomainErrorDefinition) {
-    return new DomainError(error);
+export type DomainErrorDefinition = {
+    readonly statusCode: number;
+    readonly code: string;
+    readonly message: string;
+};
+
+export function createDomainError(error: DomainErrorDefinition, options?: ErrorOptions) {
+    return new AppError(error.code, error.message, error.statusCode, options);
 }

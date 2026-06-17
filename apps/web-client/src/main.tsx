@@ -1,11 +1,22 @@
+import { RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider } from "@tanstack/react-router";
-import { router } from "@/app/router";
+
+import { AppProviders } from "./app/providers";
+import { queryClient } from "./app/query-client";
+import { router } from "./app/router";
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+    throw new Error("Root element not found.");
+}
+
+createRoot(rootElement).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        <AppProviders>
+            <RouterProvider router={router} context={{ queryClient }} />
+        </AppProviders>
     </StrictMode>
 );

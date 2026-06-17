@@ -1,26 +1,35 @@
 import { Module } from "@nestjs/common";
-import { LoggerModule, nativeLoggerOptions } from "nestjs-pino";
-import { DatabaseModule } from "./infra/database";
-import { getRequestId } from "./infra/http";
-import { ExampleModule } from "./features/example";
-import { HealthModule } from "./features/health";
+import { ClsPluginTransactional } from "@nestjs-cls/transactional";
+import { ClsModule } from "nestjs-cls";
+import { LoggerModule } from "nestjs-pino";
+
+import { AuthModule } from "./features/auth";
+import { BoardModule } from "./features/board";
+import { HealthModule } from "./features/health/health.module";
+import { OperationsModule } from "./features/operations";
+import { DatabaseModule, PgTypedTransactionalAdapter } from "./infra/database";
+import { loggerModuleOptions } from "./infra/logger";
 
 @Module({
     imports: [
-        LoggerModule.forRoot({
-            assignResponse: true,
-            pinoHttp: {
-                ...nativeLoggerOptions,
-                level: "debug",
-                quietReqLogger: true,
-                customAttributeKeys: {
-                    reqId: "requestId"
-                },
-                genReqId: getRequestId
-            }
-        }),
+        LoggerModule.forRoot(loggerModuleOptions),
         DatabaseModule,
-        ExampleModule,
+        ClsModule.forRoot({
+            global: true,
+            middleware: {
+                mount: true
+            },
+            plugins: [
+                new ClsPluginTransactional({
+                    imports: [DatabaseModule],
+                    adapter: new PgTypedTransactionalAdapter(),
+                    enableTransactionProxy: true
+                })
+            ]
+        }),
+        AuthModule,
+        BoardModule,
+        OperationsModule,
         HealthModule
     ]
 })
