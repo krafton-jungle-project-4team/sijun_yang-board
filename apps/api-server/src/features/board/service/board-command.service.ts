@@ -10,7 +10,7 @@ import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import type { AuthClaims } from "@/features/auth";
-import { boardMutationForbiddenError, commentNotFoundError, postNotFoundError } from "@/features/board/board-errors";
+import { boardErrors } from "@/features/board/board-errors";
 import { CommentDomain, PostDomain } from "@/features/board/domain";
 import { CommentWriter, PostWriter } from "@/features/board/repository";
 
@@ -38,11 +38,11 @@ export class BoardCommandService {
         });
 
         if (!result) {
-            throw postNotFoundError();
+            throw boardErrors.postNotFound();
         }
 
         if (!PostDomain.canMutate(result.post, auth) || !result.changedId) {
-            throw boardMutationForbiddenError();
+            throw boardErrors.mutationForbidden();
         }
 
         return { id: result.changedId };
@@ -57,11 +57,11 @@ export class BoardCommandService {
         });
 
         if (!result) {
-            throw postNotFoundError();
+            throw boardErrors.postNotFound();
         }
 
         if (!PostDomain.canMutate(result.post, auth) || !result.changedId) {
-            throw boardMutationForbiddenError();
+            throw boardErrors.mutationForbidden();
         }
 
         return { id: result.changedId };
@@ -72,7 +72,7 @@ export class BoardCommandService {
         const comment = await this.commentWriter.create(auth.userId, postId, input);
 
         if (!comment) {
-            throw postNotFoundError();
+            throw boardErrors.postNotFound();
         }
 
         return { id: comment.id };
@@ -88,11 +88,11 @@ export class BoardCommandService {
         });
 
         if (!result) {
-            throw commentNotFoundError();
+            throw boardErrors.commentNotFound();
         }
 
         if (!CommentDomain.canMutate(result.comment, auth) || !result.changedId) {
-            throw boardMutationForbiddenError();
+            throw boardErrors.mutationForbidden();
         }
 
         return { id: result.changedId };
@@ -107,11 +107,11 @@ export class BoardCommandService {
         });
 
         if (!result) {
-            throw commentNotFoundError();
+            throw boardErrors.commentNotFound();
         }
 
         if (!CommentDomain.canMutate(result.comment, auth) || !result.changedId) {
-            throw boardMutationForbiddenError();
+            throw boardErrors.mutationForbidden();
         }
 
         return { id: result.changedId };

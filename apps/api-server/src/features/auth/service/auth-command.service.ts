@@ -5,12 +5,7 @@ import type { Request, Response } from "express";
 
 import { AppError } from "@/app-errors";
 import { PgTypedTransactionalAdapter } from "@/infra/database";
-import {
-    accountAlreadyExistsError,
-    invalidAuthUserError,
-    invalidCredentialsError,
-    userNotFoundError
-} from "@/features/auth/auth-errors";
+import { authErrors } from "@/features/auth/auth-errors";
 import { BetterAuthProvider } from "@/features/auth/provider";
 import { UserReader, UserWriter } from "@/features/auth/repository";
 
@@ -27,7 +22,7 @@ export class AuthCommandService {
         const id = await this.userWriter.updateMe(userId, input);
 
         if (!id) {
-            throw userNotFoundError();
+            throw authErrors.userNotFound();
         }
 
         return { id };
@@ -36,7 +31,7 @@ export class AuthCommandService {
     @Transactional<PgTypedTransactionalAdapter>()
     async signup(input: SignupInput, request: Request): Promise<IdCommandResult> {
         if (await this.userReader.existsByLoginIdOrEmail(input.loginId, input.email.toLowerCase())) {
-            throw accountAlreadyExistsError();
+            throw authErrors.accountAlreadyExists();
         }
 
         const result = await this.betterAuth.signUp(input, request);
@@ -48,7 +43,7 @@ export class AuthCommandService {
     async login(input: LoginInput, request: Request, response: Response): Promise<{ userId: number }> {
         const result = await this.betterAuth.signIn(input, request).catch((error: unknown) => {
             if (error instanceof AppError) {
-                throw invalidCredentialsError(error);
+                throw authErrors.invalidCredentials(error);
             }
 
             throw error;
@@ -72,7 +67,7 @@ function parseUserId(value: string | number): number {
     const id = Number(value);
 
     if (!Number.isSafeInteger(id) || id <= 0) {
-        throw invalidAuthUserError();
+        throw authErrors.invalidUser();
     }
 
     return id;

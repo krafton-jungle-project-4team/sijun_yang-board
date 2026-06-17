@@ -14,14 +14,7 @@ import { Injectable } from "@nestjs/common";
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import type { AuthClaims } from "@/features/auth";
 import { ApprovalRequestDomain, TaskDomain } from "@/features/operations/domain";
-import {
-    adminRequiredError,
-    approvalRequestAlreadyReviewedError,
-    approvalRequestNotFoundError,
-    projectNotFoundError,
-    taskMutationForbiddenError,
-    taskNotFoundError
-} from "@/features/operations/operations-errors";
+import { operationsErrors } from "@/features/operations/operations-errors";
 import { ApprovalRequestWriter, ProjectWriter, TaskWriter } from "@/features/operations/repository";
 
 @Injectable()
@@ -46,7 +39,7 @@ export class OperationsCommandService {
         const id = await this.projectWriter.update(projectId, input);
 
         if (!id) {
-            throw projectNotFoundError();
+            throw operationsErrors.projectNotFound();
         }
 
         return { id };
@@ -58,7 +51,7 @@ export class OperationsCommandService {
         const task = await this.taskWriter.create(auth.userId, projectId, input);
 
         if (!task) {
-            throw projectNotFoundError();
+            throw operationsErrors.projectNotFound();
         }
 
         return { id: task.id };
@@ -69,11 +62,11 @@ export class OperationsCommandService {
         const result = await this.taskWriter.update(auth, taskId, input);
 
         if (!result) {
-            throw taskNotFoundError();
+            throw operationsErrors.taskNotFound();
         }
 
         if (!TaskDomain.canUpdate(result.task, auth, input) || !result.changedId) {
-            throw taskMutationForbiddenError();
+            throw operationsErrors.taskMutationForbidden();
         }
 
         return { id: result.changedId };
@@ -84,7 +77,7 @@ export class OperationsCommandService {
         const request = await this.approvalRequestWriter.create(auth.userId, input);
 
         if (!request) {
-            throw projectNotFoundError();
+            throw operationsErrors.projectNotFound();
         }
 
         return { id: request.id };
@@ -123,11 +116,11 @@ export class OperationsCommandService {
         });
 
         if (!result) {
-            throw approvalRequestNotFoundError();
+            throw operationsErrors.approvalRequestNotFound();
         }
 
         if (ApprovalRequestDomain.isReviewed(result.request) || !result.changedId) {
-            throw approvalRequestAlreadyReviewedError();
+            throw operationsErrors.approvalRequestAlreadyReviewed();
         }
 
         return { id: result.changedId };
@@ -136,6 +129,6 @@ export class OperationsCommandService {
 
 function assertAdmin(auth: AuthClaims) {
     if (auth.role !== "ADMIN") {
-        throw adminRequiredError();
+        throw operationsErrors.adminRequired();
     }
 }

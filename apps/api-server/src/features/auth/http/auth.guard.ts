@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import type { Request } from "express";
 
-import { unauthenticatedError } from "@/features/auth/auth-errors";
+import { authErrors } from "@/features/auth/auth-errors";
 import { AuthQueryService } from "@/features/auth/service";
 import { setRequestAuth } from "./request-auth-context";
 
@@ -14,7 +14,7 @@ export class AuthGuard implements CanActivate {
         const claims = await this.authQuery.getClaimsByRequest(request);
 
         if (!claims) {
-            throw unauthenticatedError();
+            throw authErrors.unauthenticated();
         }
 
         setRequestAuth(request, claims);

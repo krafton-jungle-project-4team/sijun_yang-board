@@ -39,14 +39,8 @@ export function createBoardError(error: (typeof BOARD_ERRORS)[keyof typeof BOARD
     return createDomainError(error);
 }
 
-export function postNotFoundError() {
-    return createBoardError(BOARD_ERRORS.POST_NOT_FOUND);
-}
-
-export function commentNotFoundError() {
-    return createBoardError(BOARD_ERRORS.COMMENT_NOT_FOUND);
-}
-
-export function boardMutationForbiddenError() {
-    return createBoardError(BOARD_ERRORS.FORBIDDEN);
-}
+export const boardErrors = {
+    postNotFound: () => createBoardError(BOARD_ERRORS.POST_NOT_FOUND),
+    commentNotFound: () => createBoardError(BOARD_ERRORS.COMMENT_NOT_FOUND),
+    mutationForbidden: () => createBoardError(BOARD_ERRORS.FORBIDDEN)
+} as const;

@@ -39,26 +39,11 @@ export function createOperationsError(error: (typeof OPERATIONS_ERRORS)[keyof ty
     return createDomainError(error);
 }
 
-export function projectNotFoundError() {
-    return createOperationsError(OPERATIONS_ERRORS.PROJECT_NOT_FOUND);
-}
-
-export function taskNotFoundError() {
-    return createOperationsError(OPERATIONS_ERRORS.TASK_NOT_FOUND);
-}
-
-export function approvalRequestNotFoundError() {
-    return createOperationsError(OPERATIONS_ERRORS.APPROVAL_REQUEST_NOT_FOUND);
-}
-
-export function adminRequiredError() {
-    return createOperationsError(OPERATIONS_ERRORS.ADMIN_REQUIRED);
-}
-
-export function taskMutationForbiddenError() {
-    return createOperationsError(OPERATIONS_ERRORS.TASK_FORBIDDEN);
-}
-
-export function approvalRequestAlreadyReviewedError() {
-    return createOperationsError(OPERATIONS_ERRORS.APPROVAL_REQUEST_ALREADY_REVIEWED);
-}
+export const operationsErrors = {
+    projectNotFound: () => createOperationsError(OPERATIONS_ERRORS.PROJECT_NOT_FOUND),
+    taskNotFound: () => createOperationsError(OPERATIONS_ERRORS.TASK_NOT_FOUND),
+    approvalRequestNotFound: () => createOperationsError(OPERATIONS_ERRORS.APPROVAL_REQUEST_NOT_FOUND),
+    adminRequired: () => createOperationsError(OPERATIONS_ERRORS.ADMIN_REQUIRED),
+    taskMutationForbidden: () => createOperationsError(OPERATIONS_ERRORS.TASK_FORBIDDEN),
+    approvalRequestAlreadyReviewed: () => createOperationsError(OPERATIONS_ERRORS.APPROVAL_REQUEST_ALREADY_REVIEWED)
+} as const;

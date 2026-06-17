@@ -7,7 +7,7 @@ import type { Pool } from "pg";
 
 import { PG_POOL } from "@/infra/database/database.tokens";
 import { serverEnv } from "@/infra/env";
-import { authProviderError } from "@/features/auth/auth-errors";
+import { authErrors } from "@/features/auth/auth-errors";
 
 const authBasePath = "/api/auth";
 const importEsm = new Function("specifier", "return import(specifier)") as <T>(specifier: string) => Promise<T>;
@@ -348,7 +348,7 @@ async function readJson(response: Response): Promise<unknown> {
 function toBetterAuthAppError(data: unknown, statusCode: number) {
     const message = readErrorMessage(data);
 
-    return authProviderError(message, statusCode);
+    return authErrors.provider(message, statusCode);
 }
 
 function readErrorMessage(data: unknown) {

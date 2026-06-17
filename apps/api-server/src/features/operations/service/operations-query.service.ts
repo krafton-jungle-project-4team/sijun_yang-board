@@ -15,11 +15,7 @@ import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { ApprovalRequestDomain, DashboardViewDomain, ProjectDomain, TaskDomain } from "@/features/operations/domain";
-import {
-    approvalRequestNotFoundError,
-    projectNotFoundError,
-    taskNotFoundError
-} from "@/features/operations/operations-errors";
+import { operationsErrors } from "@/features/operations/operations-errors";
 import {
     ApprovalRequestReader,
     DashboardViewQuery,
@@ -62,7 +58,7 @@ export class OperationsQueryService {
         const project = await this.projectReader.findById(projectId);
 
         if (!project) {
-            throw projectNotFoundError();
+            throw operationsErrors.projectNotFound();
         }
 
         return ProjectDomain.toProject(project);
@@ -73,7 +69,7 @@ export class OperationsQueryService {
         const project = await this.projectReader.findById(projectId);
 
         if (!project) {
-            throw projectNotFoundError();
+            throw operationsErrors.projectNotFound();
         }
 
         const tasks = await this.taskReader.listByProjectId(projectId);
@@ -86,7 +82,7 @@ export class OperationsQueryService {
         const task = await this.taskReader.findById(taskId);
 
         if (!task) {
-            throw taskNotFoundError();
+            throw operationsErrors.taskNotFound();
         }
 
         return TaskDomain.toTask(task);
@@ -109,7 +105,7 @@ export class OperationsQueryService {
         const request = await this.approvalRequestReader.findById(requestId);
 
         if (!request) {
-            throw approvalRequestNotFoundError();
+            throw operationsErrors.approvalRequestNotFound();
         }
 
         return ApprovalRequestDomain.toApprovalRequest(request);

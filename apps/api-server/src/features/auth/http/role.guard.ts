@@ -3,7 +3,7 @@ import { CanActivate, ExecutionContext, Injectable, SetMetadata } from "@nestjs/
 import { Reflector } from "@nestjs/core";
 import type { Request } from "express";
 
-import { forbiddenAuthError, unauthenticatedError } from "@/features/auth/auth-errors";
+import { authErrors } from "@/features/auth/auth-errors";
 import { getRequestAuth } from "./request-auth-context";
 
 const ROLES_METADATA_KEY = "auth:roles";
@@ -28,11 +28,11 @@ export class RoleGuard implements CanActivate {
         const auth = getRequestAuth(request);
 
         if (!auth) {
-            throw unauthenticatedError();
+            throw authErrors.unauthenticated();
         }
 
         if (!allowedRoles.includes(auth.role)) {
-            throw forbiddenAuthError();
+            throw authErrors.forbidden();
         }
 
         return true;

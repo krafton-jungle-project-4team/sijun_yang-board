@@ -6,7 +6,7 @@ import { PinoLogger } from "nestjs-pino";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { assignLoggerContext } from "@/infra/logger";
-import { invalidAuthUserError, userNotFoundError } from "@/features/auth/auth-errors";
+import { authErrors } from "@/features/auth/auth-errors";
 import { UserAccountDomain, type AuthClaims, type UserAccountSnapshot } from "@/features/auth/domain";
 import { BetterAuthProvider } from "@/features/auth/provider";
 import { UserReader } from "@/features/auth/repository";
@@ -55,7 +55,7 @@ export class AuthQueryService {
         const user = await this.userReader.findById(userId);
 
         if (!user) {
-            throw userNotFoundError();
+            throw authErrors.userNotFound();
         }
 
         return user;
@@ -66,7 +66,7 @@ function parseUserId(value: string | number): number {
     const id = Number(value);
 
     if (!Number.isSafeInteger(id) || id <= 0) {
-        throw invalidAuthUserError();
+        throw authErrors.invalidUser();
     }
 
     return id;

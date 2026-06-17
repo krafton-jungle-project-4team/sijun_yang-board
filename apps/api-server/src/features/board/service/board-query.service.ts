@@ -3,7 +3,7 @@ import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
-import { postNotFoundError } from "@/features/board/board-errors";
+import { boardErrors } from "@/features/board/board-errors";
 import { CommentDomain, PostDomain } from "@/features/board/domain";
 import { CommentReader, PostReader, PostWriter } from "@/features/board/repository";
 
@@ -34,7 +34,7 @@ export class BoardQueryService {
         const post = await this.postReader.findById(postId);
 
         if (!post) {
-            throw postNotFoundError();
+            throw boardErrors.postNotFound();
         }
 
         return PostDomain.toDetail(post);

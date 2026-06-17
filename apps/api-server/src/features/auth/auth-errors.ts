@@ -44,34 +44,17 @@ export function createAuthError(error: DomainErrorDefinition, options?: ErrorOpt
     return createDomainError(error, options);
 }
 
-export function unauthenticatedError() {
-    return createAuthError(AUTH_ERRORS.UNAUTHENTICATED);
-}
-
-export function forbiddenAuthError() {
-    return createAuthError(AUTH_ERRORS.FORBIDDEN);
-}
-
-export function accountAlreadyExistsError() {
-    return createAuthError(AUTH_ERRORS.ACCOUNT_ALREADY_EXISTS);
-}
-
-export function userNotFoundError() {
-    return createAuthError(AUTH_ERRORS.USER_NOT_FOUND);
-}
-
-export function invalidAuthUserError() {
-    return createAuthError(AUTH_ERRORS.INVALID_USER);
-}
-
-export function invalidCredentialsError(cause: unknown) {
-    return createAuthError(AUTH_ERRORS.INVALID_CREDENTIALS, { cause });
-}
-
-export function authProviderError(message: string, statusCode: number) {
-    return createAuthError({
-        ...AUTH_ERRORS.PROVIDER_ERROR,
-        statusCode,
-        message
-    });
-}
+export const authErrors = {
+    unauthenticated: () => createAuthError(AUTH_ERRORS.UNAUTHENTICATED),
+    forbidden: () => createAuthError(AUTH_ERRORS.FORBIDDEN),
+    accountAlreadyExists: () => createAuthError(AUTH_ERRORS.ACCOUNT_ALREADY_EXISTS),
+    userNotFound: () => createAuthError(AUTH_ERRORS.USER_NOT_FOUND),
+    invalidUser: () => createAuthError(AUTH_ERRORS.INVALID_USER),
+    invalidCredentials: (cause: unknown) => createAuthError(AUTH_ERRORS.INVALID_CREDENTIALS, { cause }),
+    provider: (message: string, statusCode: number) =>
+        createAuthError({
+            ...AUTH_ERRORS.PROVIDER_ERROR,
+            statusCode,
+            message
+        })
+} as const;
