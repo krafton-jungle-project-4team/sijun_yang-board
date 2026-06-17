@@ -8,15 +8,11 @@ import { BoardModule } from "./features/board";
 import { HealthModule } from "./features/health/health.module";
 import { OperationsModule } from "./features/operations";
 import { DatabaseModule, PgTypedTransactionalAdapter } from "./infra/database";
-import { serverEnv } from "./infra/env";
+import { loggerModuleOptions } from "./infra/logger";
 
 @Module({
     imports: [
-        LoggerModule.forRoot({
-            pinoHttp: {
-                level: serverEnv.LOG_LEVEL
-            }
-        }),
+        LoggerModule.forRoot(loggerModuleOptions),
         DatabaseModule,
         ClsModule.forRoot({
             global: true,
