@@ -20,7 +20,7 @@
 3. `.codex/skills`에 작업 유형별 스킬 사용 안내를 만든다.
 4. React/UI 작업에는 `toss-frontend-fundamentals`와 `vercel-react-best-practices` 기준을 적용하도록 문맥을 남긴다.
 5. 컴포넌트 API 판단에는 `vercel-composition-patterns` 기준을 적용하도록 문맥을 남긴다.
-6. 문서 작성에는 `writing-guidelines` 기준을 적용하도록 문맥을 남긴다.
+6. 문서 작성에는 `AGENTS.md`의 간결한 문서 규칙을 적용하도록 문맥을 남긴다.
 7. 생성 프롬프트를 `docs/generation/prompt.md`에 기록한다.
 8. 실행 명령은 `docs/generation/commands.md`에 기록한다.
 9. 생성 결과는 `docs/generation/result.md`에 기록한다.

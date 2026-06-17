@@ -3,7 +3,7 @@
 ## Planned
 
 - 작업 유형: React/UI 코드 작성, 컴포넌트 API 설계, 문서 작성
-- 적용할 스킬: `toss-frontend-fundamentals`, `vercel-react-best-practices`, `vercel-composition-patterns`, `writing-guidelines`
+- 적용할 스킬: `toss-frontend-fundamentals`, `vercel-react-best-practices`, `vercel-composition-patterns`
 - 제외한 스킬과 이유: view transition, UI audit, Vercel optimize는 이번 생성 범위에 직접 작업이 없음
 
 ## Applied
@@ -19,10 +19,6 @@
 - 스킬: `vercel-composition-patterns`
 - 적용한 파일/결정: `packages/ui` primitive API
 - 바꾼 점: app-local control 대신 reusable primitive export 사용
-
-- 스킬: `writing-guidelines`
-- 적용한 파일/결정: AGENTS.md와 generation 문서
-- 바꾼 점: 짧고 검증 가능한 문장으로 기록
 
 ## React Doctor
 

@@ -12,5 +12,5 @@
 
 ## 결과
 
-- 남은 skill은 `toss-frontend-fundamentals`, `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`, `writing-guidelines`다.
+- 남은 skill은 `toss-frontend-fundamentals`, `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`다.
 - `npm run verify`를 통과했다.

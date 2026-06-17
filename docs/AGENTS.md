@@ -2,7 +2,6 @@
 
 - Write as briefly as possible without losing meaning.
 - Avoid repeated explanations and decorative phrasing.
-- Apply `writing-guidelines` for docs writing, compression, and review.
 - Generation logs live under `docs/generation`.
 - AI work notes live under `docs/ai`.
 - Each AI note includes reason, work, result, verification, and follow-up when relevant.
