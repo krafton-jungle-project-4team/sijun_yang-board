@@ -11,6 +11,6 @@ import { AuthCommandService, AuthQueryService } from "./service";
     imports: [DatabaseModule],
     controllers: [AuthController],
     providers: [AuthQueryService, AuthCommandService, BetterAuthProvider, AuthGuard, RoleGuard, UserReader, UserWriter],
-    exports: [AuthGuard, RoleGuard]
+    exports: [AuthGuard, RoleGuard, AuthQueryService]
 })
 export class AuthModule {}
