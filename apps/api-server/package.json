@@ -8,8 +8,6 @@
         "db:generate": "node --env-file=.env ../../node_modules/.bin/pgtyped -c pgtyped.config.json",
         "db:verify": "scripts/verify-schema-drift.py .env",
         "dev:docker": "nest start --watch",
-        "test": "node --test -r ts-node/register -r tsconfig-paths/register test/*.spec.ts",
-        "start:prod": "node dist/main",
         "typecheck": "tsc --noEmit -p tsconfig.json"
     },
     "dependencies": {
@@ -27,14 +25,14 @@
         "pino-http": "^11.0.0",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.2",
-        "zod": "^4.2.1"
+        "zod": "^4.4.3"
     },
     "devDependencies": {
         "@nestjs/cli": "^11.0.12",
         "@nestjs/schematics": "^11.0.9",
         "@pgtyped/cli": "^2.4.3",
         "@types/express": "^5.0.5",
-        "@types/node": "^24.10.1",
+        "@types/node": "^24.13.2",
         "@types/pg": "^8.20.0",
         "source-map-support": "^0.5.21",
         "ts-loader": "^9.5.4",

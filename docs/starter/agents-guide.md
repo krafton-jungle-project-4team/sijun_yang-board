@@ -37,7 +37,6 @@
 
 - Run user-facing tasks through root `package.json` scripts.
 - After changes, run `npm run verify`.
-- Individual checks are `npm run lint`, `npm run format:check`, `npm run typecheck`, and `npm run build`.
 - Start development servers only through root scripts.
 - Start the API only through Docker Compose wrapped by `npm run dev` or `npm run dev:api`.
 - Do not run `nest start`, workspace dev scripts, or ad hoc env commands directly.
@@ -122,7 +121,7 @@
 - In-memory stores, arrays as stores, and Map stores are forbidden.
 - Update schema objects in `database/schema.sql`.
 - Keep seed/demo data in `database/dummy-data.sql`.
-- Update feature `database/*.sql` files and run `npm run db:generate` after query changes.
+- Update feature `database/*.sql` files after query changes; `npm run verify` regenerates PgTyped output.
 - Add a short purpose comment above each hand-written schema object and feature SQL query.
 - Writes require `AuthenticatedUserGuard` unless explicitly public.
 - User-owned content must be scoped to the current authenticated user.

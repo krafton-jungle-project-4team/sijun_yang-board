@@ -9,9 +9,6 @@ rg --files
 mkdir -p ...
 apply_patch ...
 npm install
-npm run db:generate
-npm run db:verify
-npm run format
 rg "board-store|Post\\[\\] =|UserRecord\\[\\]|new Map" apps/api-server/src/features
 rg "@pgtyped|pg" packages/shared/src apps/web-client/src packages/ui/src
 npm run verify

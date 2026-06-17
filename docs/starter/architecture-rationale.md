@@ -28,7 +28,6 @@
 - `prettier`: 포맷 전담
 - `typescript`: 공통 strict 기준
 - `concurrently`: Web/API 개발 서버 동시 실행
-- `husky`, `lint-staged`: commit 전 포맷/lint 보조
 
 ### Web
 
@@ -71,11 +70,11 @@
 
 ### 실행 규칙
 
-- 사용자가 실행하는 작업은 root `package.json` script로 제공한다.
+- root `package.json` script는 반복 실행하는 진입점만 둔다.
 - API 개발 서버는 Docker Compose를 감싼 root script로 실행한다.
 - API를 직접 `nest start`나 임의 env 조합으로 실행하지 않는다.
 
-현재 repo의 `npm run verify`는 lint, format check, typecheck, build를 실행한다. Starter 목표에서는 여기에 DB/PgTyped/schema drift 검증까지 포함한다.
+`npm run verify`는 DB 준비, PgTyped 생성, schema drift, lint, format check, typecheck, build를 한 번에 실행한다.
 
 ### TypeScript 규칙
 

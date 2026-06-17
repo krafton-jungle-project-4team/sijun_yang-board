@@ -7,12 +7,12 @@
 
 ## 프로젝트 표준
 
-- 변경 후 `npm run verify`로 lint, format check, typecheck, build를 함께 확인한다.
-- 개별 확인은 `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run build`를 쓴다.
+- 변경 후 `npm run verify`로 DB, PgTyped, schema drift, lint, format check, typecheck, build를 함께 확인한다.
+- 개별 확인은 필요한 도구나 workspace 명령을 직접 실행한다.
 - 개발 서버는 루트 npm script로만 실행한다. API 서버는 Docker Compose를 감싼 `npm run dev` 또는 `npm run dev:api`만 사용한다.
 - API 서버를 직접 `nest start`, workspace `start:dev`, 임의 환경 변수 조합으로 실행하지 않는다. 로컬 환경 의존이 실행마다 달라지는 것을 막기 위함이다.
-- 사용자가 실행하는 작업은 루트 `package.json` script로 제공한다.
-- workspace script는 루트 script가 호출하는 내부 도구 명령으로만 둔다.
+- 루트 `package.json` script는 반복 실행하는 진입점만 둔다.
+- workspace script는 루트 script, Docker, 패키지 내부 검증이 호출하는 내부 명령으로만 둔다.
 - 모듈 경계는 `eslint.config.mjs`와 앱별 `AGENTS.md`를 따른다.
 - `apps/*`, `packages/*`의 TS/TSX 파일과 `src` 하위 폴더명은 kebab-case다.
 - `*.contract.ts`, `*.config.ts` 같은 중간 확장자는 허용한다.

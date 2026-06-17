@@ -91,7 +91,7 @@
 
 - `eslint`, `@eslint/js`, `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser`
 - `eslint-config-prettier`, `eslint-plugin-check-file`, `eslint-plugin-import`, `eslint-plugin-react-hooks`
-- `globals`, `prettier`, `concurrently`, `husky`, `lint-staged`
+- `globals`, `prettier`, `concurrently`
 
 Web dependencies:
 
@@ -131,18 +131,11 @@ UI dependencies:
 - `dev:api`: Docker Compose로 API 실행
 - `dev:db`: Docker Compose로 PostgreSQL 실행
 - `dev:db:stop`: DB 정지
-- `db:generate`: PgTyped 생성
-- `db:verify`: DB 준비 후 schema drift 확인
-- `build`: shared, web, api build
-- `typecheck`: shared, ui, web, api typecheck
-- `lint`: ESLint
-- `format`: Prettier write
-- `format:check`: Prettier check
-- `verify`: lint, format check, typecheck, db generate, db verify, build
+- `verify`: DB 준비, PgTyped 생성, schema drift, lint, format check, typecheck, build
 
 `verify`는 필요한 DB 컨테이너 준비까지 root script 안에서 처리한다.
 
-`db:verify`는 로컬에 설치된 DB 도구를 암묵적으로 요구하지 않는다. Docker 또는 npm script로 재현 가능해야 한다.
+schema drift 검증은 로컬 DB 도구 설치를 요구하지 않고 Docker로 재현 가능해야 한다.
 
 ## Verify 필수 조건
 

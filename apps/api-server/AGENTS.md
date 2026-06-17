@@ -23,9 +23,9 @@
 - Multi-step writes must run inside the service transaction boundary, normally `@Transactional<PgTypedTransactionalAdapter>()`.
 - In-memory stores, arrays as stores, Map stores, and `board-store.ts` are forbidden.
 - Update schema objects in `database/schema.sql`; keep seed data and sequence runtime state in `database/dummy-data.sql`.
-- Update feature `database/*.sql` files and run `npm run db:generate` after query changes.
+- Update feature `database/*.sql` files after query changes; `npm run verify` regenerates PgTyped output.
 - Add a short purpose comment above each hand-written schema object and feature SQL query.
-- Run `npm run db:verify` with the database already started by `npm run dev:db` when checking schema drift; it uses Docker sqldef, not a local binary.
+- `npm run verify` checks schema drift with Docker, not a local PostgreSQL client.
 - Writes require `AuthenticatedUserGuard` unless explicitly public.
 - Only author or ADMIN may update/delete board content.
 - Verify with `npm run verify` from the repository root.

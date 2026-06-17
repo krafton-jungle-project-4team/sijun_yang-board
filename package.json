@@ -1,44 +1,28 @@
 {
     "name": "@nmm/root",
     "private": true,
+    "packageManager": "npm@11.11.1",
+    "engines": {
+        "node": ">=22.12.0",
+        "npm": ">=11.0.0"
+    },
     "workspaces": [
         "apps/*",
         "packages/*"
     ],
     "scripts": {
-        "dev": "npm run dev:all",
-        "dev:all": "npm run dev:db && concurrently -k -n api,web \"npm run dev:api\" \"npm run dev:web\"",
+        "dev": "npm run dev:db && concurrently -k -n api,web \"npm run dev:api\" \"npm run dev:web\"",
         "dev:web": "npm run build -w @nmm/shared && npm run dev -w @nmm/web-client",
         "dev:api": "docker compose --env-file apps/api-server/.env up --build api-server",
-        "dev:db": "docker compose --env-file apps/api-server/.env up -d postgres",
+        "dev:db": "docker compose --env-file apps/api-server/.env up --wait postgres",
         "dev:db:stop": "docker compose --env-file apps/api-server/.env down",
-        "db:generate": "npm run db:generate -w @nmm/api-server",
-        "db:verify": "npm run db:verify -w @nmm/api-server",
-        "test:api": "npm run test -w @nmm/api-server",
-        "preview:web": "npm run build:web && npm run preview -w @nmm/web-client",
-        "build": "npm run build -w @nmm/shared && npm run build -w @nmm/web-client && npm run build -w @nmm/api-server",
-        "build:web": "npm run build -w @nmm/shared && npm run build -w @nmm/web-client",
-        "build:api": "npm run build -w @nmm/shared && npm run build -w @nmm/api-server",
-        "typecheck": "npm run typecheck -w @nmm/shared && npm run build -w @nmm/shared && npm run typecheck -w @nmm/ui && npm run typecheck -w @nmm/web-client && npm run typecheck -w @nmm/api-server",
-        "lint": "eslint . --max-warnings=0",
-        "format": "prettier --write .",
-        "format:check": "prettier --check .",
-        "verify": "npm run lint && npm run format:check && npm run typecheck && npm run build",
-        "prepare": "husky || true"
-    },
-    "lint-staged": {
-        "*.{ts,tsx,js,jsx,json,css,md}": [
-            "prettier --write"
-        ],
-        "*.{ts,tsx,js,jsx}": [
-            "eslint --fix"
-        ]
+        "verify": "npm run dev:db && npm run db:generate -w @nmm/api-server && npm run db:verify -w @nmm/api-server && eslint . --max-warnings=0 && prettier --check . && npm run typecheck -w @nmm/shared && npm run build -w @nmm/shared && npm run typecheck -w @nmm/ui && npm run typecheck -w @nmm/web-client && npm run typecheck -w @nmm/api-server && npm run build -w @nmm/shared && npm run build -w @nmm/web-client && npm run build -w @nmm/api-server"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.4",
         "@typescript-eslint/eslint-plugin": "^8.60.1",
         "@typescript-eslint/parser": "^8.60.1",
-        "concurrently": "latest",
+        "concurrently": "^10.0.3",
         "eslint": "^9.39.4",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-check-file": "^3.3.1",
@@ -46,8 +30,6 @@
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^7.1.1",
         "globals": "^17.6.0",
-        "husky": "^9.1.7",
-        "lint-staged": "^17.0.7",
         "prettier": "^3.8.3"
     }
 }
