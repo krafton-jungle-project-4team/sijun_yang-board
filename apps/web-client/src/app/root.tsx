@@ -112,20 +112,11 @@ export function RootLayout() {
                 <Outlet />
             </main>
             <footer className="border-t bg-muted/30">
-                <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between">
-                    <div className="flex flex-col gap-1">
-                        <span className="text-sm font-medium">OpsDesk</span>
-                        <span className="text-sm text-muted-foreground">
-                            Projects, approvals, and announcements in one workspace.
-                        </span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-1">
-                        {navigationItems.map((item) => (
-                            <Button key={item.to} asChild variant="ghost" size="sm">
-                                <Link to={item.to}>{item.label}</Link>
-                            </Button>
-                        ))}
-                    </div>
+                <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+                    <span className="font-medium text-foreground">OpsDesk Co., Ltd.</span>
+                    <span>
+                        12 Teheran-ro 10-gil, Gangnam-gu, Seoul | Business No. 123-45-67890 | support@opsdesk.example
+                    </span>
                 </div>
             </footer>
         </div>
