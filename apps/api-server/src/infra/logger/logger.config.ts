@@ -9,6 +9,7 @@ const SERVICE_NAME = "nmm-api-server";
 const REDACTED = "[Redacted]";
 
 export const loggerModuleOptions = {
+    assignResponse: true,
     pinoHttp: {
         level: serverEnv.LOG_LEVEL,
         messageKey: "message",

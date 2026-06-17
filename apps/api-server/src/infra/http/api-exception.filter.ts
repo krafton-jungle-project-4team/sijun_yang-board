@@ -17,14 +17,37 @@ export class ApiExceptionFilter implements ExceptionFilter {
         const requestId = ensureRequestId(request);
         const status = this.getStatus(error);
         const body = this.getBody(error, status);
+
+        this.logFailure(request, requestId, status, body, error);
+
         const failure = createApiFailure(requestId, body);
-
-        if (status >= 500) {
-            this.logger.error(getLogMessage(body.message, error), getErrorStack(error));
-        }
-
         setRequestIdHeader(response, requestId);
         response.status(status).json(failure);
+    }
+
+    private logFailure(
+        request: RequestWithRequestId,
+        requestId: string,
+        statusCode: number,
+        body: ApiError,
+        error: unknown
+    ) {
+        const details: ErrorResponseLog = {
+            requestId,
+            statusCode,
+            code: body.code,
+            method: request.method,
+            path: request.originalUrl || request.url,
+            errorMessage: getLogMessage(body.message, error)
+        };
+
+        if (statusCode >= 500) {
+            details.stack = getErrorStack(error);
+            this.logger.error(details, "Returning error response");
+            return;
+        }
+
+        this.logger.warn(details, "Returning error response");
     }
 
     private getStatus(error: unknown) {
@@ -75,6 +98,16 @@ export class ApiExceptionFilter implements ExceptionFilter {
         };
     }
 }
+
+type ErrorResponseLog = {
+    requestId: string;
+    statusCode: number;
+    code: string;
+    method: string;
+    path: string;
+    errorMessage: string;
+    stack?: string;
+};
 
 function getHttpErrorCode(error: HttpException) {
     const body = error.getResponse();
