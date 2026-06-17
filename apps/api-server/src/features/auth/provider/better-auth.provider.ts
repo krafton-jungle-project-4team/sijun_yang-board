@@ -212,6 +212,7 @@ export class BetterAuthProvider {
                     userAgent: "user_agent",
                     userId: "user_id"
                 },
+                modelName: "sessions",
                 updateAge: 60 * 60 * 24
             },
             trustedOrigins: [serverEnv.WEB_ORIGIN, serverEnv.BETTER_AUTH_URL],

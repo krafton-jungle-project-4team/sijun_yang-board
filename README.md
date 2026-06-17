@@ -43,7 +43,7 @@ npm run verify
 
 `npm run verify`는 PostgreSQL을 실행한 뒤 PgTyped 생성, schema drift 검증, lint, format check, typecheck, build를 실행한다.
 
-DB 스키마만 확인하려면 `npm run db:verify`를 사용한다. 로컬 DB 데이터를 버리고 `schema.sql`/`dummy-data.sql` 기준으로 다시 만들 때만 `npm run db:forcesync`를 사용한다.
+DB 스키마만 확인하려면 `npm run db:verify`를 사용한다. `schema.sql` 기준으로 DB 스키마를 강제로 맞출 때만 `npm run db:forcesync`를 사용한다. 이 명령은 sqldef의 `--enable-drop`을 사용하므로 스키마 객체를 삭제할 수 있다.
 
 ## 테스트 계정
 

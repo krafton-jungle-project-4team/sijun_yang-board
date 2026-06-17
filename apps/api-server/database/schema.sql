@@ -26,10 +26,10 @@ CREATE TABLE "user" (
 CREATE TRIGGER set_user_updated_at
 BEFORE UPDATE ON "user"
 FOR EACH ROW
-EXECUTE FUNCTION moddatetime(updated_at);
+EXECUTE FUNCTION moddatetime('updated_at');
 
 /* Purpose: Store Better Auth session tokens and expiry for signed-in users. */
-CREATE TABLE "session" (
+CREATE TABLE sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     token TEXT NOT NULL UNIQUE,
     user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
@@ -42,16 +42,16 @@ CREATE TABLE "session" (
 
 /* Purpose: Refresh the session updated_at value on session updates. */
 CREATE TRIGGER set_session_updated_at
-BEFORE UPDATE ON "session"
+BEFORE UPDATE ON sessions
 FOR EACH ROW
-EXECUTE FUNCTION moddatetime(updated_at);
+EXECUTE FUNCTION moddatetime('updated_at');
 
 /* Purpose: Speed up session lookups by user. */
-CREATE INDEX idx_session_user_id ON "session"(user_id);
+CREATE INDEX idx_session_user_id ON sessions(user_id);
 /* Purpose: Speed up Better Auth session lookups by token. */
-CREATE INDEX idx_session_token ON "session"(token);
+CREATE INDEX idx_session_token ON sessions(token);
 /* Purpose: Speed up expired session cleanup. */
-CREATE INDEX idx_session_expires_at ON "session"(expires_at);
+CREATE INDEX idx_session_expires_at ON sessions(expires_at);
 
 /* Purpose: Store Better Auth credential and future provider account links. */
 CREATE TABLE account (
@@ -75,7 +75,7 @@ CREATE TABLE account (
 CREATE TRIGGER set_account_updated_at
 BEFORE UPDATE ON account
 FOR EACH ROW
-EXECUTE FUNCTION moddatetime(updated_at);
+EXECUTE FUNCTION moddatetime('updated_at');
 
 /* Purpose: Speed up account lookups by user. */
 CREATE INDEX idx_account_user_id ON account(user_id);
@@ -94,7 +94,7 @@ CREATE TABLE verification (
 CREATE TRIGGER set_verification_updated_at
 BEFORE UPDATE ON verification
 FOR EACH ROW
-EXECUTE FUNCTION moddatetime(updated_at);
+EXECUTE FUNCTION moddatetime('updated_at');
 
 /* Purpose: Speed up verification lookup by identifier. */
 CREATE INDEX idx_verification_identifier ON verification(identifier);
@@ -114,7 +114,7 @@ CREATE TABLE posts (
 CREATE TRIGGER set_posts_updated_at
 BEFORE UPDATE ON posts
 FOR EACH ROW
-EXECUTE FUNCTION moddatetime(updated_at);
+EXECUTE FUNCTION moddatetime('updated_at');
 
 /* Purpose: Speed up post list filtering by author. */
 CREATE INDEX idx_posts_author_id ON posts(author_id);
@@ -135,7 +135,7 @@ CREATE TABLE comments (
 CREATE TRIGGER set_comments_updated_at
 BEFORE UPDATE ON comments
 FOR EACH ROW
-EXECUTE FUNCTION moddatetime(updated_at);
+EXECUTE FUNCTION moddatetime('updated_at');
 
 /* Purpose: Speed up comment list loading by post. */
 CREATE INDEX idx_comments_post_id ON comments(post_id);
@@ -165,7 +165,7 @@ CREATE TABLE projects (
 CREATE TRIGGER set_projects_updated_at
 BEFORE UPDATE ON projects
 FOR EACH ROW
-EXECUTE FUNCTION moddatetime(updated_at);
+EXECUTE FUNCTION moddatetime('updated_at');
 
 /* Purpose: Speed up project filtering by status. */
 CREATE INDEX idx_projects_status ON projects(status);
@@ -198,7 +198,7 @@ CREATE TABLE tasks (
 CREATE TRIGGER set_tasks_updated_at
 BEFORE UPDATE ON tasks
 FOR EACH ROW
-EXECUTE FUNCTION moddatetime(updated_at);
+EXECUTE FUNCTION moddatetime('updated_at');
 
 /* Purpose: Speed up task lists by project. */
 CREATE INDEX idx_tasks_project_id ON tasks(project_id);
@@ -230,7 +230,7 @@ CREATE TABLE approval_requests (
 CREATE TRIGGER set_approval_requests_updated_at
 BEFORE UPDATE ON approval_requests
 FOR EACH ROW
-EXECUTE FUNCTION moddatetime(updated_at);
+EXECUTE FUNCTION moddatetime('updated_at');
 
 /* Purpose: Speed up approval request filtering by project. */
 CREATE INDEX idx_approval_requests_project_id ON approval_requests(project_id);
