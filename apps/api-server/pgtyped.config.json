@@ -1,5 +1,5 @@
 {
-    "srcDir": "./apps/api-server/src",
+    "srcDir": "./src",
     "failOnError": true,
     "camelCaseColumnNames": true,
     "transforms": [

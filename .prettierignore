@@ -4,6 +4,7 @@ dist
 apps/*/dist
 packages/*/dist
 apps/web-client/src/routeTree.gen.ts
+apps/api-server/src/**/database/__generated__/**
 .codex
 
 # shadcn CLI 생성물은 받은 그대로 둔다.
