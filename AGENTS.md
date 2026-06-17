@@ -17,7 +17,8 @@
 - `apps/*`, `packages/*`의 TS/TSX 파일과 `src` 하위 폴더명은 kebab-case다.
 - `*.contract.ts`, `*.config.ts` 같은 중간 확장자는 허용한다.
 - TanStack Router 라우트 파일은 프레임워크/생성기 규칙을 따른다.
-- 앱 내부 absolute import는 `@/*`를 쓴다.
+- 앱 내부에서 다른 `src` 하위 폴더를 import할 때는 `@/*`를 쓴다.
+- `./*`는 같은 폴더 로컬 import에만 쓰고, `../*`는 생성 파일/생성기 규칙 파일만 허용한다.
 - workspace 간 import는 패키지 이름으로 한다.
 - `apps/web-client`는 `@nmm/shared`, `@nmm/ui`만 workspace import로 사용하고 API는 HTTP로 호출한다.
 - `apps/api-server`는 `@nmm/shared`만 workspace import로 사용하고 web 코드를 import하지 않는다.

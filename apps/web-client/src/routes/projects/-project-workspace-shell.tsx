@@ -19,31 +19,37 @@ import {
 } from "@nmm/ui/components";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-    ClipboardCheckIcon,
+    ArchiveIcon,
+    CalendarClockIcon,
+    CheckCircle2Icon,
     FolderKanbanIcon,
     ListChecksIcon,
     ListTodoIcon,
-    NewspaperIcon,
     PencilIcon,
     PlusIcon,
+    RocketIcon,
     SquareKanbanIcon
 } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { canManageProjects } from "../../features/projects/model/project-permissions";
+import { useCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { canManageProjects } from "@/features/projects/model/project-permissions";
 
 type ProjectWorkspaceShellProps = {
     children: ReactNode;
 };
 
 export function ProjectWorkspaceShell({ children }: ProjectWorkspaceShellProps) {
-    const pathname = useRouterState({
-        select: (state) => state.location.pathname
+    const { pathname, search } = useRouterState({
+        select: (state) => ({
+            pathname: state.location.pathname,
+            search: state.location.search as Record<string, unknown>
+        })
     });
     const currentUser = useCurrentUserQuery().data;
     const canCreateProject = canManageProjects(currentUser);
     const currentProjectId = getCurrentProjectId(pathname);
+    const currentProjectStatus = getProjectStatusSearchValue(search.status);
     const isIndexRoute = pathname === "/projects";
     const isNewRoute = pathname === "/projects/new";
     const currentProjectOverviewPath = currentProjectId ? `/projects/${currentProjectId}` : null;
@@ -73,10 +79,97 @@ export function ProjectWorkspaceShell({ children }: ProjectWorkspaceShellProps) 
                         <SidebarGroupContent>
                             <SidebarMenu>
                                 <SidebarMenuItem>
-                                    <SidebarMenuButton asChild isActive={isIndexRoute}>
-                                        <Link to="/projects">
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isIndexRoute && currentProjectStatus === "ALL"}
+                                    >
+                                        <Link
+                                            to="/projects"
+                                            search={{
+                                                page: 1,
+                                                search: "",
+                                                sort: "latest",
+                                                status: "ALL"
+                                            }}
+                                        >
                                             <ListChecksIcon />
                                             <span>All projects</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isIndexRoute && currentProjectStatus === "PLANNED"}
+                                    >
+                                        <Link
+                                            to="/projects"
+                                            search={{
+                                                page: 1,
+                                                search: "",
+                                                sort: "latest",
+                                                status: "PLANNED"
+                                            }}
+                                        >
+                                            <CalendarClockIcon />
+                                            <span>Planned</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isIndexRoute && currentProjectStatus === "ACTIVE"}
+                                    >
+                                        <Link
+                                            to="/projects"
+                                            search={{
+                                                page: 1,
+                                                search: "",
+                                                sort: "latest",
+                                                status: "ACTIVE"
+                                            }}
+                                        >
+                                            <RocketIcon />
+                                            <span>Active</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isIndexRoute && currentProjectStatus === "COMPLETED"}
+                                    >
+                                        <Link
+                                            to="/projects"
+                                            search={{
+                                                page: 1,
+                                                search: "",
+                                                sort: "latest",
+                                                status: "COMPLETED"
+                                            }}
+                                        >
+                                            <CheckCircle2Icon />
+                                            <span>Completed</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isIndexRoute && currentProjectStatus === "ARCHIVED"}
+                                    >
+                                        <Link
+                                            to="/projects"
+                                            search={{
+                                                page: 1,
+                                                search: "",
+                                                sort: "latest",
+                                                status: "ARCHIVED"
+                                            }}
+                                        >
+                                            <ArchiveIcon />
+                                            <span>Archived</span>
                                         </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
@@ -144,31 +237,6 @@ export function ProjectWorkspaceShell({ children }: ProjectWorkspaceShellProps) 
                             </SidebarGroup>
                         </>
                     ) : null}
-
-                    <SidebarSeparator />
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Related</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton asChild>
-                                        <Link to="/requests">
-                                            <ClipboardCheckIcon />
-                                            <span>Requests</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton asChild>
-                                        <Link to="/posts">
-                                            <NewspaperIcon />
-                                            <span>Announcements</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
                 </SidebarContent>
                 <SidebarFooter>
                     <span className="px-2 text-xs text-sidebar-foreground/70">Project workspace</span>
@@ -214,4 +282,16 @@ function getCurrentProjectId(pathname: string) {
     const numericProjectId = Number(projectId);
 
     return Number.isInteger(numericProjectId) && numericProjectId > 0 ? projectId : null;
+}
+
+function getProjectStatusSearchValue(value: unknown) {
+    switch (value) {
+        case "PLANNED":
+        case "ACTIVE":
+        case "COMPLETED":
+        case "ARCHIVED":
+            return value;
+        default:
+            return "ALL";
+    }
 }

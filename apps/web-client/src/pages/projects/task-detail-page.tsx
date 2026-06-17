@@ -2,11 +2,11 @@ import type { TaskStatus } from "@nmm/shared";
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useParams } from "@tanstack/react-router";
 
-import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useSuspenseTask, useUpdateTask } from "../../features/projects/hooks/use-projects";
-import { taskPriorityLabels, taskStatusLabels } from "../../features/projects/model/project-labels";
-import { canChangeTaskStatus } from "../../features/projects/model/project-permissions";
-import { TaskStatusControl } from "../../features/projects/ui/task-status-control";
+import { useSuspenseCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { useSuspenseTask, useUpdateTask } from "@/features/projects/hooks/use-projects";
+import { taskPriorityLabels, taskStatusLabels } from "@/features/projects/model/project-labels";
+import { canChangeTaskStatus } from "@/features/projects/model/project-permissions";
+import { TaskStatusControl } from "@/features/projects/ui/task-status-control";
 
 export function TaskDetailPage() {
     const params = useParams({ strict: false }) as { projectId: string; taskId: string };

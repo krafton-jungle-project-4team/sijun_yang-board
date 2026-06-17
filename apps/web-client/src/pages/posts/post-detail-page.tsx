@@ -12,11 +12,11 @@ import { Link, useParams } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 import { Suspense } from "react";
 
-import { SectionSkeleton } from "../../app/section-skeleton";
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useSuspensePost } from "../../features/posts/hooks/use-posts";
-import { canManagePost } from "../../features/posts/model/post-permissions";
-import { PostComments } from "../../features/posts/ui/post-comments";
+import { SectionSkeleton } from "@/app/section-skeleton";
+import { useCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { useSuspensePost } from "@/features/posts/hooks/use-posts";
+import { canManagePost } from "@/features/posts/model/post-permissions";
+import { PostComments } from "@/features/posts/ui/post-comments";
 
 export function PostDetailPage() {
     const params = useParams({ strict: false }) as { postId: string };

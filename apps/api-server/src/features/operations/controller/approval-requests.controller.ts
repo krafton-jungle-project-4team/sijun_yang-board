@@ -7,8 +7,8 @@ import {
     reviewApprovalRequestInputSchema
 } from "@nmm/shared";
 
-import { AuthenticatedUserGuard, CurrentAuth } from "../../auth";
-import { OperationsCommandService, OperationsQueryService } from "../service";
+import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth";
+import { OperationsCommandService, OperationsQueryService } from "@/features/operations/service";
 
 @Controller("requests")
 @UseGuards(AuthenticatedUserGuard)

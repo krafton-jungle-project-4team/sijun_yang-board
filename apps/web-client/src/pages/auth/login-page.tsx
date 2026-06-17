@@ -18,7 +18,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { LogInIcon, UserPlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { useLoginMutation } from "../../features/auth/api/auth-queries";
+import { useLoginMutation } from "@/features/auth/api/auth-queries";
 
 export function LoginPage() {
     const navigate = useNavigate();

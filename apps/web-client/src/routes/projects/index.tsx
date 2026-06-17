@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { createRouteBoundaryOptions } from "../../app/route-boundary";
-import { ProjectsPage } from "../../pages/projects/projects-page";
+import { createRouteBoundaryOptions } from "@/app/route-boundary";
+import { ProjectsPage } from "@/pages/projects/projects-page";
 
 const routeBoundaryOptions = createRouteBoundaryOptions({
     errorDescription: "Could not load projects.",

@@ -3,10 +3,10 @@ import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 import type { Request } from "express";
 
-import { AppError } from "../../../app-errors";
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { UserAccountDomain } from "../domain";
-import { UserReader } from "../repository";
+import { AppError } from "@/app-errors";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { UserAccountDomain } from "@/features/auth/domain";
+import { UserReader } from "@/features/auth/repository";
 import { BetterAuthService } from "./better-auth.service";
 
 @Injectable()

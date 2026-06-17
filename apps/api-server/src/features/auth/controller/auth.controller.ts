@@ -3,8 +3,8 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Req, Res, Use
 import { loginInputSchema, signupInputSchema, updateMeInputSchema } from "@nmm/shared";
 import type { Request, Response } from "express";
 
-import { suspendedAccountError } from "../auth-errors";
-import { AuthCommandService, AuthQueryService } from "../service";
+import { suspendedAccountError } from "@/features/auth/auth-errors";
+import { AuthCommandService, AuthQueryService } from "@/features/auth/service";
 import { AuthenticatedUserGuard } from "./authenticated-user.guard";
 import { CurrentAuth } from "./current-auth.decorator";
 

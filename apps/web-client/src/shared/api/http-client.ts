@@ -2,7 +2,7 @@ import { apiFailureSchema, createApiSuccessSchema } from "@nmm/shared";
 import axios, { type AxiosRequestConfig, type Method } from "axios";
 import type { z } from "zod";
 
-import { clientEnv } from "../env/client-env";
+import { clientEnv } from "@/shared/env/client-env";
 
 type SearchParams = string | URLSearchParams | Record<string, boolean | number | string | null | undefined>;
 

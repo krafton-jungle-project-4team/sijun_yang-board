@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { createRouteBoundaryOptions } from "../../../app/route-boundary";
-import { EditPostPage } from "../../../pages/posts/edit-post-page";
+import { createRouteBoundaryOptions } from "@/app/route-boundary";
+import { EditPostPage } from "@/pages/posts/edit-post-page";
 
 const routeBoundaryOptions = createRouteBoundaryOptions({
     errorDescription: "Could not load the announcement editor.",

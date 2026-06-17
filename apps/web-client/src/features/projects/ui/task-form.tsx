@@ -15,7 +15,7 @@ import {
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
-import { taskPriorityLabels, taskStatusLabels } from "../model/project-labels";
+import { taskPriorityLabels, taskStatusLabels } from "@/features/projects/model/project-labels";
 
 const taskStatuses = ["TODO", "IN_PROGRESS", "DONE"] as const;
 const taskPriorities = ["LOW", "MEDIUM", "HIGH"] as const;

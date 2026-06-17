@@ -12,7 +12,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 
-import { canManagePost } from "../model/post-permissions";
+import { canManagePost } from "@/features/posts/model/post-permissions";
 
 type PostCardsProps = {
     currentUser: User | null | undefined;

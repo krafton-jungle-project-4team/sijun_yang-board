@@ -2,9 +2,9 @@ import type { AuthClaims, CreateTaskInput, UpdateTaskInput } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { createTask, updateTask } from "../database/__generated__/operations.queries";
-import { TaskDomain, type TaskMutationResult } from "../domain";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { createTask, updateTask } from "@/features/operations/database/__generated__/operations.queries";
+import { TaskDomain, type TaskMutationResult } from "@/features/operations/domain";
 
 @Injectable()
 export class TaskWriter {

@@ -2,8 +2,8 @@ import type { UpdateMeInput } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { updateMe } from "../database/__generated__/auth.queries";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { updateMe } from "@/features/auth/database/__generated__/auth.queries";
 
 @Injectable()
 export class UserWriter {

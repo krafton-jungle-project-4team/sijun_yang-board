@@ -1,8 +1,8 @@
 import type { AuthClaims } from "@nmm/shared";
 import { Controller, Get, UseGuards } from "@nestjs/common";
 
-import { AuthenticatedUserGuard, CurrentAuth } from "../../auth";
-import { OperationsQueryService } from "../service";
+import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth";
+import { OperationsQueryService } from "@/features/operations/service";
 
 @Controller("dashboard")
 @UseGuards(AuthenticatedUserGuard)

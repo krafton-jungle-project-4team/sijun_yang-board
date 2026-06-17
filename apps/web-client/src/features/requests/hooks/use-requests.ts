@@ -1,9 +1,9 @@
 import type { ApprovalRequestListQuery, ReviewApprovalRequestInput } from "@nmm/shared";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
-import { dashboardQueryKeys } from "../../dashboard/hooks/use-dashboard";
-import { projectQueryKeys } from "../../projects/hooks/use-projects";
-import { requestsApi } from "../api/requests-api";
+import { dashboardQueryKeys } from "@/features/dashboard/hooks/use-dashboard";
+import { projectQueryKeys } from "@/features/projects/hooks/use-projects";
+import { requestsApi } from "@/features/requests/api/requests-api";
 
 const requestQueryKeys = {
     listPrefix: ["requests", "list"] as const,

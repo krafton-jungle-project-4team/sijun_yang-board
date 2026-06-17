@@ -1,4 +1,4 @@
-import { AppError } from "../../app-errors";
+import { AppError } from "@/app-errors";
 
 export function postNotFoundError() {
     return new AppError("NOT_FOUND", "Post not found.", 404);

@@ -2,8 +2,8 @@ import { Card, CardDescription, CardHeader, Tabs, TabsList, TabsTrigger } from "
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { ListTodoIcon, PencilIcon, SquareKanbanIcon } from "lucide-react";
 
-import { useCurrentUserQuery } from "../../../features/auth/api/auth-queries";
-import { canManageProjects } from "../../../features/projects/model/project-permissions";
+import { useCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { canManageProjects } from "@/features/projects/model/project-permissions";
 
 export const Route = createFileRoute("/projects/$projectId")({
     component: ProjectRouteLayout

@@ -2,9 +2,9 @@ import type { UserRole, UserStatus } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { findUserByLoginIdOrEmail, getUserById } from "../database/__generated__/auth.queries";
-import type { UserAccountSnapshot } from "../domain";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { findUserByLoginIdOrEmail, getUserById } from "@/features/auth/database/__generated__/auth.queries";
+import type { UserAccountSnapshot } from "@/features/auth/domain";
 
 @Injectable()
 export class UserReader {

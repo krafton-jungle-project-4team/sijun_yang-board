@@ -2,9 +2,9 @@ import type { TaskPriority, TaskStatus } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { getTaskById, listTasksByProjectId } from "../database/__generated__/operations.queries";
-import type { TaskSnapshot } from "../domain";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { getTaskById, listTasksByProjectId } from "@/features/operations/database/__generated__/operations.queries";
+import type { TaskSnapshot } from "@/features/operations/domain";
 
 @Injectable()
 export class TaskReader {

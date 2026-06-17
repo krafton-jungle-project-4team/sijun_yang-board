@@ -9,10 +9,10 @@ import type {
 import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { boardMutationForbiddenError, commentNotFoundError, postNotFoundError } from "../board-errors";
-import { CommentDomain, PostDomain } from "../domain";
-import { CommentWriter, PostWriter } from "../repository";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { boardMutationForbiddenError, commentNotFoundError, postNotFoundError } from "@/features/board/board-errors";
+import { CommentDomain, PostDomain } from "@/features/board/domain";
+import { CommentWriter, PostWriter } from "@/features/board/repository";
 
 @Injectable()
 export class BoardCommandService {

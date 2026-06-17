@@ -2,6 +2,8 @@
 
 - Start the API only through root scripts: `npm run dev` or `npm run dev:api`.
 - Do not run `nest start` directly outside Docker/root script flow.
+- Use `@/*` for app-local imports outside the current folder; use `./*` only for same-folder files.
+- Do not use `../*` in hand-written source.
 - Import `@nmm/shared` contracts only; never import Web or UI code.
 - Keep global prefix `api` and global success/error envelope.
 - Controllers parse shared Zod schemas; services use inferred/shared types.

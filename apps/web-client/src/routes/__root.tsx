@@ -1,7 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext } from "@tanstack/react-router";
 
-import { RootError, RootLayout, RootNotFound } from "../app/root";
+import { RootError, RootLayout, RootNotFound } from "@/app/root";
 
 type RouterContext = {
     queryClient: QueryClient;

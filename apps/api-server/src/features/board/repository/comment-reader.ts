@@ -1,9 +1,9 @@
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { listCommentsByPostId } from "../database/__generated__/board.queries";
-import type { CommentSnapshot } from "../domain";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { listCommentsByPostId } from "@/features/board/database/__generated__/board.queries";
+import type { CommentSnapshot } from "@/features/board/domain";
 
 @Injectable()
 export class CommentReader {

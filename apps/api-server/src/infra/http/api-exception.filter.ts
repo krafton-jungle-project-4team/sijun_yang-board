@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from "@n
 import type { Request, Response } from "express";
 import { ZodError } from "zod";
 
-import { AppError } from "../../app-errors";
+import { AppError } from "@/app-errors";
 import type { RequestWithRequestId } from "./api-response";
 
 type ErrorBody = {

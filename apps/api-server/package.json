@@ -8,7 +8,7 @@
         "db:generate": "node scripts/run-pgtyped.mjs",
         "db:verify": "node scripts/run-sqldef-verify.mjs",
         "dev:docker": "nest start --watch",
-        "test": "node --test -r ts-node/register test/*.spec.ts",
+        "test": "node --test -r ts-node/register -r tsconfig-paths/register test/*.spec.ts",
         "start:prod": "node dist/main",
         "typecheck": "tsc --noEmit -p tsconfig.json"
     },

@@ -2,6 +2,8 @@
 
 - This app calls the API through `src/shared/api/http-client.ts` only.
 - Do not import Nest, TypeORM, Node runtime, or files from `apps/api-server`.
+- Use `@/*` for app-local imports outside the current folder; use `./*` only for same-folder files.
+- Do not use `../*` in hand-written source.
 - Use `@nmm/shared` for Zod contracts and response parsing.
 - Use `@nmm/ui/components` before raw controls such as button/input/card/table/dialog.
 - Keep app-specific UI composition in feature/page code even when no matching `@nmm/ui` primitive exists.

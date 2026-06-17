@@ -19,12 +19,13 @@ import {
 } from "@nmm/ui/components";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+    CheckCircle2Icon,
     ClipboardCheckIcon,
+    Clock3Icon,
     FileCheckIcon,
-    FolderKanbanIcon,
     ListChecksIcon,
-    NewspaperIcon,
-    PlusIcon
+    PlusIcon,
+    XCircleIcon
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -33,10 +34,14 @@ type RequestWorkspaceShellProps = {
 };
 
 export function RequestWorkspaceShell({ children }: RequestWorkspaceShellProps) {
-    const pathname = useRouterState({
-        select: (state) => state.location.pathname
+    const { pathname, search } = useRouterState({
+        select: (state) => ({
+            pathname: state.location.pathname,
+            search: state.location.search as Record<string, unknown>
+        })
     });
     const currentRequestId = getCurrentRequestId(pathname);
+    const currentRequestStatus = getRequestStatusSearchValue(search.status);
     const isIndexRoute = pathname === "/requests";
     const isNewRoute = pathname === "/requests/new";
     const currentRequestPath = currentRequestId ? `/requests/${currentRequestId}` : null;
@@ -62,10 +67,78 @@ export function RequestWorkspaceShell({ children }: RequestWorkspaceShellProps) 
                         <SidebarGroupContent>
                             <SidebarMenu>
                                 <SidebarMenuItem>
-                                    <SidebarMenuButton asChild isActive={isIndexRoute}>
-                                        <Link to="/requests">
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isIndexRoute && currentRequestStatus === "ALL"}
+                                    >
+                                        <Link
+                                            to="/requests"
+                                            search={{
+                                                page: 1,
+                                                search: "",
+                                                sort: "latest",
+                                                status: "ALL"
+                                            }}
+                                        >
                                             <ListChecksIcon />
                                             <span>All requests</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isIndexRoute && currentRequestStatus === "PENDING"}
+                                    >
+                                        <Link
+                                            to="/requests"
+                                            search={{
+                                                page: 1,
+                                                search: "",
+                                                sort: "latest",
+                                                status: "PENDING"
+                                            }}
+                                        >
+                                            <Clock3Icon />
+                                            <span>Pending</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isIndexRoute && currentRequestStatus === "APPROVED"}
+                                    >
+                                        <Link
+                                            to="/requests"
+                                            search={{
+                                                page: 1,
+                                                search: "",
+                                                sort: "latest",
+                                                status: "APPROVED"
+                                            }}
+                                        >
+                                            <CheckCircle2Icon />
+                                            <span>Approved</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isIndexRoute && currentRequestStatus === "REJECTED"}
+                                    >
+                                        <Link
+                                            to="/requests"
+                                            search={{
+                                                page: 1,
+                                                search: "",
+                                                sort: "latest",
+                                                status: "REJECTED"
+                                            }}
+                                        >
+                                            <XCircleIcon />
+                                            <span>Rejected</span>
                                         </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
@@ -104,31 +177,6 @@ export function RequestWorkspaceShell({ children }: RequestWorkspaceShellProps) 
                             </SidebarGroup>
                         </>
                     ) : null}
-
-                    <SidebarSeparator />
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Related</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton asChild>
-                                        <Link to="/projects">
-                                            <FolderKanbanIcon />
-                                            <span>Projects</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton asChild>
-                                        <Link to="/posts">
-                                            <NewspaperIcon />
-                                            <span>Announcements</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
                 </SidebarContent>
                 <SidebarFooter>
                     <span className="px-2 text-xs text-sidebar-foreground/70">Request workspace</span>
@@ -172,4 +220,15 @@ function getCurrentRequestId(pathname: string) {
     const numericRequestId = Number(requestId);
 
     return Number.isInteger(numericRequestId) && numericRequestId > 0 ? requestId : null;
+}
+
+function getRequestStatusSearchValue(value: unknown) {
+    switch (value) {
+        case "PENDING":
+        case "APPROVED":
+        case "REJECTED":
+            return value;
+        default:
+            return "ALL";
+    }
 }

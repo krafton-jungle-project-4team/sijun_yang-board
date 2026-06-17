@@ -15,18 +15,18 @@ import {
 import { LayoutGrid, List, Search } from "lucide-react";
 import { Suspense, type ChangeEvent, type FormEvent, useEffect, useMemo, useState } from "react";
 
-import { SectionSkeleton } from "../../app/section-skeleton";
-import { useCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useSuspensePosts } from "../../features/posts/hooks/use-posts";
+import { SectionSkeleton } from "@/app/section-skeleton";
+import { useCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { useSuspensePosts } from "@/features/posts/hooks/use-posts";
 import {
     getTotalPages,
     toPostListQuery,
     type PostDisplayView,
     type PostSearchState,
     usePostSearchParams
-} from "../../features/posts/model/post-search";
-import { PostCards } from "../../features/posts/ui/post-cards";
-import { PostTable } from "../../features/posts/ui/post-table";
+} from "@/features/posts/model/post-search";
+import { PostCards } from "@/features/posts/ui/post-cards";
+import { PostTable } from "@/features/posts/ui/post-table";
 
 type SetPostSearch = ReturnType<typeof usePostSearchParams>[1];
 

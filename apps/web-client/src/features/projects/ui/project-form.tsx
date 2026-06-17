@@ -15,7 +15,7 @@ import {
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
-import { projectStatusLabels } from "../model/project-labels";
+import { projectStatusLabels } from "@/features/projects/model/project-labels";
 
 const projectStatuses = ["PLANNED", "ACTIVE", "COMPLETED", "ARCHIVED"] as const;
 

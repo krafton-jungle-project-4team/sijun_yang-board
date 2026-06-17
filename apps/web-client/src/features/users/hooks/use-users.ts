@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { usersApi } from "../api/users-api";
+import { usersApi } from "@/features/users/api/users-api";
 
 const userQueryKeys = {
     list: ["users"] as const

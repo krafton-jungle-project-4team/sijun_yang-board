@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { createRouteBoundaryOptions } from "../../app/route-boundary";
-import { NewRequestPage } from "../../pages/requests/new-request-page";
+import { createRouteBoundaryOptions } from "@/app/route-boundary";
+import { NewRequestPage } from "@/pages/requests/new-request-page";
 
 const routeBoundaryOptions = createRouteBoundaryOptions({
     errorDescription: "Could not open the request form.",

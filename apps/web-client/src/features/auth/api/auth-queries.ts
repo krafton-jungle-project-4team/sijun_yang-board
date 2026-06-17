@@ -1,7 +1,7 @@
 import type { User } from "@nmm/shared";
 import { queryOptions, useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
-import { ApiClientError } from "../../../shared/api/http-client";
+import { ApiClientError } from "@/shared/api/http-client";
 import { authApi } from "./auth-api";
 
 const authQueryKeys = {

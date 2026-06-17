@@ -12,8 +12,8 @@ import {
 } from "@nmm/shared";
 import { z } from "zod";
 
-import { getJson, patchJson, postJson, type RequestOptions } from "../../../shared/api/http-client";
-import { serializeProjectListQuery } from "../model/project-search";
+import { getJson, patchJson, postJson, type RequestOptions } from "@/shared/api/http-client";
+import { serializeProjectListQuery } from "@/features/projects/model/project-search";
 
 const tasksSchema = z.array(taskSummarySchema);
 

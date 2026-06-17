@@ -2,11 +2,11 @@ import type { CreateProjectInput } from "@nmm/shared";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate } from "@tanstack/react-router";
 
-import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useCreateProject } from "../../features/projects/hooks/use-projects";
-import { canManageProjects } from "../../features/projects/model/project-permissions";
-import { ProjectForm } from "../../features/projects/ui/project-form";
-import { useSuspenseUsers } from "../../features/users/hooks/use-users";
+import { useSuspenseCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { useCreateProject } from "@/features/projects/hooks/use-projects";
+import { canManageProjects } from "@/features/projects/model/project-permissions";
+import { ProjectForm } from "@/features/projects/ui/project-form";
+import { useSuspenseUsers } from "@/features/users/hooks/use-users";
 
 export function NewProjectPage() {
     const navigate = useNavigate();

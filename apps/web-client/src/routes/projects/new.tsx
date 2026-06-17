@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { createRouteBoundaryOptions } from "../../app/route-boundary";
-import { NewProjectPage } from "../../pages/projects/new-project-page";
+import { createRouteBoundaryOptions } from "@/app/route-boundary";
+import { NewProjectPage } from "@/pages/projects/new-project-page";
 
 const routeBoundaryOptions = createRouteBoundaryOptions({
     errorDescription: "Could not open the project form.",

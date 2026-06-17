@@ -5,10 +5,10 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { Request as ExpressRequest, Response as ExpressResponse } from "express";
 import type { Pool } from "pg";
 
-import { AppError } from "../../../app-errors";
-import { PG_POOL } from "../../../infra/database/database.tokens";
-import { serverEnv } from "../../../infra/env";
-import { authEnv } from "../auth.env";
+import { AppError } from "@/app-errors";
+import { PG_POOL } from "@/infra/database/database.tokens";
+import { serverEnv } from "@/infra/env";
+import { authEnv } from "@/features/auth/auth.env";
 
 const authBasePath = "/api/auth";
 const importEsm = new Function("specifier", "return import(specifier)") as <T>(specifier: string) => Promise<T>;

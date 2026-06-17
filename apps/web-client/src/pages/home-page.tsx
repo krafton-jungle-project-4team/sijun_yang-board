@@ -35,11 +35,11 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { useSuspenseCurrentUserQuery } from "../features/auth/api/auth-queries";
-import { isActiveUser } from "../features/auth/model/user-status";
-import { useSuspenseDashboard } from "../features/dashboard/hooks/use-dashboard";
-import { taskPriorityLabels, taskStatusLabels } from "../features/projects/model/project-labels";
-import { approvalRequestStatusLabels } from "../features/requests/model/request-labels";
+import { useSuspenseCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { isActiveUser } from "@/features/auth/model/user-status";
+import { useSuspenseDashboard } from "@/features/dashboard/hooks/use-dashboard";
+import { taskPriorityLabels, taskStatusLabels } from "@/features/projects/model/project-labels";
+import { approvalRequestStatusLabels } from "@/features/requests/model/request-labels";
 
 type MetricCardProps = {
     title: string;

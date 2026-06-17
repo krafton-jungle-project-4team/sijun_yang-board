@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { createRouteBoundaryOptions } from "../app/route-boundary";
-import { SignupPage } from "../pages/auth/signup-page";
+import { createRouteBoundaryOptions } from "@/app/route-boundary";
+import { SignupPage } from "@/pages/auth/signup-page";
 
 const routeBoundaryOptions = createRouteBoundaryOptions({
     errorDescription: "Could not load account creation.",

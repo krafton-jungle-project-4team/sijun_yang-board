@@ -2,8 +2,8 @@ import type { UserOption } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { listActiveUsers } from "../database/__generated__/operations.queries";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { listActiveUsers } from "@/features/operations/database/__generated__/operations.queries";
 
 @Injectable()
 export class UserReader {

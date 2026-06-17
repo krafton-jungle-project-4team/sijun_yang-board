@@ -20,9 +20,14 @@ import { Check, Pencil, Send, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { useController, useForm, type Control, type UseFormSetError } from "react-hook-form";
 
-import { useCreateComment, useDeleteComment, useSuspenseComments, useUpdateComment } from "../hooks/use-posts";
-import { canManageComment } from "../model/post-permissions";
-import { isActiveUser } from "../../auth/model/user-status";
+import {
+    useCreateComment,
+    useDeleteComment,
+    useSuspenseComments,
+    useUpdateComment
+} from "@/features/posts/hooks/use-posts";
+import { canManageComment } from "@/features/posts/model/post-permissions";
+import { isActiveUser } from "@/features/auth/model/user-status";
 
 type PostCommentsProps = {
     currentUser: User | null | undefined;

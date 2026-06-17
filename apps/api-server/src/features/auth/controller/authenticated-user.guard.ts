@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 
-import { suspendedAccountError, unauthenticatedError } from "../auth-errors";
-import { AuthQueryService } from "../service";
+import { suspendedAccountError, unauthenticatedError } from "@/features/auth/auth-errors";
+import { AuthQueryService } from "@/features/auth/service";
 import type { RequestWithAuth } from "./auth-request";
 
 @Injectable()

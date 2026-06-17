@@ -1,6 +1,6 @@
 import type { PoolConfig } from "pg";
 
-import { serverEnv } from "../env";
+import { serverEnv } from "@/infra/env";
 
 export const databaseConfig: PoolConfig = {
     host: serverEnv.DATABASE_HOST,

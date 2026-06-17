@@ -2,14 +2,14 @@ import type { ApprovalRequestListQuery, ApprovalRequestStatus } from "@nmm/share
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import type { Page } from "../../../infra/domain/page";
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
+import type { Page } from "@/infra/domain/page";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
 import {
     countApprovalRequests,
     getApprovalRequestById,
     listApprovalRequests
-} from "../database/__generated__/operations.queries";
-import type { ApprovalRequestSnapshot } from "../domain";
+} from "@/features/operations/database/__generated__/operations.queries";
+import type { ApprovalRequestSnapshot } from "@/features/operations/domain";
 
 @Injectable()
 export class ApprovalRequestReader {

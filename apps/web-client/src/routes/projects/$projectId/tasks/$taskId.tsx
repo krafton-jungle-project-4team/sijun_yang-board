@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { createRouteBoundaryOptions } from "../../../../app/route-boundary";
-import { TaskDetailPage } from "../../../../pages/projects/task-detail-page";
+import { createRouteBoundaryOptions } from "@/app/route-boundary";
+import { TaskDetailPage } from "@/pages/projects/task-detail-page";
 
 const routeBoundaryOptions = createRouteBoundaryOptions({
     errorDescription: "Could not load this task.",

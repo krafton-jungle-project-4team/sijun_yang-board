@@ -1,8 +1,8 @@
 import type { CreateCommentInput, PostListQuery, UpdateCommentInput, UpdatePostInput } from "@nmm/shared";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
-import { dashboardQueryKeys } from "../../dashboard/hooks/use-dashboard";
-import { postsApi } from "../api/posts-api";
+import { dashboardQueryKeys } from "@/features/dashboard/hooks/use-dashboard";
+import { postsApi } from "@/features/posts/api/posts-api";
 
 const postQueryKeys = {
     listPrefix: ["posts", "list"] as const,

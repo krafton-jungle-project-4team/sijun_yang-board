@@ -2,10 +2,10 @@ import type { ReviewApprovalRequestInput } from "@nmm/shared";
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, Separator } from "@nmm/ui/components";
 import { useParams } from "@tanstack/react-router";
 
-import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useApproveRequest, useRejectRequest, useSuspenseRequest } from "../../features/requests/hooks/use-requests";
-import { approvalRequestStatusLabels } from "../../features/requests/model/request-labels";
-import { RequestReviewForm } from "../../features/requests/ui/request-review-form";
+import { useSuspenseCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { useApproveRequest, useRejectRequest, useSuspenseRequest } from "@/features/requests/hooks/use-requests";
+import { approvalRequestStatusLabels } from "@/features/requests/model/request-labels";
+import { RequestReviewForm } from "@/features/requests/ui/request-review-form";
 
 export function RequestDetailPage() {
     const params = useParams({ strict: false }) as { requestId: string };

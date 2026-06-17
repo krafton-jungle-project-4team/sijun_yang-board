@@ -1,8 +1,8 @@
 import type { ProjectListQuery, TaskDetail, TaskStatus, TaskSummary, UpdateTaskInput } from "@nmm/shared";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
-import { dashboardQueryKeys } from "../../dashboard/hooks/use-dashboard";
-import { projectsApi } from "../api/projects-api";
+import { dashboardQueryKeys } from "@/features/dashboard/hooks/use-dashboard";
+import { projectsApi } from "@/features/projects/api/projects-api";
 
 export const projectQueryKeys = {
     listPrefix: ["projects", "list"] as const,

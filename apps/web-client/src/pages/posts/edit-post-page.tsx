@@ -3,10 +3,10 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } fro
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 
-import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useDeletePost, useSuspensePost, useUpdatePost } from "../../features/posts/hooks/use-posts";
-import { canManagePost } from "../../features/posts/model/post-permissions";
-import { PostForm } from "../../features/posts/ui/post-form";
+import { useSuspenseCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { useDeletePost, useSuspensePost, useUpdatePost } from "@/features/posts/hooks/use-posts";
+import { canManagePost } from "@/features/posts/model/post-permissions";
+import { PostForm } from "@/features/posts/ui/post-form";
 
 export function EditPostPage() {
     const params = useParams({ strict: false }) as { postId: string };

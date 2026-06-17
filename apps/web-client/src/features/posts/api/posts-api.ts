@@ -11,8 +11,8 @@ import {
 } from "@nmm/shared";
 import { z } from "zod";
 
-import { deleteJson, getJson, patchJson, postJson, type RequestOptions } from "../../../shared/api/http-client";
-import { serializePostListQuery } from "../model/post-search";
+import { deleteJson, getJson, patchJson, postJson, type RequestOptions } from "@/shared/api/http-client";
+import { serializePostListQuery } from "@/features/posts/model/post-search";
 
 const commentsSchema = z.array(commentSchema);
 

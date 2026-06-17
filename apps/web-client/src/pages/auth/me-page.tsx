@@ -16,11 +16,7 @@ import {
 import { Navigate } from "@tanstack/react-router";
 import { type ChangeEvent, type FormEvent, useState } from "react";
 
-import {
-    useLogoutMutation,
-    useSuspenseCurrentUserQuery,
-    useUpdateMeMutation
-} from "../../features/auth/api/auth-queries";
+import { useLogoutMutation, useSuspenseCurrentUserQuery, useUpdateMeMutation } from "@/features/auth/api/auth-queries";
 
 export function MePage() {
     const currentUser = useSuspenseCurrentUserQuery().data;

@@ -1,4 +1,4 @@
-import { AppError } from "../../app-errors";
+import { AppError } from "@/app-errors";
 
 export function projectNotFoundError() {
     return new AppError("NOT_FOUND", "Project not found.", 404);

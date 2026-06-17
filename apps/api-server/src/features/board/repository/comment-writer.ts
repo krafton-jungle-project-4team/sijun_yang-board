@@ -2,9 +2,9 @@ import type { CreateCommentInput, UpdateCommentInput } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { createComment, deleteComment, updateComment } from "../database/__generated__/board.queries";
-import type { CommentMutationResult } from "../domain";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { createComment, deleteComment, updateComment } from "@/features/board/database/__generated__/board.queries";
+import type { CommentMutationResult } from "@/features/board/domain";
 
 @Injectable()
 export class CommentWriter {

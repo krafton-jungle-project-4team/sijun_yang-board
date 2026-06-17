@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-import { requireAuthenticatedUser } from "../../app/route-auth";
+import { requireAuthenticatedUser } from "@/app/route-auth";
 import { ProjectWorkspaceShell } from "./-project-workspace-shell";
 
 export const Route = createFileRoute("/projects")({

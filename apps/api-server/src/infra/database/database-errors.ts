@@ -1,6 +1,6 @@
 import type { DatabaseError as PgDatabaseError } from "pg";
 
-import { AppError } from "../../app-errors";
+import { AppError } from "@/app-errors";
 import type { QueryErrorPredicateMatcher } from "./query-error";
 
 // Reference model:

@@ -1,14 +1,14 @@
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
 import {
     getDashboardCounts,
     listDashboardMyTasks,
     listDashboardPendingRequests,
     listDashboardRecentPosts
-} from "../database/__generated__/operations.queries";
-import type { DashboardView } from "../domain";
+} from "@/features/operations/database/__generated__/operations.queries";
+import type { DashboardView } from "@/features/operations/domain";
 import { toApprovalRequestSnapshot } from "./approval-request-reader";
 import { toTaskSnapshot } from "./task-reader";
 

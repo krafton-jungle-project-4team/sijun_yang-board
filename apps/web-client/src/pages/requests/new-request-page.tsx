@@ -2,10 +2,10 @@ import type { CreateApprovalRequestInput } from "@nmm/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate } from "@tanstack/react-router";
 
-import { useSuspenseProjects } from "../../features/projects/hooks/use-projects";
-import { toProjectListQuery } from "../../features/projects/model/project-search";
-import { useCreateRequest } from "../../features/requests/hooks/use-requests";
-import { RequestForm } from "../../features/requests/ui/request-form";
+import { useSuspenseProjects } from "@/features/projects/hooks/use-projects";
+import { toProjectListQuery } from "@/features/projects/model/project-search";
+import { useCreateRequest } from "@/features/requests/hooks/use-requests";
+import { RequestForm } from "@/features/requests/ui/request-form";
 
 export function NewRequestPage() {
     const navigate = useNavigate();

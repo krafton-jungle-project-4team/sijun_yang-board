@@ -13,9 +13,9 @@ import {
 } from "@nmm/ui/components";
 import { Link } from "@tanstack/react-router";
 
-import { useUpdateTask } from "../hooks/use-projects";
-import { taskPriorityLabels, taskStatusLabels } from "../model/project-labels";
-import { canChangeTaskStatus } from "../model/project-permissions";
+import { useUpdateTask } from "@/features/projects/hooks/use-projects";
+import { taskPriorityLabels, taskStatusLabels } from "@/features/projects/model/project-labels";
+import { canChangeTaskStatus } from "@/features/projects/model/project-permissions";
 import { TaskStatusControl } from "./task-status-control";
 
 type ProjectTasksTableProps = {

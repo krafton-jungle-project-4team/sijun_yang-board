@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { ApiClientError } from "../shared/api/http-client";
+import { ApiClientError } from "@/shared/api/http-client";
 
 type RouteErrorFallbackProps = {
     error: unknown;

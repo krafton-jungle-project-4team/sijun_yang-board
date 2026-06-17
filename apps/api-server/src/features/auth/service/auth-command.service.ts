@@ -3,10 +3,10 @@ import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 import type { Request, Response } from "express";
 
-import { AppError } from "../../../app-errors";
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { accountAlreadyExistsError, suspendedAccountError } from "../auth-errors";
-import { SessionWriter, UserReader, UserWriter } from "../repository";
+import { AppError } from "@/app-errors";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { accountAlreadyExistsError, suspendedAccountError } from "@/features/auth/auth-errors";
+import { SessionWriter, UserReader, UserWriter } from "@/features/auth/repository";
 import { BetterAuthService } from "./better-auth.service";
 
 @Injectable()

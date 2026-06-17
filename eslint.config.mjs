@@ -89,6 +89,7 @@ export default [
     {
         name: "web-client rules",
         files: ["apps/web-client/**/*.{ts,tsx}"],
+        ignores: ["apps/web-client/vite.config.ts"],
         languageOptions: {
             globals: globals.browser
         },
@@ -117,6 +118,11 @@ export default [
                 "@nmm/api-server",
                 "@nmm/api-server/*",
                 "@nmm/ui/lib/*",
+                "../*",
+                "../../*",
+                "../../../*",
+                "../../../../*",
+                "../../../../../*",
                 "@/components/ui/*",
                 "@/lib/utils",
                 "@nestjs/*",
@@ -138,6 +144,11 @@ export default [
                 "@nmm/web-client/*",
                 "@nmm/ui",
                 "@nmm/ui/*",
+                "../*",
+                "../../*",
+                "../../../*",
+                "../../../../*",
+                "../../../../../*",
                 "react",
                 "react-dom",
                 "react-dom/*",
@@ -196,7 +207,7 @@ export default [
 
     {
         name: "node config files",
-        files: ["*.config.mjs", "eslint.config.mjs", "apps/api-server/scripts/*.mjs"],
+        files: ["*.config.mjs", "eslint.config.mjs", "apps/*/vite.config.ts", "apps/api-server/scripts/*.mjs"],
         languageOptions: {
             globals: globals.node
         }

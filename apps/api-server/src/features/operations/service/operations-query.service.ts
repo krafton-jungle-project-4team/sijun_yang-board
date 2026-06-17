@@ -13,10 +13,20 @@ import type {
 import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { ApprovalRequestDomain, DashboardViewDomain, ProjectDomain, TaskDomain } from "../domain";
-import { approvalRequestNotFoundError, projectNotFoundError, taskNotFoundError } from "../operations-errors";
-import { ApprovalRequestReader, DashboardViewQuery, ProjectReader, TaskReader, UserReader } from "../repository";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { ApprovalRequestDomain, DashboardViewDomain, ProjectDomain, TaskDomain } from "@/features/operations/domain";
+import {
+    approvalRequestNotFoundError,
+    projectNotFoundError,
+    taskNotFoundError
+} from "@/features/operations/operations-errors";
+import {
+    ApprovalRequestReader,
+    DashboardViewQuery,
+    ProjectReader,
+    TaskReader,
+    UserReader
+} from "@/features/operations/repository";
 
 const DASHBOARD_LIMIT = 5;
 

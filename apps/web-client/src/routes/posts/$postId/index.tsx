@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { createRouteBoundaryOptions } from "../../../app/route-boundary";
-import { PostDetailPage } from "../../../pages/posts/post-detail-page";
+import { createRouteBoundaryOptions } from "@/app/route-boundary";
+import { PostDetailPage } from "@/pages/posts/post-detail-page";
 
 const routeBoundaryOptions = createRouteBoundaryOptions({
     errorDescription: "Could not load this announcement.",

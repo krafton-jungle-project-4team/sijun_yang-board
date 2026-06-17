@@ -3,8 +3,8 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuard
 import { createPostInputSchema, numericIdParamSchema, postListQuerySchema, updatePostInputSchema } from "@nmm/shared";
 import type { Request } from "express";
 
-import { AuthenticatedUserGuard, AuthQueryService, CurrentAuth } from "../../auth";
-import { BoardCommandService, BoardQueryService } from "../service";
+import { AuthenticatedUserGuard, AuthQueryService, CurrentAuth } from "@/features/auth";
+import { BoardCommandService, BoardQueryService } from "@/features/board/service";
 
 @Controller("posts")
 export class PostsController {

@@ -1,7 +1,7 @@
 import type { TaskStatus } from "@nmm/shared";
 import { ToggleGroup, ToggleGroupItem } from "@nmm/ui/components";
 
-import { taskStatusLabels } from "../model/project-labels";
+import { taskStatusLabels } from "@/features/projects/model/project-labels";
 
 const taskStatuses = ["TODO", "IN_PROGRESS", "DONE"] as const;
 

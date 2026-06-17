@@ -2,8 +2,8 @@ import type { AuthClaims } from "@nmm/shared";
 import { Body, Controller, Get, Param, Patch, UseGuards } from "@nestjs/common";
 import { numericIdParamSchema, updateTaskInputSchema } from "@nmm/shared";
 
-import { AuthenticatedUserGuard, CurrentAuth } from "../../auth";
-import { OperationsCommandService, OperationsQueryService } from "../service";
+import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth";
+import { OperationsCommandService, OperationsQueryService } from "@/features/operations/service";
 
 @Controller("tasks")
 @UseGuards(AuthenticatedUserGuard)

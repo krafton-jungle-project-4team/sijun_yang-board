@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { createRouteBoundaryOptions } from "../app/route-boundary";
-import { HomePage } from "../pages/home-page";
+import { createRouteBoundaryOptions } from "@/app/route-boundary";
+import { HomePage } from "@/pages/home-page";
 
 const routeBoundaryOptions = createRouteBoundaryOptions({
     errorDescription: "Could not load the operations snapshot.",

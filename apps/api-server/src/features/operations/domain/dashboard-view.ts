@@ -1,6 +1,6 @@
 import type { Dashboard } from "@nmm/shared";
 
-import { PostDomain, type PostSnapshot } from "../../board/domain";
+import { PostDomain, type PostSnapshot } from "@/features/board/domain";
 import { ApprovalRequestDomain, type ApprovalRequestSnapshot } from "./approval-request.domain";
 import { TaskDomain, type TaskSnapshot } from "./task.domain";
 

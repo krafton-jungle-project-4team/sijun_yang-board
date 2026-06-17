@@ -2,9 +2,14 @@ import type { CreatePostInput, UpdatePostInput } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { createPost, deletePost, incrementPostView, updatePost } from "../database/__generated__/board.queries";
-import type { PostMutationResult } from "../domain";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import {
+    createPost,
+    deletePost,
+    incrementPostView,
+    updatePost
+} from "@/features/board/database/__generated__/board.queries";
+import type { PostMutationResult } from "@/features/board/domain";
 
 @Injectable()
 export class PostWriter {

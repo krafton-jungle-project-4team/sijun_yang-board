@@ -7,8 +7,8 @@ import {
     type ReviewApprovalRequestInput
 } from "@nmm/shared";
 
-import { getJson, postJson, type RequestOptions } from "../../../shared/api/http-client";
-import { serializeRequestListQuery } from "../model/request-search";
+import { getJson, postJson, type RequestOptions } from "@/shared/api/http-client";
+import { serializeRequestListQuery } from "@/features/requests/model/request-search";
 
 export const requestsApi = {
     listRequests(query: ApprovalRequestListQuery, options?: RequestOptions) {

@@ -2,8 +2,8 @@ import type { AuthClaims } from "@nmm/shared";
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { createCommentInputSchema, numericIdParamSchema, updateCommentInputSchema } from "@nmm/shared";
 
-import { AuthenticatedUserGuard, CurrentAuth } from "../../auth";
-import { BoardCommandService, BoardQueryService } from "../service";
+import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth";
+import { BoardCommandService, BoardQueryService } from "@/features/board/service";
 
 @Controller()
 export class CommentsController {

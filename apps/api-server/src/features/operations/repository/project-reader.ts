@@ -2,10 +2,14 @@ import type { ProjectListQuery, ProjectStatus } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import type { Page } from "../../../infra/domain/page";
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { countProjects, getProjectById, listProjects } from "../database/__generated__/operations.queries";
-import type { ProjectSnapshot } from "../domain";
+import type { Page } from "@/infra/domain/page";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import {
+    countProjects,
+    getProjectById,
+    listProjects
+} from "@/features/operations/database/__generated__/operations.queries";
+import type { ProjectSnapshot } from "@/features/operations/domain";
 
 @Injectable()
 export class ProjectReader {

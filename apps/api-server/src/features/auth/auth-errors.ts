@@ -1,4 +1,4 @@
-import { AppError } from "../../app-errors";
+import { AppError } from "@/app-errors";
 
 export function unauthenticatedError() {
     return new AppError("UNAUTHENTICATED", "A valid session is required.", 401);

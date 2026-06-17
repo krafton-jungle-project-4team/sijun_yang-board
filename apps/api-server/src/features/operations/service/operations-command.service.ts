@@ -12,8 +12,8 @@ import type {
 import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { ApprovalRequestDomain, TaskDomain } from "../domain";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { ApprovalRequestDomain, TaskDomain } from "@/features/operations/domain";
 import {
     adminRequiredError,
     approvalRequestAlreadyReviewedError,
@@ -21,8 +21,8 @@ import {
     projectNotFoundError,
     taskMutationForbiddenError,
     taskNotFoundError
-} from "../operations-errors";
-import { ApprovalRequestWriter, ProjectWriter, TaskWriter } from "../repository";
+} from "@/features/operations/operations-errors";
+import { ApprovalRequestWriter, ProjectWriter, TaskWriter } from "@/features/operations/repository";
 
 @Injectable()
 export class OperationsCommandService {

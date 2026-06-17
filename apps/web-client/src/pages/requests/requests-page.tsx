@@ -24,16 +24,16 @@ import { Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { Suspense, type ChangeEvent, type FormEvent, useEffect, useMemo, useState } from "react";
 
-import { SectionSkeleton } from "../../app/section-skeleton";
-import { useProjects } from "../../features/projects/hooks/use-projects";
-import { toProjectListQuery } from "../../features/projects/model/project-search";
-import { useSuspenseRequests } from "../../features/requests/hooks/use-requests";
-import { approvalRequestStatusLabels } from "../../features/requests/model/request-labels";
+import { SectionSkeleton } from "@/app/section-skeleton";
+import { useProjects } from "@/features/projects/hooks/use-projects";
+import { toProjectListQuery } from "@/features/projects/model/project-search";
+import { useSuspenseRequests } from "@/features/requests/hooks/use-requests";
+import { approvalRequestStatusLabels } from "@/features/requests/model/request-labels";
 import {
     getRequestTotalPages,
     toRequestListQuery,
     useRequestSearchParams
-} from "../../features/requests/model/request-search";
+} from "@/features/requests/model/request-search";
 
 type SetRequestSearch = ReturnType<typeof useRequestSearchParams>[1];
 

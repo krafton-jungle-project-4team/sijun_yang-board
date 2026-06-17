@@ -3,14 +3,14 @@ import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, Separ
 import { useParams } from "@tanstack/react-router";
 import { Suspense } from "react";
 
-import { SectionSkeleton } from "../../app/section-skeleton";
-import { useSuspenseCurrentUserQuery } from "../../features/auth/api/auth-queries";
-import { useCreateTask, useSuspenseProject, useSuspenseProjectTasks } from "../../features/projects/hooks/use-projects";
-import { projectStatusLabels } from "../../features/projects/model/project-labels";
-import { canManageProjects } from "../../features/projects/model/project-permissions";
-import { ProjectTasksTable } from "../../features/projects/ui/project-tasks-table";
-import { TaskForm } from "../../features/projects/ui/task-form";
-import { useSuspenseUsers } from "../../features/users/hooks/use-users";
+import { SectionSkeleton } from "@/app/section-skeleton";
+import { useSuspenseCurrentUserQuery } from "@/features/auth/api/auth-queries";
+import { useCreateTask, useSuspenseProject, useSuspenseProjectTasks } from "@/features/projects/hooks/use-projects";
+import { projectStatusLabels } from "@/features/projects/model/project-labels";
+import { canManageProjects } from "@/features/projects/model/project-permissions";
+import { ProjectTasksTable } from "@/features/projects/ui/project-tasks-table";
+import { TaskForm } from "@/features/projects/ui/task-form";
+import { useSuspenseUsers } from "@/features/users/hooks/use-users";
 
 export function ProjectDetailPage() {
     const params = useParams({ strict: false }) as { projectId: string };

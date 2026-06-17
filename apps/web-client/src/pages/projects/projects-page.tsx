@@ -24,14 +24,14 @@ import { Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { Suspense, type ChangeEvent, type FormEvent, useEffect, useMemo, useState } from "react";
 
-import { SectionSkeleton } from "../../app/section-skeleton";
-import { useSuspenseProjects } from "../../features/projects/hooks/use-projects";
-import { projectStatusLabels } from "../../features/projects/model/project-labels";
+import { SectionSkeleton } from "@/app/section-skeleton";
+import { useSuspenseProjects } from "@/features/projects/hooks/use-projects";
+import { projectStatusLabels } from "@/features/projects/model/project-labels";
 import {
     getProjectTotalPages,
     toProjectListQuery,
     useProjectSearchParams
-} from "../../features/projects/model/project-search";
+} from "@/features/projects/model/project-search";
 
 type SetProjectSearch = ReturnType<typeof useProjectSearchParams>[1];
 

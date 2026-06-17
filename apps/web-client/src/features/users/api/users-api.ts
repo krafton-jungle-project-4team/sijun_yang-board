@@ -1,7 +1,7 @@
 import { userOptionSchema } from "@nmm/shared";
 import { z } from "zod";
 
-import { getJson, type RequestOptions } from "../../../shared/api/http-client";
+import { getJson, type RequestOptions } from "@/shared/api/http-client";
 
 const usersSchema = z.array(userOptionSchema);
 

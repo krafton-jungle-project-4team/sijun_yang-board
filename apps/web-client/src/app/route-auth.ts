@@ -1,7 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 
-import { currentUserQueryOptions } from "../features/auth/api/auth-queries";
+import { currentUserQueryOptions } from "@/features/auth/api/auth-queries";
 
 export async function requireAuthenticatedUser(queryClient: QueryClient) {
     const currentUser = await queryClient.fetchQuery({

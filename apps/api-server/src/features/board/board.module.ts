@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 
-import { AuthModule } from "../auth";
+import { AuthModule } from "@/features/auth";
 import { CommentsController } from "./controller/comments.controller";
 import { PostsController } from "./controller/posts.controller";
 import { CommentReader, CommentWriter, PostReader, PostWriter } from "./repository";

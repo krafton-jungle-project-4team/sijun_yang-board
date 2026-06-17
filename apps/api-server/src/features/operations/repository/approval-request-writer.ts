@@ -2,9 +2,12 @@ import type { ApprovalRequestStatus, CreateApprovalRequestInput, ReviewApprovalR
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { createApprovalRequest, reviewApprovalRequest } from "../database/__generated__/operations.queries";
-import type { ApprovalRequestReviewResult } from "../domain";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import {
+    createApprovalRequest,
+    reviewApprovalRequest
+} from "@/features/operations/database/__generated__/operations.queries";
+import type { ApprovalRequestReviewResult } from "@/features/operations/domain";
 
 @Injectable()
 export class ApprovalRequestWriter {

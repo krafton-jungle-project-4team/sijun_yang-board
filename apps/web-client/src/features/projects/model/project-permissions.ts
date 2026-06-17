@@ -1,6 +1,6 @@
 import type { TaskSummary, User } from "@nmm/shared";
 
-import { isActiveUser } from "../../auth/model/user-status";
+import { isActiveUser } from "@/features/auth/model/user-status";
 
 export function canManageProjects(user: User | null | undefined) {
     return isActiveUser(user) && user.role === "ADMIN";

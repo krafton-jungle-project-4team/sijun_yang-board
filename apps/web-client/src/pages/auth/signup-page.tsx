@@ -18,8 +18,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { LogInIcon, UserPlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { useSignupMutation } from "../../features/auth/api/auth-queries";
-import { ApiClientError } from "../../shared/api/http-client";
+import { useSignupMutation } from "@/features/auth/api/auth-queries";
+import { ApiClientError } from "@/shared/api/http-client";
 
 export function SignupPage() {
     const navigate = useNavigate();

@@ -2,8 +2,8 @@ import type { CreateProjectInput, UpdateProjectInput } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
-import { PgTypedTransactionalAdapter } from "../../../infra/database";
-import { createProject, updateProject } from "../database/__generated__/operations.queries";
+import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { createProject, updateProject } from "@/features/operations/database/__generated__/operations.queries";
 
 @Injectable()
 export class ProjectWriter {

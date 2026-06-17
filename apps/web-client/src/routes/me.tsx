@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { createRouteBoundaryOptions } from "../app/route-boundary";
-import { MePage } from "../pages/auth/me-page";
+import { createRouteBoundaryOptions } from "@/app/route-boundary";
+import { MePage } from "@/pages/auth/me-page";
 
 const routeBoundaryOptions = createRouteBoundaryOptions({
     errorDescription: "Could not load account information.",
