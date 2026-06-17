@@ -16,3 +16,8 @@
 
 - 게시글 상세 route chunk의 동적 import 실패 경로를 제거했다.
 - 검증: `npm run verify` 통과
+
+## 후속
+
+- 2026-06-17에 TanStack Router `autoCodeSplitting`을 다시 켰다.
+- 후속 메모: `072_route-code-splitting-and-alias.md`
