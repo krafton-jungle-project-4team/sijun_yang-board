@@ -1,33 +1,33 @@
-# API Server Rules
+# API 서버 지침
 
-- Start the API only through root scripts: `npm run dev` or `npm run dev:api`.
-- Do not run `nest start` directly outside Docker/root script flow.
-- TS/TSX files and `src` folders use kebab-case.
-- `*.contract.ts` and `*.config.ts` style middle extensions are allowed.
-- Use `@/*` for app-local imports outside the current folder; use `./*` only for same-folder files.
-- Do not use `../*` in hand-written source.
-- Import `@nmm/shared` contracts only; never import Web or UI code.
-- Import another feature only through its root public API; do not import its `controller`, `database`, `domain`, `repository`, or `service` packages.
-- Keep global prefix `api` and global success/error envelope.
-- Controllers parse shared Zod schemas; services use inferred/shared types.
-- Auth/session/current user must be DB-backed.
-- All feature DB access must use PgTyped-backed repositories.
-- Services own transaction boundaries and use-case orchestration; they must not import `database/__generated__/*`, generated `I*Params`/`I*Result`/`I*Query` types, or call DB query methods directly.
-- PgTyped generated query imports and generated types stay inside `repository/*`; repositories map DB rows to domain snapshots, read views, or shared contract shapes before returning.
-- Basic reads use `XxxReader` in `repository/*-reader.ts`.
-- Writes use `XxxWriter` in `repository/*-writer.ts` and are CUD-only.
-- Performance-specific read shapes use `XxxViewQuery` in `repository/*-view-query.ts`.
-- Query services are read-oriented; documented side effects such as view-count increments must call a `XxxWriter`.
-- Domain data is plain interface/type snapshots such as `PostSnapshot`, `CommentSnapshot`, and `TaskSnapshot`; do not use domain classes or constructors.
-- Domain behavior is grouped as pure functions on `XxxDomain`; keep Nest errors, AppError, and exceptions in services.
-- Shared response types keep their contract names; use `Dto` aliases only for real local name collisions.
-- Inject repositories by role name, such as `postReader`, `postWriter`, and `dashboardViewQuery`.
-- Multi-step writes must run inside the service transaction boundary, normally `@Transactional<PgTypedTransactionalAdapter>()`.
-- In-memory stores, arrays as stores, Map stores, and `board-store.ts` are forbidden.
-- Update schema objects in `database/schema.sql`; keep seed data and sequence runtime state in `database/dummy-data.sql`.
-- Update feature `database/*.sql` files after query changes; `npm run verify` regenerates PgTyped output.
-- Add a short purpose comment above each hand-written schema object and feature SQL query.
-- `npm run verify` checks schema drift with Docker, not a local PostgreSQL client.
-- Writes require `AuthenticatedUserGuard` unless explicitly public.
-- Only author or ADMIN may update/delete board content.
-- Verify with `npm run verify` from the repository root.
+- API는 루트 스크립트인 `npm run dev` 또는 `npm run dev:api`로만 시작한다.
+- Docker/루트 스크립트 흐름 밖에서 `nest start`를 직접 실행하지 않는다.
+- TS/TSX 파일과 `src` 하위 폴더명은 kebab-case를 사용한다.
+- `*.contract.ts`, `*.config.ts` 같은 중간 확장자는 허용한다.
+- 현재 폴더 밖의 앱 내부 가져오기에는 `@/*`를 사용하고, 같은 폴더 파일에만 `./*`를 사용한다.
+- 손으로 작성한 소스에서 `../*`를 사용하지 않는다.
+- `@nmm/shared` 계약만 가져오고, 웹 또는 UI 코드는 절대 가져오지 않는다.
+- 다른 기능은 해당 기능 루트 공개 API를 통해서만 가져온다. 그 기능의 `controller`, `database`, `domain`, `repository`, `service` 패키지를 가져오지 않는다.
+- 전역 접두사 `api`와 전역 성공/오류 envelope를 유지한다.
+- 컨트롤러는 공유 Zod 스키마를 파싱하고, 서비스는 추론/공유 타입을 사용한다.
+- 인증/세션/현재 사용자는 반드시 DB 기반이어야 한다.
+- 모든 기능의 DB 접근은 PgTyped 기반 리포지토리를 사용한다.
+- 서비스는 트랜잭션 경계와 유스케이스 조율을 소유한다. 서비스는 `database/__generated__/*`, 생성된 `I*Params`/`I*Result`/`I*Query` 타입을 가져오거나 DB 쿼리 메서드를 직접 호출하면 안 된다.
+- PgTyped 생성 쿼리 가져오기와 생성 타입은 `repository/*` 안에 둔다. 리포지토리는 반환 전에 DB 행을 도메인 스냅샷, 읽기 뷰, 또는 공유 계약 형태로 매핑한다.
+- 기본 읽기는 `repository/*-reader.ts`의 `XxxReader`를 사용한다.
+- 쓰기는 `repository/*-writer.ts`의 `XxxWriter`를 사용하고 CUD 전용이어야 한다.
+- 성능 특화 읽기 형태는 `repository/*-view-query.ts`의 `XxxViewQuery`를 사용한다.
+- 쿼리 서비스는 읽기 중심이다. 조회수 증가처럼 문서화된 부수 효과는 `XxxWriter`를 호출해야 한다.
+- 도메인 데이터는 `PostSnapshot`, `CommentSnapshot`, `TaskSnapshot` 같은 단순 interface/type snapshot으로 둔다. 도메인 class나 constructor를 사용하지 않는다.
+- 도메인 동작은 `XxxDomain`의 순수 함수로 묶는다. Nest error, AppError, exception은 서비스에 둔다.
+- 공유 응답 타입은 계약 이름을 유지한다. 실제 로컬 이름 충돌이 있을 때만 `Dto` alias를 사용한다.
+- 리포지토리는 `postReader`, `postWriter`, `dashboardViewQuery`처럼 역할 이름으로 주입한다.
+- 여러 단계의 쓰기는 서비스 트랜잭션 경계 안에서 실행한다. 보통 `@Transactional<PgTypedTransactionalAdapter>()`를 사용한다.
+- 메모리 store, store로 쓰는 배열, Map store, `board-store.ts`는 금지한다.
+- 스키마 객체는 `database/schema.sql`에서 수정한다. Seed data와 sequence runtime state는 `database/dummy-data.sql`에 둔다.
+- 쿼리 변경 후 기능 `database/*.sql` 파일을 수정한다. `npm run verify`가 PgTyped output을 재생성한다.
+- 손으로 작성한 스키마 객체와 기능 SQL 쿼리 위에는 짧은 목적 주석을 추가한다.
+- `npm run verify`는 로컬 PostgreSQL client가 아니라 Docker로 스키마 드리프트를 확인한다.
+- 명시적으로 공개인 경우가 아니면 쓰기에는 `AuthenticatedUserGuard`가 필요하다.
+- 게시판 콘텐츠는 작성자 또는 ADMIN만 수정/삭제할 수 있다.
+- 저장소 루트에서 `npm run verify`로 검증한다.
