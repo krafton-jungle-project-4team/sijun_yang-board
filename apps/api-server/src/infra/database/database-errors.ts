@@ -1,6 +1,6 @@
 import type { DatabaseError as PgDatabaseError } from "pg";
 
-import { AppError } from "@/app-errors";
+import { AppError, createDomainError } from "@/app-errors";
 import type { QueryErrorPredicateMatcher } from "./query-error";
 
 // Reference model:
@@ -28,6 +28,18 @@ export type DatabaseAccessErrorKind =
     | "queryTimeout"
     | "transactionRollback"
     | "unknown";
+
+export const DATABASE_ERRORS = {
+    OPERATION_FAILED: {
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        message: "데이터베이스 작업에 실패했습니다."
+    }
+} as const;
+
+export function createDatabaseError(error: (typeof DATABASE_ERRORS)[keyof typeof DATABASE_ERRORS], cause?: Error) {
+    return createDomainError(error, { cause });
+}
 
 export const pgSqlState = {
     cardinalityViolation: "21000",
@@ -127,7 +139,12 @@ export class DatabaseAccessError extends AppError {
         public readonly kind: DatabaseAccessErrorKind,
         cause: Error
     ) {
-        super("DATABASE_ERROR", "Database operation failed.", 500, { cause });
+        super(
+            DATABASE_ERRORS.OPERATION_FAILED.code,
+            DATABASE_ERRORS.OPERATION_FAILED.message,
+            DATABASE_ERRORS.OPERATION_FAILED.statusCode,
+            { cause }
+        );
         this.name = new.target.name;
         this.pg = getPgErrorMetadata(cause);
     }
@@ -257,7 +274,7 @@ export function pgAnyErrorClass(
 }
 
 export function databaseFallbackError(error?: Error) {
-    return new AppError("DATABASE_ERROR", "Database operation failed.", 500, { cause: error });
+    return createDatabaseError(DATABASE_ERRORS.OPERATION_FAILED, error);
 }
 
 export function translateDatabaseError(error: unknown) {

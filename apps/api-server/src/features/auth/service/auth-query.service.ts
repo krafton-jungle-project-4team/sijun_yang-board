@@ -3,8 +3,8 @@ import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 import type { Request } from "express";
 
-import { AppError } from "@/app-errors";
 import { PgTypedTransactionalAdapter } from "@/infra/database";
+import { invalidAuthUserError, userNotFoundError } from "@/features/auth/auth-errors";
 import { UserAccountDomain } from "@/features/auth/domain";
 import { UserReader } from "@/features/auth/repository";
 import { BetterAuthService } from "./better-auth.service";
@@ -40,7 +40,7 @@ export class AuthQueryService {
         const user = await this.userReader.findById(userId);
 
         if (!user) {
-            throw new AppError("NOT_FOUND", "User not found.", 404);
+            throw userNotFoundError();
         }
 
         return UserAccountDomain.toUser(user);
@@ -51,7 +51,7 @@ function parseUserId(value: string | number): number {
     const id = Number(value);
 
     if (!Number.isSafeInteger(id) || id <= 0) {
-        throw new AppError("INVALID_AUTH_USER", "Authentication provider returned an invalid user.", 500);
+        throw invalidAuthUserError();
     }
 
     return id;

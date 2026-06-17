@@ -5,7 +5,13 @@ import type { Request, Response } from "express";
 
 import { AppError } from "@/app-errors";
 import { PgTypedTransactionalAdapter } from "@/infra/database";
-import { accountAlreadyExistsError, suspendedAccountError } from "@/features/auth/auth-errors";
+import {
+    accountAlreadyExistsError,
+    invalidAuthUserError,
+    invalidCredentialsError,
+    suspendedAccountError,
+    userNotFoundError
+} from "@/features/auth/auth-errors";
 import { SessionWriter, UserReader, UserWriter } from "@/features/auth/repository";
 import { BetterAuthService } from "./better-auth.service";
 
@@ -23,7 +29,7 @@ export class AuthCommandService {
         const id = await this.userWriter.updateMe(userId, input);
 
         if (!id) {
-            throw new AppError("NOT_FOUND", "User not found.", 404);
+            throw userNotFoundError();
         }
 
         return { id };
@@ -44,7 +50,7 @@ export class AuthCommandService {
     async login(input: LoginInput, request: Request, response: Response): Promise<{ userId: number }> {
         const result = await this.betterAuth.signIn(input, request).catch((error: unknown) => {
             if (error instanceof AppError) {
-                throw new AppError("INVALID_CREDENTIALS", "Invalid ID or password.", 401, { cause: error });
+                throw invalidCredentialsError(error);
             }
 
             throw error;
@@ -74,7 +80,7 @@ function parseUserId(value: string | number): number {
     const id = Number(value);
 
     if (!Number.isSafeInteger(id) || id <= 0) {
-        throw new AppError("INVALID_AUTH_USER", "Authentication provider returned an invalid user.", 500);
+        throw invalidAuthUserError();
     }
 
     return id;

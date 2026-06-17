@@ -31,7 +31,7 @@ type RouteErrorView = {
 };
 
 export function RouteErrorFallback({ error, fallbackDescription, fallbackTitle, onRetry }: RouteErrorFallbackProps) {
-    if (isApiError(error, "UNAUTHENTICATED")) {
+    if (isApiStatus(error, 401)) {
         return <AuthenticationErrorRedirect />;
     }
 
@@ -130,7 +130,7 @@ function getApiRouteErrorView(
     error: ApiClientError,
     fallback: Pick<RouteErrorView, "description" | "title">
 ): RouteErrorView {
-    if (error.code === "NOT_FOUND") {
+    if (error.statusCode === 404) {
         return {
             action: "home",
             description: "The item may have been deleted or the address may be wrong.",
@@ -140,33 +140,23 @@ function getApiRouteErrorView(
         };
     }
 
-    if (error.code === "FORBIDDEN") {
-        return {
-            action: "home",
-            description: "You do not have permission to open this workspace page.",
-            icon: LockKeyholeIcon,
-            requestId: error.requestId,
-            title: "Access denied"
-        };
-    }
-
-    if (error.code === "ACTIVE_ACCOUNT_REQUIRED") {
-        return {
-            action: "account",
-            description: "Your account must be active before you can use this workspace page.",
-            icon: ShieldAlertIcon,
-            requestId: error.requestId,
-            title: "Active account required"
-        };
-    }
-
-    if (error.code === "ACCOUNT_SUSPENDED") {
+    if (error.code === "AUTH_ACCOUNT_SUSPENDED") {
         return {
             action: "account",
             description: "This account is suspended. Contact an administrator for access.",
             icon: ShieldAlertIcon,
             requestId: error.requestId,
             title: "Account suspended"
+        };
+    }
+
+    if (error.statusCode === 403) {
+        return {
+            action: "home",
+            description: "You do not have permission to open this workspace page.",
+            icon: LockKeyholeIcon,
+            requestId: error.requestId,
+            title: "Access denied"
         };
     }
 
@@ -178,6 +168,6 @@ function getApiRouteErrorView(
     };
 }
 
-function isApiError(error: unknown, code: string) {
-    return error instanceof ApiClientError && error.code === code;
+function isApiStatus(error: unknown, statusCode: number) {
+    return error instanceof ApiClientError && error.statusCode === statusCode;
 }

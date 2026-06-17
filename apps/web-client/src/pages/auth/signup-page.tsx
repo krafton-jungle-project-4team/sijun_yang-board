@@ -130,7 +130,7 @@ export function SignupPage() {
 }
 
 function getSignupErrorMessage(error: unknown) {
-    if (error instanceof ApiClientError && error.code === "ACCOUNT_ALREADY_EXISTS") {
+    if (error instanceof ApiClientError && error.code === "AUTH_ACCOUNT_ALREADY_EXISTS") {
         return "This ID or email is already in use.";
     }
 

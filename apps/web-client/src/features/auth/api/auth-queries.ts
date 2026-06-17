@@ -74,7 +74,7 @@ async function fetchCurrentUser(signal?: AbortSignal): Promise<User | null> {
     try {
         return await authApi.getMe({ signal });
     } catch (error) {
-        if (error instanceof ApiClientError && error.code === "UNAUTHENTICATED") {
+        if (error instanceof ApiClientError && error.statusCode === 401) {
             return null;
         }
 

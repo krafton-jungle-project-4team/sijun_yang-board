@@ -5,10 +5,10 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { Request as ExpressRequest, Response as ExpressResponse } from "express";
 import type { Pool } from "pg";
 
-import { AppError } from "@/app-errors";
 import { PG_POOL } from "@/infra/database/database.tokens";
 import { serverEnv } from "@/infra/env";
 import { authEnv } from "@/features/auth/auth.env";
+import { authProviderError } from "@/features/auth/auth-errors";
 
 const authBasePath = "/api/auth";
 const importEsm = new Function("specifier", "return import(specifier)") as <T>(specifier: string) => Promise<T>;
@@ -355,7 +355,7 @@ async function readJson(response: Response): Promise<unknown> {
 function toBetterAuthAppError(data: unknown, statusCode: number) {
     const message = readErrorMessage(data);
 
-    return new AppError("AUTH_PROVIDER_ERROR", message, statusCode);
+    return authProviderError(message, statusCode);
 }
 
 function readErrorMessage(data: unknown) {
