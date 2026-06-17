@@ -1,27 +1,16 @@
 # 웹 클라이언트 지침
 
 - 이 앱은 `src/shared/api/http-client.ts`로만 API를 호출한다.
-- Nest, TypeORM, Node 런타임, `apps/api-server` 파일을 가져오지 않는다.
-- TS/TSX 파일과 `src` 하위 폴더명은 kebab-case를 사용한다.
-- `*.contract.ts`, `*.config.ts` 같은 중간 확장자는 허용한다.
-- TanStack Router 라우트 파일은 프레임워크/생성기 명명 규칙을 따른다.
-- 현재 폴더 밖의 앱 내부 가져오기에는 `@/*`를 사용하고, 같은 폴더 파일에만 `./*`를 사용한다.
-- 손으로 작성한 소스에서 `../*`를 사용하지 않는다.
 - Zod 계약과 응답 파싱에는 `@nmm/shared`를 사용한다.
-- button/input/card/table/dialog 같은 원시 컨트롤을 직접 만들기 전에 `@nmm/ui/components`를 먼저 사용한다.
-- 원시 의미/레이아웃 태그를 직접 작성하기 전에 `@nmm/ui/components` 또는 shadcn primitive가 있는지 확인한다.
-- 맞는 `@nmm/ui` primitive가 없더라도 앱 전용 UI 조합은 기능/페이지 코드에 둔다.
+- 원시 컨트롤이나 의미/레이아웃 태그를 직접 만들기 전에 `@nmm/ui/components` 또는 shadcn primitive를 확인한다.
+- 맞는 `@nmm/ui` primitive가 없으면 앱 전용 UI 조합은 기능/페이지 코드에 둔다.
 - 앱 CSS 파일, 직접 CSS 선택자, 직접 테마 토큰 변경은 피한다.
 - 파일 기반 라우트는 `src/routes` 아래에 둔다.
 - 라우트 파일은 라우트 경계와 공유 라우트 레이아웃을 소유한다. 큰 페이지 본문은 `src/pages` 아래에 둘 수 있다.
 - 기능별 API/query hook은 `src/features/<feature>` 아래에 둔다.
 - 서버 상태와 mutation 대기/오류 UI에는 React Query를 사용한다.
 - 폼에는 RHF와 공유 Zod schema를 함께 사용한다.
-- 이벤트 핸들러 이름은 `handle*`로 짓고, JSX prop에 익명 함수를 넣지 않는다.
 - 이 앱에서는 shadcn 공식 가져오기/경로 예시를 `@nmm/ui/components`로 해석한다.
 - `shadcn` 스킬과 충돌하면 이 앱의 경계, 가져오기, UI, 검증 규칙을 우선한다.
-- React 변경은 React Doctor와 `toss-frontend-fundamentals`, `vercel-react-best-practices`를 함께 사용해 품질 회귀를 정리한다.
-- React Doctor는 `npx react-doctor@latest --verbose`로 실행한다.
-- React/UI 코드는 `toss-frontend-fundamentals`와 `vercel-react-best-practices`를 적용한다.
+- React/UI 변경은 React Doctor(`npx react-doctor@latest --verbose`), `toss-frontend-fundamentals`, `vercel-react-best-practices`로 확인한다.
 - 컴포넌트 API 변경에는 `vercel-composition-patterns`를 적용한다.
-- 저장소 루트에서 `npm run verify`로 검증한다.

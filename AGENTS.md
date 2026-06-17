@@ -7,7 +7,9 @@
 
 ## 공통
 
-- 문서는 같은 의미를 유지하는 한 가장 짧게 쓴다.
+- AGENTS에는 사람이 판단해야 하는 경계, 도구 선택, 검증 기준만 둔다.
+- 파일/폴더명, import 제한, 포맷처럼 lint/타입체크/빌드가 검출하는 규칙은 문서에 반복하지 않고 `eslint.config.mjs`, `tsconfig*`, Prettier, 도구 설정을 신뢰한다. 이유는 읽고 검증해야 할 규칙을 줄이고 자동화 가능한 판단은 항상 같은 도구가 맡게 하기 위해서다.
+- 새 반복 규칙은 가능한 한 AGENTS보다 lint/검증에 추가한다.
 - 변경 검증은 루트 `npm run verify`를 기본으로 한다.
 - 모듈 경계는 `eslint.config.mjs`와 하위 `AGENTS.md`를 따른다.
 - 공통 strict/base TypeScript 옵션은 `tsconfig.base.json`에 둔다.
