@@ -11,6 +11,12 @@ import {
 } from "@/features/operations/database/__generated__/operations.queries";
 import type { ProjectSnapshot } from "@/features/operations/domain";
 
+/**
+ * project list page와 detail snapshot을 PgTyped query로 읽는다.
+ *
+ * operations query service가 project response를 구성할 때 사용한다.
+ * generated row의 status와 aggregate count는 repository boundary에서 domain snapshot으로 매핑한다.
+ */
 @Injectable()
 export class ProjectReader {
     constructor(

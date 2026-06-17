@@ -11,6 +11,12 @@ import {
 } from "@/features/operations/database/__generated__/operations.queries";
 import type { ApprovalRequestSnapshot } from "@/features/operations/domain";
 
+/**
+ * approval request list page와 detail snapshot을 PgTyped query로 읽는다.
+ *
+ * operations query service가 approval request response를 구성할 때 사용한다.
+ * nullable reviewer 정보와 status 문자열은 repository boundary에서 domain snapshot으로 정리한다.
+ */
 @Injectable()
 export class ApprovalRequestReader {
     constructor(

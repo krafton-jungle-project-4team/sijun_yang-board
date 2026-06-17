@@ -10,6 +10,7 @@
 - 기능별 API/query hook은 `src/features/<feature>` 아래에 둔다.
 - 서버 상태와 mutation 대기/오류 UI에는 React Query를 사용한다.
 - 폼에는 RHF와 공유 Zod schema를 함께 사용한다.
+- 직접 작성한 앱 클래스에는 클래스 JSDoc을 둔다. 주석에는 클래스가 맡는 책임 설명, 사용하는 상황, 주의점이나 제약을 포함한다.
 - 이 앱에서는 shadcn 공식 가져오기/경로 예시를 `@nmm/ui/components`로 해석한다.
 - `shadcn` 스킬과 충돌하면 이 앱의 경계, 가져오기, UI, 검증 규칙을 우선한다.
 - React/UI 변경은 React Doctor(`npx react-doctor@latest --verbose`), `toss-frontend-fundamentals`, `vercel-react-best-practices`로 확인한다.

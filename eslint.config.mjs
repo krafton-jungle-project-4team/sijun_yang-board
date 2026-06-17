@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import tsParser from "@typescript-eslint/parser";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import checkFile from "eslint-plugin-check-file";
+import jsdoc from "eslint-plugin-jsdoc";
 import reactHooks from "eslint-plugin-react-hooks";
 import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
@@ -146,6 +147,42 @@ export default [
                 {
                     "apps/**/src/**/!(__tests__)": "KEBAB_CASE",
                     "packages/**/src/**/!(__tests__)": "KEBAB_CASE"
+                }
+            ]
+        }
+    },
+
+    {
+        name: "app class jsdoc rules",
+        files: ["apps/**/*.{ts,tsx}"],
+        ignores: [
+            "apps/api-server/src/**/database/__generated__/**/*.{ts,tsx}",
+            "apps/web-client/src/routeTree.gen.ts",
+            "apps/web-client/src/shared/api/generated/**/*.{ts,tsx}"
+        ],
+        plugins: {
+            jsdoc
+        },
+        rules: {
+            // 직접 작성한 앱 클래스는 클래스 단위 책임을 JSDoc으로 남긴다.
+            "jsdoc/require-jsdoc": [
+                "error",
+                {
+                    enableFixer: false,
+                    require: {
+                        ArrowFunctionExpression: false,
+                        ClassDeclaration: true,
+                        ClassExpression: false,
+                        FunctionDeclaration: false,
+                        FunctionExpression: false,
+                        MethodDefinition: false
+                    }
+                }
+            ],
+            "jsdoc/require-description": [
+                "error",
+                {
+                    contexts: ["ClassDeclaration"]
                 }
             ]
         }

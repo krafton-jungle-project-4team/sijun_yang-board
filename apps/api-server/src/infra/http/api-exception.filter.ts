@@ -6,6 +6,12 @@ import { ZodError } from "zod";
 import { AppError } from "@/app-errors";
 import { createApiFailure, ensureRequestId, setRequestIdHeader, type RequestWithRequestId } from "./api-response";
 
+/**
+ * 던져진 오류를 공유 API 실패 envelope와 구조화 로그로 변환한다.
+ *
+ * controller와 interceptor를 감싸는 전역 HTTP exception 경계로 사용한다.
+ * status와 message 매핑을 여기로 모아 controller가 응답을 직접 만들지 않고 domain error를 던지게 한다.
+ */
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(ApiExceptionFilter.name);

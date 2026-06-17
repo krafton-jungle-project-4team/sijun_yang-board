@@ -6,6 +6,12 @@ import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { createComment, deleteComment, updateComment } from "@/features/board/database/__generated__/board.queries";
 import type { CommentMutationResult } from "@/features/board/domain";
 
+/**
+ * comment record를 쓰고 service policy check에 필요한 mutation summary를 반환한다.
+ *
+ * board transaction 안에서 comment create, update, delete operation이 필요할 때 사용한다.
+ * service가 domain error를 선택할 수 있도록 missing post나 comment 결과는 null로 표현한다.
+ */
 @Injectable()
 export class CommentWriter {
     constructor(

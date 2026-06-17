@@ -64,6 +64,12 @@ type SignUpEmailData = {
     user: BetterAuthUser;
 };
 
+/**
+ * Better Auth를 API 서버의 request, response, database 관례에 맞게 연결한다.
+ *
+ * Better Auth session, signup, signin, cookie handling의 유일한 boundary로 사용한다.
+ * service가 provider-specific 세부 사항에 의존하지 않도록 dynamic ESM import와 cookie naming은 여기에서만 다룬다.
+ */
 @Injectable()
 export class BetterAuthProvider {
     private readonly auth: Promise<BetterAuth>;

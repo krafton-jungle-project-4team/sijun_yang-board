@@ -12,6 +12,12 @@ import type { DashboardView } from "@/features/operations/domain";
 import { toApprovalRequestSnapshot } from "./approval-request-reader";
 import { toTaskSnapshot } from "./task-reader";
 
+/**
+ * dashboard 화면에 필요한 여러 read model을 한 번에 조회한다.
+ *
+ * operations query service가 사용자별 dashboard projection을 만들 때 사용한다.
+ * 화면 전용 query이므로 일반 repository 규칙보다 조회 성능과 집계 형태를 우선한다.
+ */
 @Injectable()
 export class DashboardViewQuery {
     constructor(

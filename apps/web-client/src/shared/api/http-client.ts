@@ -23,6 +23,12 @@ const http = axios.create({
     withCredentials: true
 });
 
+/**
+ * 서버가 반환한 API 실패 envelope를 파싱한 오류를 나타낸다.
+ *
+ * JSON 요청 실패 후 UI 코드가 서버 오류 코드, request id, status code를 필요로 할 때 사용한다.
+ * 화면은 Axios 세부 정보가 아니라 안정적인 envelope 필드로 분기해야 하므로 필드를 그대로 보존한다.
+ */
 export class ApiClientError extends Error {
     constructor(
         public readonly code: string,

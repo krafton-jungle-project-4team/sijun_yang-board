@@ -7,6 +7,12 @@ import type { AuthClaims } from "@/features/auth";
 import { createTask, updateTask } from "@/features/operations/database/__generated__/operations.queries";
 import { TaskDomain, type TaskMutationResult } from "@/features/operations/domain";
 
+/**
+ * task record를 만들고 수정 결과를 service policy check용 summary로 반환한다.
+ *
+ * admin의 task 생성과 admin 또는 담당자의 task 수정 흐름에서 사용한다.
+ * admin-only field patch 여부는 domain helper로 계산하고 SQL에는 필요한 mutation context만 넘긴다.
+ */
 @Injectable()
 export class TaskWriter {
     constructor(

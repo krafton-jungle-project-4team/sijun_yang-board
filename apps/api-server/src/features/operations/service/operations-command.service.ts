@@ -17,6 +17,12 @@ import { ApprovalRequestDomain, TaskDomain } from "@/features/operations/domain"
 import { operationsErrors } from "@/features/operations/operations-errors";
 import { ApprovalRequestWriter, ProjectWriter, TaskWriter } from "@/features/operations/repository";
 
+/**
+ * operations feature의 write use case를 transaction 안에서 조율한다.
+ *
+ * project, task, approval request mutation이 권한 확인과 command result를 필요로 할 때 사용한다.
+ * controller guard가 있어도 service에서 admin과 담당자 정책을 다시 확인해 우회 호출을 막는다.
+ */
 @Injectable()
 export class OperationsCommandService {
     constructor(

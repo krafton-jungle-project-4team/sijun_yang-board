@@ -26,6 +26,12 @@ import {
 
 const DASHBOARD_LIMIT = 5;
 
+/**
+ * operations feature의 read use case와 dashboard projection을 조율한다.
+ *
+ * project, task, approval request, user option, dashboard 데이터를 shared contract로 반환할 때 사용한다.
+ * repository row는 domain mapper를 거쳐 내보내고 missing entity는 여기에서 domain error로 변환한다.
+ */
 @Injectable()
 export class OperationsQueryService {
     constructor(

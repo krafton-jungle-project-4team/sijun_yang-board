@@ -23,6 +23,12 @@ export interface TransactionalAdapterPgTypedOptions {
     defaultTxOptions?: Partial<PgTypedTransactionOptions>;
 }
 
+/**
+ * nestjs-cls transaction을 PgTyped executor와 PostgreSQL savepoint로 연결한다.
+ *
+ * service가 transaction 범위의 공유 query API를 필요로 할 때 @Transactional 뒤에서 사용한다.
+ * repository는 주입된 executor가 이미 scoped라고 가정하므로 SQL transaction option은 여기에서 명시적으로 다룬다.
+ */
 export class TransactionalAdapterPgTyped implements TransactionalAdapter<
     Pool,
     PgTypedTransactionDb,

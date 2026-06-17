@@ -14,6 +14,12 @@ import { boardErrors } from "@/features/board/board-errors";
 import { CommentDomain, PostDomain } from "@/features/board/domain";
 import { CommentWriter, PostWriter } from "@/features/board/repository";
 
+/**
+ * post와 comment에 대한 board write use case를 조율한다.
+ *
+ * transaction, ownership check, 안정적인 command result가 필요한 mutation에서 사용한다.
+ * row-level write 세부 사항은 repository에 두고 policy check는 board domain helper에 둔다.
+ */
 @Injectable()
 export class BoardCommandService {
     constructor(

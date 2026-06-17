@@ -11,6 +11,12 @@ import {
 } from "@/features/board/database/__generated__/board.queries";
 import type { PostMutationResult } from "@/features/board/domain";
 
+/**
+ * post record를 쓰고 service policy check에 필요한 mutation summary를 반환한다.
+ *
+ * transaction 안에서 create, update, delete, view-count mutation이 필요할 때 사용한다.
+ * authorization predicate는 SQL 또는 domain helper에 두고 service 검증에 필요한 ownership data만 반환한다.
+ */
 @Injectable()
 export class PostWriter {
     constructor(

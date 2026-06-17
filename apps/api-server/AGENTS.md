@@ -17,4 +17,5 @@
 - 스키마 객체는 `database/schema.sql`에서 수정한다. Seed data와 sequence runtime state는 `database/dummy-data.sql`에 둔다.
 - 쿼리 변경 후 기능 `database/*.sql` 파일을 수정한다. `npm run verify`가 PgTyped output을 재생성한다.
 - 손으로 작성한 스키마 객체와 기능 SQL 쿼리 위에는 짧은 목적 주석을 추가한다.
+- 직접 작성한 앱 클래스에는 클래스 JSDoc을 둔다. 주석에는 클래스가 맡는 책임 설명, 사용하는 상황, 주의점이나 제약을 포함한다.
 - `npm run verify`는 로컬 PostgreSQL client가 아니라 Docker로 스키마 드리프트를 확인한다.

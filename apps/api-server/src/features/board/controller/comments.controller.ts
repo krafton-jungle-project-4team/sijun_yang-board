@@ -5,6 +5,12 @@ import { createCommentInputSchema, numericIdParamSchema, updateCommentInputSchem
 import { AuthGuard, CurrentAuth } from "@/features/auth";
 import { BoardCommandService, BoardQueryService } from "@/features/board/service";
 
+/**
+ * comment list, creation, update, deletion HTTP route를 처리한다.
+ *
+ * post에 연결된 comment endpoint의 request parsing boundary로 사용한다.
+ * comment ownership과 deletion rule은 board service와 domain helper에 둔다.
+ */
 @Controller()
 export class CommentsController {
     constructor(

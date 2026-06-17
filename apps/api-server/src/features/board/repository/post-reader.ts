@@ -7,6 +7,12 @@ import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { countPosts, getPostById, listPosts } from "@/features/board/database/__generated__/board.queries";
 import type { PostSnapshot } from "@/features/board/domain";
 
+/**
+ * post snapshot과 list page를 PgTyped query로 읽는다.
+ *
+ * service가 shared response contract로 변환할 board read model이 필요할 때 사용한다.
+ * caller가 domain snapshot만 다루도록 generated row shape는 반환 전에 매핑한다.
+ */
 @Injectable()
 export class PostReader {
     constructor(

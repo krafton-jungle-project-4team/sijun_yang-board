@@ -11,6 +11,12 @@ import {
 import { AuthGuard, CurrentAuth, RoleGuard, Roles } from "@/features/auth";
 import { OperationsCommandService, OperationsQueryService } from "@/features/operations/service";
 
+/**
+ * project와 project task 관련 HTTP route를 처리한다.
+ *
+ * 인증된 사용자의 project list/detail 조회와 admin 전용 project/task 생성을 위해 사용한다.
+ * request parsing과 guard metadata만 담당하고 권한 재검증과 mutation rule은 service에 둔다.
+ */
 @Controller("projects")
 @UseGuards(AuthGuard)
 export class ProjectsController {

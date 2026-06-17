@@ -6,6 +6,12 @@ import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { findUserByLoginIdOrEmail, getUserById } from "@/features/auth/database/__generated__/auth.queries";
 import type { UserAccountSnapshot } from "@/features/auth/domain";
 
+/**
+ * auth가 소유한 user account snapshot을 PgTyped query로 읽는다.
+ *
+ * auth transaction 안에서 account lookup과 uniqueness check가 필요할 때 사용한다.
+ * service가 generated row shape에 의존하지 않도록 반환 데이터는 auth domain snapshot으로 매핑한다.
+ */
 @Injectable()
 export class UserReader {
     constructor(

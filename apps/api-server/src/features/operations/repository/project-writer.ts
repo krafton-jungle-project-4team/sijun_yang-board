@@ -5,6 +5,12 @@ import { Injectable } from "@nestjs/common";
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { createProject, updateProject } from "@/features/operations/database/__generated__/operations.queries";
 
+/**
+ * project record를 PgTyped query로 생성하고 수정한다.
+ *
+ * admin command service가 project mutation을 실행할 때 사용한다.
+ * missing project는 null로 반환해 service가 feature domain error를 선택하게 한다.
+ */
 @Injectable()
 export class ProjectWriter {
     constructor(

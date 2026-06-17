@@ -68,6 +68,12 @@ export function createQueryResult<TParams, TResult>(
     };
 }
 
+/**
+ * QueryResult 편의 API에서 발생한 row 개수 불일치를 나타낸다.
+ *
+ * single, singleOrNull, nonEmpty가 PgTyped에서 예상과 다른 row 개수를 받았을 때 사용한다.
+ * query error mapping이 정확한 진단 정보를 남길 수 있도록 method와 row count 필드를 보존한다.
+ */
 export class QueryResultError extends Error {
     constructor(
         public readonly method: QueryResultMethod,

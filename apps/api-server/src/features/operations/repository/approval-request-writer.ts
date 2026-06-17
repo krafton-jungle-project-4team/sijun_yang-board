@@ -9,6 +9,12 @@ import {
 } from "@/features/operations/database/__generated__/operations.queries";
 import type { ApprovalRequestReviewResult } from "@/features/operations/domain";
 
+/**
+ * approval request 생성과 review 상태 변경을 PgTyped query로 실행한다.
+ *
+ * 사용자의 요청 생성과 admin의 approve 또는 reject command에서 사용한다.
+ * 이미 검토된 요청인지 여부는 service와 domain helper가 판단할 수 있도록 이전 상태 summary를 반환한다.
+ */
 @Injectable()
 export class ApprovalRequestWriter {
     constructor(

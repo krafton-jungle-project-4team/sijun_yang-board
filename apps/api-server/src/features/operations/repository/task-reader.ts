@@ -6,6 +6,12 @@ import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { getTaskById, listTasksByProjectId } from "@/features/operations/database/__generated__/operations.queries";
 import type { TaskSnapshot } from "@/features/operations/domain";
 
+/**
+ * task list와 detail snapshot을 PgTyped query로 읽는다.
+ *
+ * project detail 흐름과 task detail route가 task response를 만들 때 사용한다.
+ * generated row의 enum 문자열은 반환 전에 shared/domain type에 맞는 snapshot으로 정리한다.
+ */
 @Injectable()
 export class TaskReader {
     constructor(

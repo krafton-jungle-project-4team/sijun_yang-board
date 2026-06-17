@@ -10,6 +10,12 @@ import {
 import { AuthGuard, CurrentAuth, RoleGuard, Roles } from "@/features/auth";
 import { OperationsCommandService, OperationsQueryService } from "@/features/operations/service";
 
+/**
+ * approval request 생성, 조회, 검토 HTTP route를 처리한다.
+ *
+ * 사용자가 승인 요청을 만들고 admin이 approve 또는 reject할 때 사용한다.
+ * review 상태 전환 규칙은 service와 domain helper에 두고 controller는 입력 검증에 집중한다.
+ */
 @Controller("requests")
 @UseGuards(AuthGuard)
 export class ApprovalRequestsController {

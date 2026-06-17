@@ -9,6 +9,12 @@ import { authErrors } from "@/features/auth/auth-errors";
 import { BetterAuthProvider } from "@/features/auth/provider";
 import { UserReader, UserWriter } from "@/features/auth/repository";
 
+/**
+ * account mutation과 session lifecycle operation을 조율한다.
+ *
+ * signup, login, logout, profile update use case에서 사용한다.
+ * provider error가 controller에 닿기 전에 안정적인 auth domain error로 매핑한다.
+ */
 @Injectable()
 export class AuthCommandService {
     constructor(

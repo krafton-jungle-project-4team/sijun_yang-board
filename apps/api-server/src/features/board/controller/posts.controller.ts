@@ -5,6 +5,12 @@ import { createPostInputSchema, numericIdParamSchema, postListQuerySchema, updat
 import { AuthGuard, CurrentAuth } from "@/features/auth";
 import { BoardCommandService, BoardQueryService } from "@/features/board/service";
 
+/**
+ * post list, detail, creation, update, deletion HTTP route를 처리한다.
+ *
+ * post endpoint의 request parsing boundary로 사용한다.
+ * authorization과 mutation rule은 controller branch가 아니라 board service와 domain helper에 둔다.
+ */
 @Controller("posts")
 export class PostsController {
     constructor(

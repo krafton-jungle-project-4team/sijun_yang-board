@@ -6,6 +6,12 @@ import type { AuthClaims } from "@/features/auth/domain";
 import { AuthGuard, CurrentAuth } from "@/features/auth/http";
 import { AuthCommandService, AuthQueryService } from "@/features/auth/service";
 
+/**
+ * web client를 위한 account와 session HTTP endpoint를 처리한다.
+ *
+ * login, signup, logout, current-user, profile update route에서 사용한다.
+ * request body parsing은 이 경계에서 끝내고 session 또는 user mutation은 auth service에 위임한다.
+ */
 @Controller("account")
 export class AuthController {
     constructor(

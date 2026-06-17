@@ -10,6 +10,12 @@ import { OperationsModule } from "./features/operations";
 import { DatabaseModule, PgTypedTransactionalAdapter } from "./infra/database";
 import { loggerModuleOptions } from "./infra/logger";
 
+/**
+ * API 서버의 루트 Nest module과 공통 인프라 구성을 묶는다.
+ *
+ * logger, CLS transaction, database, feature module을 연결하는 애플리케이션 bootstrap 경계로만 사용한다.
+ * 기능 유스케이스는 각 feature module에 두어 이 클래스에 비즈니스 로직이 쌓이지 않게 한다.
+ */
 @Module({
     imports: [
         LoggerModule.forRoot(loggerModuleOptions),

@@ -11,6 +11,12 @@ import { UserAccountDomain, type AuthClaims, type UserAccountSnapshot } from "@/
 import { BetterAuthProvider } from "@/features/auth/provider";
 import { UserReader } from "@/features/auth/repository";
 
+/**
+ * 인증된 request claims와 user read model을 해석한다.
+ *
+ * guard, controller, 다른 feature가 session에서 나온 user identity를 필요로 할 때 사용한다.
+ * read는 transaction 범위 안에 두고 application claims를 만들기 전에 provider id의 유효성을 검증한다.
+ */
 @Injectable()
 export class AuthQueryService {
     constructor(

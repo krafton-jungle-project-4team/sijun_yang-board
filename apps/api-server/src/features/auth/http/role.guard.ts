@@ -10,6 +10,12 @@ const ROLES_METADATA_KEY = "auth:roles";
 
 export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_METADATA_KEY, roles);
 
+/**
+ * authentication이 request claims를 채운 뒤 route-level role metadata를 강제한다.
+ *
+ * admin 또는 role별 접근이 필요한 endpoint에서 Roles metadata와 함께 사용한다.
+ * role check 전에 authentication 누락이 일관되게 보고되도록 AuthGuard와 함께 둔다.
+ */
 @Injectable()
 export class RoleGuard implements CanActivate {
     constructor(private readonly reflector: Reflector) {}
