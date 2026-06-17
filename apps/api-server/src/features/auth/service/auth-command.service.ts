@@ -12,8 +12,8 @@ import {
     suspendedAccountError,
     userNotFoundError
 } from "@/features/auth/auth-errors";
+import { BetterAuthProvider } from "@/features/auth/provider";
 import { SessionWriter, UserReader, UserWriter } from "@/features/auth/repository";
-import { BetterAuthService } from "./better-auth.service";
 
 @Injectable()
 export class AuthCommandService {
@@ -21,7 +21,7 @@ export class AuthCommandService {
         private readonly userWriter: UserWriter,
         private readonly userReader: UserReader,
         private readonly sessionWriter: SessionWriter,
-        private readonly betterAuth: BetterAuthService
+        private readonly betterAuth: BetterAuthProvider
     ) {}
 
     @Transactional<PgTypedTransactionalAdapter>()

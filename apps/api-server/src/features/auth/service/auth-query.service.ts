@@ -8,14 +8,14 @@ import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { assignLoggerContext } from "@/infra/logger";
 import { invalidAuthUserError, userNotFoundError } from "@/features/auth/auth-errors";
 import { UserAccountDomain } from "@/features/auth/domain";
+import { BetterAuthProvider } from "@/features/auth/provider";
 import { UserReader } from "@/features/auth/repository";
-import { BetterAuthService } from "./better-auth.service";
 
 @Injectable()
 export class AuthQueryService {
     constructor(
         private readonly userReader: UserReader,
-        private readonly betterAuth: BetterAuthService,
+        private readonly betterAuth: BetterAuthProvider,
         private readonly logger: PinoLogger
     ) {}
 

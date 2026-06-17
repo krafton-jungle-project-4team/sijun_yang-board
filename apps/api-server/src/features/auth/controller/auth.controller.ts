@@ -4,9 +4,8 @@ import { loginInputSchema, signupInputSchema, updateMeInputSchema } from "@nmm/s
 import type { Request, Response } from "express";
 
 import { suspendedAccountError } from "@/features/auth/auth-errors";
+import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth/http";
 import { AuthCommandService, AuthQueryService } from "@/features/auth/service";
-import { AuthenticatedUserGuard } from "./authenticated-user.guard";
-import { CurrentAuth } from "./current-auth.decorator";
 
 @Controller("account")
 export class AuthController {

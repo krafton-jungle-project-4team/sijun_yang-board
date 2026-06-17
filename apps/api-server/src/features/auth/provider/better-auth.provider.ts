@@ -67,7 +67,7 @@ type SignUpEmailData = {
 };
 
 @Injectable()
-export class BetterAuthService {
+export class BetterAuthProvider {
     private readonly auth: Promise<BetterAuth>;
     private readonly cookieHelpers: Promise<BetterAuthCookiesModule>;
 
