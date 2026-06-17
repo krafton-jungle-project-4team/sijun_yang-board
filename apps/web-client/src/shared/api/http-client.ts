@@ -27,7 +27,8 @@ export class ApiClientError extends Error {
     constructor(
         public readonly code: string,
         message: string,
-        public readonly requestId?: string
+        public readonly requestId: string,
+        public readonly statusCode: number
     ) {
         super(message);
     }
@@ -91,7 +92,12 @@ async function requestJson<TSchema extends z.ZodType>(path: string, schema: TSch
             const parsed = apiFailureSchema.safeParse(error.response?.data);
 
             if (parsed.success) {
-                throw new ApiClientError(parsed.data.error.code, parsed.data.error.message, parsed.data.requestId);
+                throw new ApiClientError(
+                    parsed.data.error.code,
+                    parsed.data.error.message,
+                    parsed.data.requestId,
+                    parsed.data.error.statusCode
+                );
             }
         }
 

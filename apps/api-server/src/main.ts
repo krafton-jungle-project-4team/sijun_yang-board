@@ -1,22 +1,19 @@
 import "reflect-metadata";
 
-import { randomUUID } from "node:crypto";
-
 import { NestFactory } from "@nestjs/core";
 import type { NextFunction, Request, Response } from "express";
 
 import { AppModule } from "./app.module";
 import { serverEnv } from "./infra/env";
-import { ApiExceptionFilter, ApiResponseInterceptor } from "./infra/http";
+import { ApiExceptionFilter, ApiResponseInterceptor, ensureRequestId, setRequestIdHeader } from "./infra/http";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
-    app.use((request: Request & { requestId?: string }, response: Response, next: NextFunction) => {
-        const requestId = request.header("x-request-id") ?? randomUUID();
+    app.use((request: Request, response: Response, next: NextFunction) => {
+        const requestId = ensureRequestId(request);
 
-        request.requestId = requestId;
-        response.setHeader("x-request-id", requestId);
+        setRequestIdHeader(response, requestId);
         next();
     });
 

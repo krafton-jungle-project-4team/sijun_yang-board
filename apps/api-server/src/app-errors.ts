@@ -11,3 +11,13 @@ export class AppError extends Error {
         this.cause = options?.cause;
     }
 }
+
+export type DomainErrorDefinition = {
+    readonly statusCode: number;
+    readonly code: string;
+    readonly message: string;
+};
+
+export function createDomainError(error: DomainErrorDefinition, options?: ErrorOptions) {
+    return new AppError(error.code, error.message, error.statusCode, options);
+}

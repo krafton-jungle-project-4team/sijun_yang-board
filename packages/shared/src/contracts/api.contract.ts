@@ -3,6 +3,7 @@ import { z } from "zod";
 export const requestIdSchema = z.string().min(1);
 
 export const apiErrorSchema = z.object({
+    statusCode: z.number().int().positive(),
     code: z.string().min(1),
     message: z.string().min(1)
 });
