@@ -110,16 +110,11 @@ try {
     const schemaSql = readFileSync(schemaFile, "utf8");
 
     console.log("db:forcesync applies schema.sql with sqldef --apply --enable-drop.");
-    console.log("db:forcesync may drop PostgreSQL schema objects.");
+    console.log("db:forcesync may drop PostgreSQL schema objects and clears sessions.");
 
     runPsql(
         db,
-        `DO $$
-BEGIN
-    IF to_regclass('public."session"') IS NOT NULL AND to_regclass('public.sessions') IS NULL THEN
-        ALTER TABLE "session" RENAME TO sessions;
-    END IF;
-END $$;
+        `DROP TABLE IF EXISTS "session", sessions CASCADE;
 `
     );
 
