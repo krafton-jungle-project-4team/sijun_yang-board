@@ -1,7 +1,5 @@
 import type { User, UserRole } from "@nmm/shared";
 
-export type UserStatus = "ACTIVE" | "SUSPENDED";
-
 export interface AuthClaims {
     userId: number;
     sessionId: string;
@@ -13,7 +11,6 @@ export interface UserAccountSnapshot {
     email: string;
     displayName: string;
     role: UserRole;
-    status: UserStatus;
     createdAt: Date;
     updatedAt: Date;
 }

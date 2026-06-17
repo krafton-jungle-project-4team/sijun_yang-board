@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 /* Purpose: Keep updated_at columns current with PostgreSQL triggers. */
 CREATE EXTENSION IF NOT EXISTS moddatetime;
 
-/* Purpose: Store Better Auth user identity plus app profile, role, and account status. */
+/* Purpose: Store Better Auth user identity plus app profile and role. */
 CREATE TABLE "user" (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     login_id VARCHAR(80) UNIQUE,
@@ -17,15 +17,12 @@ CREATE TABLE "user" (
     role VARCHAR(20) NOT NULL DEFAULT 'USER' CONSTRAINT user_role_check CHECK (
         role::text = ANY (ARRAY['USER'::character varying, 'ADMIN'::character varying]::text[])
     ),
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CONSTRAINT user_status_check CHECK (
-        status::text = ANY (ARRAY['ACTIVE'::character varying, 'SUSPENDED'::character varying]::text[])
-    ),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT user_login_id_required_check CHECK (is_anonymous OR login_id IS NOT NULL)
 );
 
-/* Purpose: Refresh the user updated_at value on profile or status changes. */
+/* Purpose: Refresh the user updated_at value on profile changes. */
 CREATE TRIGGER set_user_updated_at
 BEFORE UPDATE ON "user"
 FOR EACH ROW

@@ -13,11 +13,6 @@ export const AUTH_ERRORS = {
         code: "AUTH_ACCOUNT_ALREADY_EXISTS",
         message: "이미 사용 중인 아이디 또는 이메일입니다."
     },
-    ACCOUNT_SUSPENDED: {
-        statusCode: HttpStatus.FORBIDDEN,
-        code: "AUTH_ACCOUNT_SUSPENDED",
-        message: "정지된 계정입니다."
-    },
     USER_NOT_FOUND: {
         statusCode: HttpStatus.NOT_FOUND,
         code: "AUTH_USER_NOT_FOUND",
@@ -50,10 +45,6 @@ export function unauthenticatedError() {
 
 export function accountAlreadyExistsError() {
     return createAuthError(AUTH_ERRORS.ACCOUNT_ALREADY_EXISTS);
-}
-
-export function suspendedAccountError() {
-    return createAuthError(AUTH_ERRORS.ACCOUNT_SUSPENDED);
 }
 
 export function userNotFoundError() {

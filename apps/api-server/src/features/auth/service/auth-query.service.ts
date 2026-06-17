@@ -6,7 +6,7 @@ import { PinoLogger } from "nestjs-pino";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { assignLoggerContext } from "@/infra/logger";
-import { invalidAuthUserError, suspendedAccountError, userNotFoundError } from "@/features/auth/auth-errors";
+import { invalidAuthUserError, userNotFoundError } from "@/features/auth/auth-errors";
 import { UserAccountDomain, type AuthClaims, type UserAccountSnapshot } from "@/features/auth/domain";
 import { BetterAuthProvider } from "@/features/auth/provider";
 import { UserReader } from "@/features/auth/repository";
@@ -51,29 +51,6 @@ export class AuthQueryService {
         return UserAccountDomain.toUser(user);
     }
 
-    @Transactional<PgTypedTransactionalAdapter>()
-    async getActiveUser(userId: number): Promise<User> {
-        const user = await this.getAccount(userId);
-
-        assertActiveUser(user);
-
-        return UserAccountDomain.toUser(user);
-    }
-
-    @Transactional<PgTypedTransactionalAdapter>()
-    async assertActiveUser(userId: number): Promise<void> {
-        const user = await this.getAccount(userId);
-
-        assertActiveUser(user);
-    }
-
-    @Transactional<PgTypedTransactionalAdapter>()
-    async hasActiveUser(userId: number): Promise<boolean> {
-        const user = await this.userReader.findById(userId);
-
-        return Boolean(user && user.status !== "SUSPENDED");
-    }
-
     private async getAccount(userId: number): Promise<UserAccountSnapshot> {
         const user = await this.userReader.findById(userId);
 
@@ -82,12 +59,6 @@ export class AuthQueryService {
         }
 
         return user;
-    }
-}
-
-function assertActiveUser(user: UserAccountSnapshot) {
-    if (user.status === "SUSPENDED") {
-        throw suspendedAccountError();
     }
 }
 

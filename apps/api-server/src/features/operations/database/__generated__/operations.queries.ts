@@ -1,24 +1,24 @@
 /** Types generated for queries found in "src/features/operations/database/operations.sql" */
 import { PreparedQuery } from '@pgtyped/runtime';
 
-/** 'ListActiveUsers' parameters type */
-export type IListActiveUsersParams = void;
+/** 'ListUsers' parameters type */
+export type IListUsersParams = void;
 
-/** 'ListActiveUsers' return type */
-export interface IListActiveUsersResult {
+/** 'ListUsers' return type */
+export interface IListUsersResult {
   displayName: string;
   email: string;
   id: number;
   role: string;
 }
 
-/** 'ListActiveUsers' query type */
-export interface IListActiveUsersQuery {
-  params: IListActiveUsersParams;
-  result: IListActiveUsersResult;
+/** 'ListUsers' query type */
+export interface IListUsersQuery {
+  params: IListUsersParams;
+  result: IListUsersResult;
 }
 
-const listActiveUsersIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT\n    id,\n    email,\n    display_name AS \"displayName\",\n    role\nFROM \"user\"\nWHERE status = 'ACTIVE'\n  AND is_anonymous = false\nORDER BY display_name ASC                                                                         "};
+const listUsersIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT\n    id,\n    email,\n    display_name AS \"displayName\",\n    role\nFROM \"user\"\nWHERE is_anonymous = false\nORDER BY display_name ASC                                                                         "};
 
 /**
  * Query generated from SQL:
@@ -29,12 +29,11 @@ const listActiveUsersIR: any = {"usedParamSet":{},"params":[],"statement":"SELEC
  *     display_name AS "displayName",
  *     role
  * FROM "user"
- * WHERE status = 'ACTIVE'
- *   AND is_anonymous = false
+ * WHERE is_anonymous = false
  * ORDER BY display_name ASC                                                                         
  * ```
  */
-export const listActiveUsers = new PreparedQuery<IListActiveUsersParams,IListActiveUsersResult>(listActiveUsersIR);
+export const listUsers = new PreparedQuery<IListUsersParams,IListUsersResult>(listUsersIR);
 
 
 /** 'ListProjects' parameters type */

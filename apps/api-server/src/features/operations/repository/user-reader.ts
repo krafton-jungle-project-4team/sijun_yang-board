@@ -3,7 +3,7 @@ import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
-import { listActiveUsers } from "@/features/operations/database/__generated__/operations.queries";
+import { listUsers } from "@/features/operations/database/__generated__/operations.queries";
 
 @Injectable()
 export class UserReader {
@@ -12,8 +12,8 @@ export class UserReader {
         private readonly db: Transaction<PgTypedTransactionalAdapter>
     ) {}
 
-    async listActive(): Promise<UserOption[]> {
-        const users = await this.db.query(listActiveUsers, undefined).multiple();
+    async list(): Promise<UserOption[]> {
+        const users = await this.db.query(listUsers, undefined).multiple();
 
         return users.map((user) => ({
             id: user.id,

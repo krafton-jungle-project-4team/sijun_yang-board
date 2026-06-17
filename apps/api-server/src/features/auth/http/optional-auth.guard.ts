@@ -11,7 +11,7 @@ export class OptionalAuthGuard implements CanActivate {
         const request = context.switchToHttp().getRequest<RequestWithAuth>();
         const claims = await this.authQuery.getClaimsByRequest(request);
 
-        if (claims && (await this.authQuery.hasActiveUser(claims.userId))) {
+        if (claims) {
             request.auth = claims;
         }
 

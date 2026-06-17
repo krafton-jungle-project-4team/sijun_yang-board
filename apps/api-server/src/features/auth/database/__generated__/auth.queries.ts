@@ -13,7 +13,6 @@ export interface IGetUserByIdResult {
   email: string;
   id: number;
   role: string;
-  status: string;
   updatedAt: Date;
 }
 
@@ -23,7 +22,7 @@ export interface IGetUserByIdQuery {
   result: IGetUserByIdResult;
 }
 
-const getUserByIdIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"userId","required":false,"transform":{"type":"scalar"},"locs":[{"a":167,"b":173}]}],"statement":"SELECT\n    id,\n    email,\n    display_name AS \"displayName\",\n    role,\n    status,\n    created_at AS \"createdAt\",\n    updated_at AS \"updatedAt\"\nFROM \"user\"\nWHERE id = :userId::int4\n  AND is_anonymous = false                                                                        "};
+const getUserByIdIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"userId","required":false,"transform":{"type":"scalar"},"locs":[{"a":155,"b":161}]}],"statement":"SELECT\n    id,\n    email,\n    display_name AS \"displayName\",\n    role,\n    created_at AS \"createdAt\",\n    updated_at AS \"updatedAt\"\nFROM \"user\"\nWHERE id = :userId::int4\n  AND is_anonymous = false                                                                        "};
 
 /**
  * Query generated from SQL:
@@ -33,7 +32,6 @@ const getUserByIdIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"us
  *     email,
  *     display_name AS "displayName",
  *     role,
- *     status,
  *     created_at AS "createdAt",
  *     updated_at AS "updatedAt"
  * FROM "user"
@@ -93,7 +91,7 @@ export interface IUpdateMeQuery {
   result: IUpdateMeResult;
 }
 
-const updateMeIR: any = {"usedParamSet":{"displayName":true,"userId":true},"params":[{"name":"displayName","required":false,"transform":{"type":"scalar"},"locs":[{"a":46,"b":57}]},{"name":"userId","required":false,"transform":{"type":"scalar"},"locs":[{"a":109,"b":115}]}],"statement":"UPDATE \"user\"\nSET\n    display_name = COALESCE(:displayName, display_name),\n    updated_at = now()\nWHERE id = :userId::int4\nRETURNING id                                                                                       "};
+const updateMeIR: any = {"usedParamSet":{"displayName":true,"userId":true},"params":[{"name":"displayName","required":false,"transform":{"type":"scalar"},"locs":[{"a":46,"b":57}]},{"name":"userId","required":false,"transform":{"type":"scalar"},"locs":[{"a":109,"b":115}]}],"statement":"UPDATE \"user\"\nSET\n    display_name = COALESCE(:displayName, display_name),\n    updated_at = now()\nWHERE id = :userId::int4\nRETURNING id"};
 
 /**
  * Query generated from SQL:
@@ -103,35 +101,9 @@ const updateMeIR: any = {"usedParamSet":{"displayName":true,"userId":true},"para
  *     display_name = COALESCE(:displayName, display_name),
  *     updated_at = now()
  * WHERE id = :userId::int4
- * RETURNING id                                                                                       
+ * RETURNING id
  * ```
  */
 export const updateMe = new PreparedQuery<IUpdateMeParams,IUpdateMeResult>(updateMeIR);
-
-
-/** 'DeleteSessionByToken' parameters type */
-export interface IDeleteSessionByTokenParams {
-  token?: string | null | void;
-}
-
-/** 'DeleteSessionByToken' return type */
-export type IDeleteSessionByTokenResult = void;
-
-/** 'DeleteSessionByToken' query type */
-export interface IDeleteSessionByTokenQuery {
-  params: IDeleteSessionByTokenParams;
-  result: IDeleteSessionByTokenResult;
-}
-
-const deleteSessionByTokenIR: any = {"usedParamSet":{"token":true},"params":[{"name":"token","required":false,"transform":{"type":"scalar"},"locs":[{"a":36,"b":41}]}],"statement":"DELETE FROM \"session\"\nWHERE token = :token"};
-
-/**
- * Query generated from SQL:
- * ```
- * DELETE FROM "session"
- * WHERE token = :token
- * ```
- */
-export const deleteSessionByToken = new PreparedQuery<IDeleteSessionByTokenParams,IDeleteSessionByTokenResult>(deleteSessionByTokenIR);
 
 

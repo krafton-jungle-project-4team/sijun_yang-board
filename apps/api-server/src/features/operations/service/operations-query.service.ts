@@ -42,7 +42,7 @@ export class OperationsQueryService {
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listUsers(): Promise<UserOption[]> {
-        return this.userReader.listActive();
+        return this.userReader.list();
     }
 
     @Transactional<PgTypedTransactionalAdapter>()

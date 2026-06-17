@@ -8,7 +8,6 @@ INSERT INTO "user" (
     display_name,
     is_anonymous,
     role,
-    status,
     created_at,
     updated_at
 )
@@ -24,7 +23,6 @@ VALUES
         'Admin',
         false,
         'ADMIN',
-        'ACTIVE',
         now(),
         now()
     ),
@@ -38,7 +36,6 @@ VALUES
         'Writer',
         false,
         'USER',
-        'ACTIVE',
         now(),
         now()
     )
@@ -52,7 +49,6 @@ SET
     display_name = EXCLUDED.display_name,
     is_anonymous = EXCLUDED.is_anonymous,
     role = EXCLUDED.role,
-    status = EXCLUDED.status,
     updated_at = now();
 
 SELECT setval(pg_get_serial_sequence('"user"', 'id'), GREATEST((SELECT max(id) FROM "user"), 1), true);

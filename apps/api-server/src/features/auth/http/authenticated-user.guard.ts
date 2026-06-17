@@ -16,8 +16,6 @@ export class AuthenticatedUserGuard implements CanActivate {
             throw unauthenticatedError();
         }
 
-        await this.authQuery.assertActiveUser(claims.userId);
-
         request.auth = claims;
         return true;
     }

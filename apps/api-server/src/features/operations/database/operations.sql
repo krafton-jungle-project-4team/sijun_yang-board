@@ -1,13 +1,12 @@
-/* Purpose: List active users for assignment and ownership controls. */
-/* @name ListActiveUsers */
+/* Purpose: List users for assignment and ownership controls. */
+/* @name ListUsers */
 SELECT
     id,
     email,
     display_name AS "displayName",
     role
 FROM "user"
-WHERE status = 'ACTIVE'
-  AND is_anonymous = false
+WHERE is_anonymous = false
 ORDER BY display_name ASC;
 
 /* Purpose: List projects with filters, sorting, and aggregate counts. */

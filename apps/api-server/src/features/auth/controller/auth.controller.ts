@@ -21,7 +21,7 @@ export class AuthController {
             return null;
         }
 
-        return this.authQuery.getActiveUser(auth.userId);
+        return this.authQuery.getUser(auth.userId);
     }
 
     @Post("login")

@@ -1,14 +1,6 @@
 import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@nmm/ui/components";
 import { Link, Navigate } from "@tanstack/react-router";
-import {
-    AlertCircleIcon,
-    HomeIcon,
-    LockKeyholeIcon,
-    RefreshCwIcon,
-    SearchXIcon,
-    ShieldAlertIcon,
-    UserRoundIcon
-} from "lucide-react";
+import { AlertCircleIcon, HomeIcon, LockKeyholeIcon, RefreshCwIcon, SearchXIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useEffect } from "react";
 
@@ -23,7 +15,7 @@ type RouteErrorFallbackProps = {
 };
 
 type RouteErrorView = {
-    action: "account" | "home" | "retry";
+    action: "home" | "retry";
     description: string;
     icon: LucideIcon;
     requestId?: string;
@@ -84,17 +76,6 @@ function GlobalProblemFlashbar({ description, title }: { description: string; ti
 }
 
 function RouteErrorAction({ action, onRetry }: { action: RouteErrorView["action"]; onRetry: () => void }) {
-    if (action === "account") {
-        return (
-            <Button asChild>
-                <Link to="/login">
-                    <UserRoundIcon data-icon="inline-start" />
-                    Sign in
-                </Link>
-            </Button>
-        );
-    }
-
     if (action === "home") {
         return (
             <Button asChild variant="outline">
@@ -137,16 +118,6 @@ function getApiRouteErrorView(
             icon: SearchXIcon,
             requestId: error.requestId,
             title: "Page data not found"
-        };
-    }
-
-    if (error.code === "AUTH_ACCOUNT_SUSPENDED") {
-        return {
-            action: "account",
-            description: "This account is suspended. Contact an administrator for access.",
-            icon: ShieldAlertIcon,
-            requestId: error.requestId,
-            title: "Account suspended"
         };
     }
 

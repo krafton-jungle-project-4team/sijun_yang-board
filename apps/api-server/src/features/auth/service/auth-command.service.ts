@@ -9,18 +9,16 @@ import {
     accountAlreadyExistsError,
     invalidAuthUserError,
     invalidCredentialsError,
-    suspendedAccountError,
     userNotFoundError
 } from "@/features/auth/auth-errors";
 import { BetterAuthProvider } from "@/features/auth/provider";
-import { SessionWriter, UserReader, UserWriter } from "@/features/auth/repository";
+import { UserReader, UserWriter } from "@/features/auth/repository";
 
 @Injectable()
 export class AuthCommandService {
     constructor(
         private readonly userWriter: UserWriter,
         private readonly userReader: UserReader,
-        private readonly sessionWriter: SessionWriter,
         private readonly betterAuth: BetterAuthProvider
     ) {}
 
@@ -56,12 +54,6 @@ export class AuthCommandService {
             throw error;
         });
         const userId = parseUserId(result.data.user.id);
-
-        if (result.data.user.status === "SUSPENDED") {
-            await this.sessionWriter.expireByToken(result.data.token);
-            this.betterAuth.clearSessionCookie(response);
-            throw suspendedAccountError();
-        }
 
         this.betterAuth.appendSetCookieHeaders(response, result.setCookieHeaders);
 

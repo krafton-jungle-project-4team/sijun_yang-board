@@ -8,7 +8,6 @@ import type { Pool } from "pg";
 import { PG_POOL } from "@/infra/database/database.tokens";
 import { serverEnv } from "@/infra/env";
 import { authProviderError } from "@/features/auth/auth-errors";
-import type { UserStatus } from "@/features/auth/domain";
 
 const authBasePath = "/api/auth";
 const importEsm = new Function("specifier", "return import(specifier)") as <T>(specifier: string) => Promise<T>;
@@ -41,7 +40,6 @@ type BetterAuthUser = {
     isAnonymous: boolean;
     name: string;
     role: UserRole;
-    status: UserStatus;
     createdAt: string;
     updatedAt: string;
 };
@@ -224,12 +222,6 @@ export class BetterAuthProvider {
                         input: false,
                         required: true,
                         type: ["USER", "ADMIN"]
-                    },
-                    status: {
-                        defaultValue: "ACTIVE",
-                        input: false,
-                        required: true,
-                        type: ["ACTIVE", "SUSPENDED"]
                     }
                 },
                 fields: {

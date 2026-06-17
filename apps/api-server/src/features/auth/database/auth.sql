@@ -5,7 +5,6 @@ SELECT
     email,
     display_name AS "displayName",
     role,
-    status,
     created_at AS "createdAt",
     updated_at AS "updatedAt"
 FROM "user"
@@ -28,8 +27,3 @@ SET
     updated_at = now()
 WHERE id = :userId::int4
 RETURNING id;
-
-/* Purpose: Remove one Better Auth session by token during rejected sign-in cleanup. */
-/* @name DeleteSessionByToken */
-DELETE FROM "session"
-WHERE token = :token;

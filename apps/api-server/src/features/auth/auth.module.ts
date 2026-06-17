@@ -4,7 +4,7 @@ import { DatabaseModule } from "@/infra/database";
 import { AuthController } from "./controller/auth.controller";
 import { AuthenticatedUserGuard, OptionalAuthGuard } from "./http";
 import { BetterAuthProvider } from "./provider";
-import { SessionWriter, UserReader, UserWriter } from "./repository";
+import { UserReader, UserWriter } from "./repository";
 import { AuthCommandService, AuthQueryService } from "./service";
 
 @Module({
@@ -17,8 +17,7 @@ import { AuthCommandService, AuthQueryService } from "./service";
         AuthenticatedUserGuard,
         OptionalAuthGuard,
         UserReader,
-        UserWriter,
-        SessionWriter
+        UserWriter
     ],
     exports: [AuthenticatedUserGuard, OptionalAuthGuard]
 })

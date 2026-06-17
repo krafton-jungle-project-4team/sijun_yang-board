@@ -4,7 +4,7 @@ import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { findUserByLoginIdOrEmail, getUserById } from "@/features/auth/database/__generated__/auth.queries";
-import type { UserAccountSnapshot, UserStatus } from "@/features/auth/domain";
+import type { UserAccountSnapshot } from "@/features/auth/domain";
 
 @Injectable()
 export class UserReader {
@@ -22,7 +22,6 @@ export class UserReader {
                   email: user.email,
                   displayName: user.displayName,
                   role: user.role as UserRole,
-                  status: user.status as UserStatus,
                   createdAt: user.createdAt,
                   updatedAt: user.updatedAt
               }
