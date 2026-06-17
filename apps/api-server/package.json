@@ -2,7 +2,7 @@
     "name": "@nmm/api-server",
     "version": "0.1.0",
     "private": true,
-    "license": "UNLICENSED",
+    "license": "MIT",
     "scripts": {
         "build": "nest build",
         "db:generate": "node --env-file=.env ../../node_modules/.bin/pgtyped -c pgtyped.config.json",
