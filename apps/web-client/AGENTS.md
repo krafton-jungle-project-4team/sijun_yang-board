@@ -2,11 +2,16 @@
 
 - This app calls the API through `src/shared/api/http-client.ts` only.
 - Do not import Nest, TypeORM, Node runtime, or files from `apps/api-server`.
+- TS/TSX files and `src` folders use kebab-case.
+- `*.contract.ts` and `*.config.ts` style middle extensions are allowed.
+- TanStack Router route files follow framework/generator naming.
 - Use `@/*` for app-local imports outside the current folder; use `./*` only for same-folder files.
 - Do not use `../*` in hand-written source.
 - Use `@nmm/shared` for Zod contracts and response parsing.
 - Use `@nmm/ui/components` before raw controls such as button/input/card/table/dialog.
+- Check for an `@nmm/ui/components` or shadcn primitive before writing raw semantic/layout tags.
 - Keep app-specific UI composition in feature/page code even when no matching `@nmm/ui` primitive exists.
+- Avoid app CSS files, direct CSS selectors, and direct theme token changes.
 - File-based routes live under `src/routes`.
 - Route files own route boundaries and shared route layouts; large page bodies may live under `src/pages`.
 - Feature API/query hooks stay under `src/features/<feature>`.
@@ -16,6 +21,7 @@
 - Interpret shadcn official import/path examples as `@nmm/ui/components` for this app.
 - If the `shadcn` skill conflicts with this file, prefer this app's boundary, import, UI, and verification rules.
 - React changes must use React Doctor plus `toss-frontend-fundamentals` and `vercel-react-best-practices` to clean up quality regressions.
+- Run React Doctor with `npx react-doctor@latest --verbose`.
 - React/UI code must apply `toss-frontend-fundamentals` and `vercel-react-best-practices`.
 - Component API changes must apply `vercel-composition-patterns`.
 - Verify with `npm run verify` from the repository root.

@@ -1,6 +1,8 @@
 # Shared Package Rules
 
 - This package contains runtime-neutral Zod contracts and exported types.
+- TS files and `src` folders use kebab-case.
+- `*.contract.ts` and `*.config.ts` style middle extensions are allowed.
 - Do not import React, Nest, TypeORM, pg, Node runtime, DB code, or app code.
 - API controllers and Web clients parse these schemas at boundaries.
 - Service code may use inferred/shared types but should not redefine API shapes.

@@ -5,6 +5,8 @@
 - `packages/ui`에 적용한다.
 - 이 package는 app과 무관한 shadcn/Radix primitive를 제공한다.
 - shadcn primitive가 아닌 앱 전용 UI 조합은 이 package에 두지 않는다.
+- TS/TSX 파일과 `src` 하위 폴더명은 kebab-case다.
+- `*.config.ts` 같은 중간 확장자는 허용한다.
 
 ## 허용
 
