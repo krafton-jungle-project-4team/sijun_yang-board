@@ -2,6 +2,7 @@ import type { CreatePostInput } from "@nmm/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate } from "@tanstack/react-router";
 
+import { showResourceCreatedFlashbar } from "@/app/app-flashbar-store";
 import { useCreatePost } from "@/features/posts/hooks/use-posts";
 import { PostForm } from "@/features/posts/ui/post-form";
 
@@ -13,6 +14,7 @@ export function NewPostPage() {
         const result = await createPost.mutateAsync(input);
 
         await navigate({ to: "/posts/$postId", params: { postId: String(result.id) } });
+        showResourceCreatedFlashbar("Announcement");
     }
 
     function handleCancel() {

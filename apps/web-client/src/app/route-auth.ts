@@ -3,6 +3,8 @@ import { redirect } from "@tanstack/react-router";
 
 import { currentUserQueryOptions } from "@/features/auth/api/auth-queries";
 
+import { showAuthenticationRequiredFlashbar } from "./app-flashbar-store";
+
 export async function requireAuthenticatedUser(queryClient: QueryClient) {
     const currentUser = await queryClient.fetchQuery({
         ...currentUserQueryOptions(),
@@ -10,6 +12,7 @@ export async function requireAuthenticatedUser(queryClient: QueryClient) {
     });
 
     if (!currentUser) {
+        showAuthenticationRequiredFlashbar();
         throw redirect({ to: "/login" });
     }
 

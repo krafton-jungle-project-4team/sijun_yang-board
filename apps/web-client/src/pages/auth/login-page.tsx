@@ -18,6 +18,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { LogInIcon, UserPlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { showAuthenticationFailedFlashbar } from "@/app/app-flashbar-store";
 import { useLoginMutation } from "@/features/auth/api/auth-queries";
 
 export function LoginPage() {
@@ -39,6 +40,7 @@ export function LoginPage() {
             loginForm.reset();
             await navigate({ to: "/me" });
         } catch {
+            showAuthenticationFailedFlashbar();
             loginForm.setError("root", {
                 message: "Invalid ID or password."
             });

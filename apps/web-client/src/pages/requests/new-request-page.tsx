@@ -2,6 +2,7 @@ import type { CreateApprovalRequestInput } from "@nmm/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate } from "@tanstack/react-router";
 
+import { showResourceCreatedFlashbar } from "@/app/app-flashbar-store";
 import { useSuspenseProjects } from "@/features/projects/hooks/use-projects";
 import { toProjectListQuery } from "@/features/projects/model/project-search";
 import { useCreateRequest } from "@/features/requests/hooks/use-requests";
@@ -23,6 +24,7 @@ export function NewRequestPage() {
         const result = await createRequest.mutateAsync(input);
 
         await navigate({ to: "/requests/$requestId", params: { requestId: String(result.id) } });
+        showResourceCreatedFlashbar("Request");
     }
 
     function handleCancel() {

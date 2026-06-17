@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import { AppFlashbar } from "./app-flashbar";
 import { RouteErrorFallback } from "./route-error";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -106,6 +107,7 @@ export function RootLayout() {
                     </div>
                 </div>
             </header>
+            <AppFlashbar />
             <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
                 <Outlet />
             </main>

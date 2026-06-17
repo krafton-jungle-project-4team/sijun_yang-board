@@ -10,7 +10,9 @@ import {
     UserRoundIcon
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useEffect } from "react";
 
+import { showAuthenticationProblemFlashbar, showGlobalProblemFlashbar } from "./app-flashbar-store";
 import { ApiClientError } from "@/shared/api/http-client";
 
 type RouteErrorFallbackProps = {
@@ -30,7 +32,7 @@ type RouteErrorView = {
 
 export function RouteErrorFallback({ error, fallbackDescription, fallbackTitle, onRetry }: RouteErrorFallbackProps) {
     if (isApiError(error, "UNAUTHENTICATED")) {
-        return <Navigate to="/login" replace />;
+        return <AuthenticationErrorRedirect />;
     }
 
     const view = getRouteErrorView(error, {
@@ -44,22 +46,41 @@ export function RouteErrorFallback({ error, fallbackDescription, fallbackTitle, 
     }
 
     return (
-        <Card className="mx-auto max-w-xl">
-            <CardHeader>
-                <Icon className="size-5 text-muted-foreground" />
-                <CardTitle>{view.title}</CardTitle>
-                <CardDescription>{view.description}</CardDescription>
-            </CardHeader>
-            {view.requestId ? (
-                <CardContent>
-                    <CardDescription>Request ID: {view.requestId}</CardDescription>
-                </CardContent>
-            ) : null}
-            <CardFooter className="gap-2">
-                <RouteErrorAction action={view.action} onRetry={handleRetryClick} />
-            </CardFooter>
-        </Card>
+        <>
+            <GlobalProblemFlashbar description={view.description} title={view.title} />
+            <Card className="mx-auto max-w-xl">
+                <CardHeader>
+                    <Icon className="size-5 text-muted-foreground" />
+                    <CardTitle>{view.title}</CardTitle>
+                    <CardDescription>{view.description}</CardDescription>
+                </CardHeader>
+                {view.requestId ? (
+                    <CardContent>
+                        <CardDescription>Request ID: {view.requestId}</CardDescription>
+                    </CardContent>
+                ) : null}
+                <CardFooter className="gap-2">
+                    <RouteErrorAction action={view.action} onRetry={handleRetryClick} />
+                </CardFooter>
+            </Card>
+        </>
     );
+}
+
+function AuthenticationErrorRedirect() {
+    useEffect(() => {
+        showAuthenticationProblemFlashbar();
+    }, []);
+
+    return <Navigate to="/login" replace />;
+}
+
+function GlobalProblemFlashbar({ description, title }: { description: string; title: string }) {
+    useEffect(() => {
+        showGlobalProblemFlashbar({ description, title });
+    }, [description, title]);
+
+    return null;
 }
 
 function RouteErrorAction({ action, onRetry }: { action: RouteErrorView["action"]; onRetry: () => void }) {

@@ -2,6 +2,7 @@ import type { CreateProjectInput } from "@nmm/shared";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nmm/ui/components";
 import { useNavigate } from "@tanstack/react-router";
 
+import { showResourceCreatedFlashbar } from "@/app/app-flashbar-store";
 import { useSuspenseCurrentUserQuery } from "@/features/auth/api/auth-queries";
 import { useCreateProject } from "@/features/projects/hooks/use-projects";
 import { canManageProjects } from "@/features/projects/model/project-permissions";
@@ -18,6 +19,7 @@ export function NewProjectPage() {
         const result = await createProject.mutateAsync(input);
 
         await navigate({ to: "/projects/$projectId", params: { projectId: String(result.id) } });
+        showResourceCreatedFlashbar("Project");
     }
 
     function handleCancel() {
