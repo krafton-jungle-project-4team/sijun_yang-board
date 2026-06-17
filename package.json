@@ -12,6 +12,8 @@
         "packages/*"
     ],
     "scripts": {
+        "db:forcesync": "npm run db:forcesync -w @nmm/api-server",
+        "db:verify": "npm run db:verify -w @nmm/api-server",
         "dev": "npm run dev:db && concurrently -k -n api,web \"npm run dev:api\" \"npm run dev:web\"",
         "dev:web": "npm run build -w @nmm/shared && npm run dev -w @nmm/web-client",
         "dev:api": "docker compose --env-file apps/api-server/.env up --build api-server",

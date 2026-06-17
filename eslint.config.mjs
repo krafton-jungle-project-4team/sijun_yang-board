@@ -88,6 +88,14 @@ export default [
     js.configs.recommended,
 
     {
+        name: "node script rules",
+        files: ["**/*.mjs"],
+        languageOptions: {
+            globals: globals.node
+        }
+    },
+
+    {
         name: "common typescript rules",
         files: ["**/*.{ts,tsx}"],
         languageOptions: {
