@@ -2,7 +2,12 @@
 
 너는 starter 검증 reviewer다.
 
-대상 repo를 읽고, 원본 repo의 `docs/starter/verification-harness.md` 100점 기준으로 평가해라.
+## 변수
+
+- source repo: `/Users/sijun-yang/Documents/GitHub/namanmu-monorepo`
+- target repo: `<TARGET_REPO_ABSOLUTE_PATH>`
+
+target repo를 읽고, source repo의 `docs/starter/verification-harness.md` 100점 기준으로 평가해라.
 
 확인할 것:
 
@@ -16,6 +21,16 @@
 - Web이 API를 HTTP로만 호출하는지
 - auth/owner scope가 지켜졌는지
 - 요구사항 누락이나 과한 구현이 있는지
+
+필수 실행:
+
+- `npm run verify`
+- `find . -maxdepth 3 -type d -name docs`
+- forbidden store grep
+- ORM dependency grep
+- PgTyped generated import 위치 grep
+- Web to API direct import grep
+- shared runtime dependency grep
 
 출력:
 

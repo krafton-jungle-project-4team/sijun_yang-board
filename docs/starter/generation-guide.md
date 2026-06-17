@@ -11,6 +11,16 @@
 
 출력 starter에는 `docs/`를 만들지 않는다.
 
+## 실행 변수
+
+첫 검증은 다음 값을 쓴다.
+
+- source repo: `/Users/sijun-yang/Documents/GitHub/namanmu-monorepo`
+- output repo: 실행할 때 지정한다.
+- package scope: `@nmm`
+
+다른 프로젝트로 재사용할 때는 package scope만 일괄 치환한다. 첫 검증에서는 scope를 바꾸지 않는다.
+
 ## 프로젝트 구조
 
 ```text
@@ -29,7 +39,35 @@
 └── tsconfig.base.json
 ```
 
-첫 검증 scope는 `@nmm`를 쓴다. 다른 프로젝트에서는 `<scope>`만 일괄 치환한다.
+출력 repo에는 다음을 만들지 않는다.
+
+- `docs/`
+- 원본 repo의 app/package 소스 복사본
+- 기능 추가용 설명 문서
+
+## 최소 산출물 체크리스트
+
+생성 직후 다음 파일과 폴더가 있어야 한다.
+
+- `AGENTS.md`
+- `apps/web-client/AGENTS.md`
+- `apps/api-server/AGENTS.md`
+- `packages/shared/AGENTS.md`
+- `packages/ui/AGENTS.md`
+- `.codex/skills/shadcn/SKILL.md`
+- `.codex/skills/toss-frontend-fundamentals/SKILL.md`
+- `.codex/skills/vercel-composition-patterns/SKILL.md`
+- `.codex/skills/vercel-react-best-practices/SKILL.md`
+- `.codex/skills/web-design-guidelines/SKILL.md`
+- `compose.yml`
+- `eslint.config.mjs`
+- `tsconfig.base.json`
+- root `package.json`
+- app/package별 `package.json`, `tsconfig`
+- `apps/api-server/database/schema.sql`
+- `apps/api-server/database/dummy-data.sql`
+- `apps/api-server/pgtyped.config.json`
+- `packages/ui/components.json`
 
 ## 생성 순서
 
@@ -44,6 +82,8 @@
 9. root scripts, ESLint, TypeScript, Docker Compose, PgTyped를 구성한다.
 10. auth + board 세로 슬라이스를 구현한다.
 11. `npm run verify`를 통과시킨다.
+
+각 단계는 끝난 뒤 산출물을 확인한다. 누락된 workspace나 script를 뒤 단계에서 임시로 우회하지 않는다.
 
 ## 의존성
 
@@ -102,6 +142,29 @@ UI dependencies:
 
 `verify`는 필요한 DB 컨테이너 준비까지 root script 안에서 처리한다.
 
+`db:verify`는 로컬에 설치된 DB 도구를 암묵적으로 요구하지 않는다. Docker 또는 npm script로 재현 가능해야 한다.
+
+## Verify 필수 조건
+
+`npm run verify`는 fresh checkout에서도 한 번에 실행 가능해야 한다.
+
+필수 포함:
+
+- lint
+- format check
+- typecheck
+- PgTyped generation
+- schema drift check
+- shared build
+- web build
+- api build
+
+금지:
+
+- 사용자가 API를 직접 켜야 통과하는 verify
+- 수동 env export가 필요한 verify
+- workspace 내부 script를 사용자가 직접 실행해야 하는 verify
+
 ## API 기준
 
 - PostgreSQL + SQL-first + PgTyped 고정
@@ -113,6 +176,10 @@ UI dependencies:
 - generated PgTyped output: 같은 feature의 `database/__generated__`
 - generated query import는 repository 내부에만 허용
 - multi-step write는 service transaction boundary에서 실행
+- global prefix는 `api`
+- success/error response envelope는 global interceptor/filter에서 처리
+- controller/service는 envelope를 직접 만들지 않음
+- write endpoint는 명시적으로 public이 아니면 authenticated guard 사용
 
 ## Web 기준
 
@@ -125,6 +192,9 @@ UI dependencies:
 - route boundary는 `src/routes`
 - page body는 `src/pages`
 - feature api/hooks/model/ui는 `src/features/<feature>`
+- route generated file은 프레임워크 생성물로 취급
+- hand-written JSX prop에 익명 함수 직접 전달 금지
+- event handler는 `handle*` 이름 사용
 
 ## UI 기준
 
@@ -140,12 +210,35 @@ Starter에는 auth + board만 둔다.
 
 포함해야 할 패턴:
 
-- DB-backed session/current user
+- DB-backed signup/login/logout/current user
 - global success/error envelope
 - shared Zod contract
 - controller/service/domain/repository/database 계층
 - PgTyped reader/writer
 - authenticated write endpoint
-- Web list/detail/create/update/delete 흐름
+- Web login/signup/current user 흐름
+- board post list/detail/create/update/delete 흐름
+- board comment create/delete 흐름
 - React Query pending/error UI
 - RHF + shared Zod form validation
+
+Starter 밖 기능은 만들지 않는다.
+
+- bookmarks
+- taxonomy/labels
+- review state transition
+- dashboard/read model
+
+위 기능은 검증 하네스가 다음 단계에서 요구사항만 주고 추가한다.
+
+## 생성 실패로 봐야 하는 신호
+
+- `docs/`를 생성함
+- 원본 app/package 소스를 읽거나 복사함
+- API가 in-memory store를 사용함
+- ORM을 설치하거나 사용함
+- Web이 API server 파일을 직접 import함
+- shared가 React, Nest, Node, DB를 import함
+- PgTyped generated type이 service/controller로 새어 나감
+- 기능 추가 전부터 `packages/ui`에 app-specific UI가 들어감
+- `npm run verify`가 DB 검증 없이 통과함
