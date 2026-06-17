@@ -5,6 +5,7 @@
 - Use `@/*` for app-local imports outside the current folder; use `./*` only for same-folder files.
 - Do not use `../*` in hand-written source.
 - Import `@nmm/shared` contracts only; never import Web or UI code.
+- Import another feature only through its root public API; do not import its `controller`, `database`, `domain`, `repository`, or `service` packages.
 - Keep global prefix `api` and global success/error envelope.
 - Controllers parse shared Zod schemas; services use inferred/shared types.
 - Auth/session/current user must be DB-backed.

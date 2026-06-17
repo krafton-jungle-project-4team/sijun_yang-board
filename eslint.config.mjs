@@ -13,6 +13,59 @@ const restrictImports = (patterns) => [
     }
 ];
 
+const apiServerRestrictedImports = [
+    "@nmm/web-client",
+    "@nmm/web-client/*",
+    "@nmm/ui",
+    "@nmm/ui/*",
+    "../*",
+    "../../*",
+    "../../../*",
+    "../../../../*",
+    "../../../../../*",
+    "react",
+    "react-dom",
+    "react-dom/*",
+    "vite",
+    "@vitejs/*"
+];
+
+const authInternalImports = [
+    "@/features/auth/auth.env",
+    "@/features/auth/auth-errors",
+    "@/features/auth/controller/*",
+    "@/features/auth/database",
+    "@/features/auth/database/*",
+    "@/features/auth/domain",
+    "@/features/auth/domain/*",
+    "@/features/auth/repository",
+    "@/features/auth/repository/*",
+    "@/features/auth/service",
+    "@/features/auth/service/*"
+];
+
+const authFeatureRestrictedImports = [
+    ...apiServerRestrictedImports,
+    "@/features/board",
+    "@/features/board/*",
+    "@/features/operations",
+    "@/features/operations/*"
+];
+
+const boardFeatureRestrictedImports = [
+    ...apiServerRestrictedImports,
+    "@/features/operations",
+    "@/features/operations/*",
+    ...authInternalImports
+];
+
+const operationsFeatureRestrictedImports = [
+    ...apiServerRestrictedImports,
+    "@/features/board",
+    "@/features/board/*",
+    ...authInternalImports
+];
+
 export default [
     {
         // 설치 파일과 빌드 산출물은 검사하지 않는다.
@@ -139,22 +192,31 @@ export default [
         },
         rules: {
             // API는 Web 빌드/런타임 코드에 의존하지 않는다.
-            "no-restricted-imports": restrictImports([
-                "@nmm/web-client",
-                "@nmm/web-client/*",
-                "@nmm/ui",
-                "@nmm/ui/*",
-                "../*",
-                "../../*",
-                "../../../*",
-                "../../../../*",
-                "../../../../../*",
-                "react",
-                "react-dom",
-                "react-dom/*",
-                "vite",
-                "@vitejs/*"
-            ])
+            "no-restricted-imports": restrictImports(apiServerRestrictedImports)
+        }
+    },
+
+    {
+        name: "api auth feature boundary rules",
+        files: ["apps/api-server/src/features/auth/**/*.ts"],
+        rules: {
+            "no-restricted-imports": restrictImports(authFeatureRestrictedImports)
+        }
+    },
+
+    {
+        name: "api board feature boundary rules",
+        files: ["apps/api-server/src/features/board/**/*.ts"],
+        rules: {
+            "no-restricted-imports": restrictImports(boardFeatureRestrictedImports)
+        }
+    },
+
+    {
+        name: "api operations feature boundary rules",
+        files: ["apps/api-server/src/features/operations/**/*.ts"],
+        rules: {
+            "no-restricted-imports": restrictImports(operationsFeatureRestrictedImports)
         }
     },
 

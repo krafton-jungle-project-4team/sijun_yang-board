@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 import { DatabaseModule } from "@/infra/database";
 import { AuthController } from "./controller/auth.controller";
 import { AuthenticatedUserGuard } from "./controller/authenticated-user.guard";
+import { OptionalAuthGuard } from "./controller/optional-auth.guard";
 import { SessionWriter, UserReader, UserWriter } from "./repository";
 import { AuthCommandService, AuthQueryService, BetterAuthService } from "./service";
 
@@ -14,10 +15,11 @@ import { AuthCommandService, AuthQueryService, BetterAuthService } from "./servi
         AuthCommandService,
         BetterAuthService,
         AuthenticatedUserGuard,
+        OptionalAuthGuard,
         UserReader,
         UserWriter,
         SessionWriter
     ],
-    exports: [AuthQueryService, AuthenticatedUserGuard]
+    exports: [AuthenticatedUserGuard, OptionalAuthGuard]
 })
 export class AuthModule {}

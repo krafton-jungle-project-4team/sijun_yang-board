@@ -1,23 +1,20 @@
 import type { AuthClaims } from "@nmm/shared";
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { createPostInputSchema, numericIdParamSchema, postListQuerySchema, updatePostInputSchema } from "@nmm/shared";
-import type { Request } from "express";
 
-import { AuthenticatedUserGuard, AuthQueryService, CurrentAuth } from "@/features/auth";
+import { AuthenticatedUserGuard, CurrentAuth, OptionalAuthGuard } from "@/features/auth";
 import { BoardCommandService, BoardQueryService } from "@/features/board/service";
 
 @Controller("posts")
 export class PostsController {
     constructor(
         private readonly boardQuery: BoardQueryService,
-        private readonly boardCommand: BoardCommandService,
-        private readonly authQuery: AuthQueryService
+        private readonly boardCommand: BoardCommandService
     ) {}
 
     @Get()
-    async listPosts(@Query() query: unknown, @Req() request: Request) {
-        const auth = await this.getOptionalAuth(request);
-
+    @UseGuards(OptionalAuthGuard)
+    async listPosts(@Query() query: unknown, @CurrentAuth() auth?: AuthClaims) {
         return this.boardQuery.listPosts(postListQuerySchema.parse(query), auth);
     }
 
@@ -46,15 +43,5 @@ export class PostsController {
     @UseGuards(AuthenticatedUserGuard)
     async deletePost(@CurrentAuth() auth: AuthClaims, @Param("postId") postId: string) {
         return this.boardCommand.deletePost(auth, numericIdParamSchema.parse(postId));
-    }
-
-    private async getOptionalAuth(request: Request): Promise<AuthClaims | undefined> {
-        const claims = await this.authQuery.getClaimsByRequest(request);
-
-        if (!claims || claims.status === "SUSPENDED") {
-            return undefined;
-        }
-
-        return claims;
     }
 }
