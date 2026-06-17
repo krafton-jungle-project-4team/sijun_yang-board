@@ -1,4 +1,4 @@
-import type { ApprovalRequestListQuery, ApprovalRequestStatus } from "@nmm/shared";
+import type { ApprovalRequestDetail, ApprovalRequestListQuery, ApprovalRequestSummary } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
@@ -9,13 +9,13 @@ import {
     getApprovalRequestById,
     listApprovalRequests
 } from "@/features/operations/database/__generated__/operations.queries";
-import type { ApprovalRequestSnapshot } from "@/features/operations/domain";
+import { toApprovalRequestSummary } from "./read-model-mappers";
 
 /**
- * approval request list page와 detail snapshot을 PgTyped query로 읽는다.
+ * approval request list page와 detail response를 PgTyped query로 읽는다.
  *
  * operations query service가 approval request response를 구성할 때 사용한다.
- * nullable reviewer 정보와 status 문자열은 repository boundary에서 domain snapshot으로 정리한다.
+ * nullable reviewer 정보와 status 문자열은 repository boundary에서 shared contract로 정리한다.
  */
 @Injectable()
 export class ApprovalRequestReader {
@@ -24,7 +24,7 @@ export class ApprovalRequestReader {
         private readonly db: Transaction<PgTypedTransactionalAdapter>
     ) {}
 
-    async list(query: ApprovalRequestListQuery): Promise<Page<ApprovalRequestSnapshot>> {
+    async list(query: ApprovalRequestListQuery): Promise<Page<ApprovalRequestSummary>> {
         const filters = {
             projectId: query.projectId ?? null,
             search: query.search ?? null,
@@ -41,50 +41,16 @@ export class ApprovalRequestReader {
         const total = await this.db.query(countApprovalRequests, filters).single();
 
         return {
-            items: requests.map(toApprovalRequestSnapshot),
+            items: requests.map(toApprovalRequestSummary),
             page: query.page,
             pageSize: query.pageSize,
             total: total.total ?? 0
         };
     }
 
-    async findById(requestId: number): Promise<ApprovalRequestSnapshot | null> {
+    async findById(requestId: number): Promise<ApprovalRequestDetail | null> {
         const request = await this.db.query(getApprovalRequestById, { requestId }).singleOrNull();
 
-        return request ? toApprovalRequestSnapshot(request) : null;
+        return request ? toApprovalRequestSummary(request) : null;
     }
-}
-
-export function toApprovalRequestSnapshot(request: {
-    id: number;
-    projectId: number;
-    projectName: string;
-    title: string;
-    description: string;
-    status: string;
-    requesterId: number;
-    requesterName: string;
-    reviewerId: number | null;
-    reviewerName: string | null;
-    reviewedAt: Date | null;
-    reviewComment: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-}) {
-    return {
-        id: request.id,
-        projectId: request.projectId,
-        projectName: request.projectName,
-        title: request.title,
-        description: request.description,
-        status: request.status as ApprovalRequestStatus,
-        requesterId: request.requesterId,
-        requesterName: request.requesterName,
-        reviewerId: request.reviewerId,
-        reviewerName: request.reviewerName ?? null,
-        reviewedAt: request.reviewedAt,
-        reviewComment: request.reviewComment,
-        createdAt: request.createdAt,
-        updatedAt: request.updatedAt
-    };
 }

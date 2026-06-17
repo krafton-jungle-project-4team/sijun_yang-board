@@ -1,4 +1,4 @@
-import type { ProjectListQuery, ProjectStatus } from "@nmm/shared";
+import type { ProjectDetail, ProjectListQuery, ProjectSummary } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
@@ -9,13 +9,13 @@ import {
     getProjectById,
     listProjects
 } from "@/features/operations/database/__generated__/operations.queries";
-import type { ProjectSnapshot } from "@/features/operations/domain";
+import { toProjectSummary } from "./read-model-mappers";
 
 /**
- * project list page와 detail snapshot을 PgTyped query로 읽는다.
+ * project list page와 detail response를 PgTyped query로 읽는다.
  *
  * operations query service가 project response를 구성할 때 사용한다.
- * generated row의 status와 aggregate count는 repository boundary에서 domain snapshot으로 매핑한다.
+ * generated row의 status와 aggregate count는 repository boundary에서 shared contract로 매핑한다.
  */
 @Injectable()
 export class ProjectReader {
@@ -24,7 +24,7 @@ export class ProjectReader {
         private readonly db: Transaction<PgTypedTransactionalAdapter>
     ) {}
 
-    async list(query: ProjectListQuery): Promise<Page<ProjectSnapshot>> {
+    async list(query: ProjectListQuery): Promise<Page<ProjectSummary>> {
         const filters = {
             search: query.search ?? null,
             status: query.status === "ALL" ? null : query.status
@@ -40,48 +40,16 @@ export class ProjectReader {
         const total = await this.db.query(countProjects, filters).single();
 
         return {
-            items: projects.map(toProjectSnapshot),
+            items: projects.map(toProjectSummary),
             page: query.page,
             pageSize: query.pageSize,
             total: total.total ?? 0
         };
     }
 
-    async findById(projectId: number): Promise<ProjectSnapshot | null> {
+    async findById(projectId: number): Promise<ProjectDetail | null> {
         const project = await this.db.query(getProjectById, { projectId }).singleOrNull();
 
-        return project ? toProjectSnapshot(project) : null;
+        return project ? toProjectSummary(project) : null;
     }
-}
-
-function toProjectSnapshot(project: {
-    id: number;
-    name: string;
-    description: string;
-    status: string;
-    ownerId: number;
-    ownerName: string;
-    createdById: number;
-    createdByName: string;
-    taskCount: number | null;
-    openTaskCount: number | null;
-    pendingRequestCount: number | null;
-    createdAt: Date;
-    updatedAt: Date;
-}) {
-    return {
-        id: project.id,
-        name: project.name,
-        description: project.description,
-        status: project.status as ProjectStatus,
-        ownerId: project.ownerId,
-        ownerName: project.ownerName,
-        createdById: project.createdById,
-        createdByName: project.createdByName,
-        taskCount: project.taskCount ?? 0,
-        openTaskCount: project.openTaskCount ?? 0,
-        pendingRequestCount: project.pendingRequestCount ?? 0,
-        createdAt: project.createdAt,
-        updatedAt: project.updatedAt
-    };
 }

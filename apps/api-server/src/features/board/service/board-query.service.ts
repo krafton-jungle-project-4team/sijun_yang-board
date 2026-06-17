@@ -4,7 +4,6 @@ import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { boardErrors } from "@/features/board/board-errors";
-import { CommentDomain, PostDomain } from "@/features/board/domain";
 import { CommentReader, PostReader, PostWriter } from "@/features/board/repository";
 
 /**
@@ -23,14 +22,7 @@ export class BoardQueryService {
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listPosts(query: PostListQuery): Promise<PostListResult> {
-        const page = await this.postReader.list(query);
-
-        return {
-            items: page.items.map(PostDomain.toSummary),
-            page: page.page,
-            pageSize: page.pageSize,
-            total: page.total
-        };
+        return this.postReader.list(query);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
@@ -43,13 +35,11 @@ export class BoardQueryService {
             throw boardErrors.postNotFound();
         }
 
-        return PostDomain.toDetail(post);
+        return post;
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listComments(postId: number): Promise<Comment[]> {
-        const comments = await this.commentReader.listByPostId(postId);
-
-        return comments.map(CommentDomain.toComment);
+        return this.commentReader.listByPostId(postId);
     }
 }

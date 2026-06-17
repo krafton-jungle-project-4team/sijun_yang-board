@@ -1,17 +1,28 @@
-import type { PostListQuery } from "@nmm/shared";
+import type { PostDetail, PostListQuery, PostSummary } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import type { Page } from "@/infra/domain/page";
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { countPosts, getPostById, listPosts } from "@/features/board/database/__generated__/board.queries";
-import type { PostSnapshot } from "@/features/board/domain";
+
+interface PostRecord {
+    id: number;
+    title: string;
+    content: string;
+    authorId: number;
+    authorName: string;
+    commentCount: number | null;
+    viewCount: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 /**
- * post snapshot과 list page를 PgTyped query로 읽는다.
+ * post list와 detail response를 PgTyped query로 읽는다.
  *
- * service가 shared response contract로 변환할 board read model이 필요할 때 사용한다.
- * caller가 domain snapshot만 다루도록 generated row shape는 반환 전에 매핑한다.
+ * service가 client에 반환할 board post data를 필요로 할 때 사용한다.
+ * repository boundary를 벗어나기 전에 DB record를 shared post contract로 변환한다.
  */
 @Injectable()
 export class PostReader {
@@ -20,7 +31,7 @@ export class PostReader {
         private readonly db: Transaction<PgTypedTransactionalAdapter>
     ) {}
 
-    async list(query: PostListQuery): Promise<Page<PostSnapshot>> {
+    async list(query: PostListQuery): Promise<Page<PostSummary>> {
         const filters = {
             search: query.search ?? null
         };
@@ -35,40 +46,41 @@ export class PostReader {
         const total = await this.db.query(countPosts, filters).single();
 
         return {
-            items: posts.map(toPostSnapshot),
+            items: posts.map(toPostSummary),
             page: query.page,
             pageSize: query.pageSize,
             total: total.total ?? 0
         };
     }
 
-    async findById(postId: number): Promise<PostSnapshot | null> {
+    async findById(postId: number): Promise<PostDetail | null> {
         const post = await this.db.query(getPostById, { postId }).singleOrNull();
 
-        return post ? toPostSnapshot(post) : null;
+        return post ? toPostDetail(post) : null;
     }
 }
 
-function toPostSnapshot(post: {
-    id: number;
-    title: string;
-    content: string;
-    authorId: number;
-    authorName: string;
-    commentCount: number | null;
-    viewCount: number;
-    createdAt: Date;
-    updatedAt: Date;
-}) {
+function toPostSummary(post: PostRecord): PostSummary {
     return {
         id: post.id,
         title: post.title,
-        content: post.content,
+        excerpt: createExcerpt(post.content),
         authorId: post.authorId,
         authorName: post.authorName,
         commentCount: post.commentCount ?? 0,
         viewCount: post.viewCount,
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt
+        createdAt: post.createdAt.toISOString(),
+        updatedAt: post.updatedAt.toISOString()
     };
+}
+
+function toPostDetail(post: PostRecord): PostDetail {
+    return {
+        ...toPostSummary(post),
+        content: post.content
+    };
+}
+
+function createExcerpt(content: string) {
+    return content.length > 160 ? `${content.slice(0, 157)}...` : content;
 }

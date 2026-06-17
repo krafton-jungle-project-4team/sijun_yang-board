@@ -7,7 +7,7 @@ import { PinoLogger } from "nestjs-pino";
 import { PgTypedTransactionalAdapter } from "@/infra/database";
 import { assignLoggerContext } from "@/infra/logger";
 import { authErrors } from "@/features/auth/auth-errors";
-import { UserAccountDomain, type AuthClaims, type UserAccountSnapshot } from "@/features/auth/domain";
+import type { AuthClaims } from "@/features/auth/domain";
 import { BetterAuthProvider } from "@/features/auth/provider";
 import { UserReader } from "@/features/auth/repository";
 
@@ -52,12 +52,6 @@ export class AuthQueryService {
 
     @Transactional<PgTypedTransactionalAdapter>()
     async getUser(userId: number): Promise<User> {
-        const user = await this.getAccount(userId);
-
-        return UserAccountDomain.toUser(user);
-    }
-
-    private async getAccount(userId: number): Promise<UserAccountSnapshot> {
         const user = await this.userReader.findById(userId);
 
         if (!user) {

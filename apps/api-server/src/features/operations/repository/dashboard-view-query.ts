@@ -1,3 +1,4 @@
+import type { Dashboard } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
@@ -8,9 +9,7 @@ import {
     listDashboardPendingRequests,
     listDashboardRecentPosts
 } from "@/features/operations/database/__generated__/operations.queries";
-import type { DashboardView } from "@/features/operations/domain";
-import { toApprovalRequestSnapshot } from "./approval-request-reader";
-import { toTaskSnapshot } from "./task-reader";
+import { toAnnouncementSummary, toApprovalRequestSummary, toTaskSummary } from "./read-model-mappers";
 
 /**
  * dashboard 화면에 필요한 여러 read model을 한 번에 조회한다.
@@ -25,7 +24,7 @@ export class DashboardViewQuery {
         private readonly db: Transaction<PgTypedTransactionalAdapter>
     ) {}
 
-    async get(userId: number, limit: number): Promise<DashboardView> {
+    async get(userId: number, limit: number): Promise<Dashboard> {
         const [counts, myTasks, pendingRequests, recentAnnouncements] = await Promise.all([
             this.db.query(getDashboardCounts, undefined).single(),
             this.db.query(listDashboardMyTasks, { assigneeId: userId, limit }).multiple(),
@@ -34,23 +33,11 @@ export class DashboardViewQuery {
         ]);
 
         return {
-            counts: {
-                activeProjectCount: counts.activeProjectCount ?? 0,
-                inProgressTaskCount: counts.inProgressTaskCount ?? 0
-            },
-            myTasks: myTasks.map(toTaskSnapshot),
-            pendingRequests: pendingRequests.map(toApprovalRequestSnapshot),
-            recentAnnouncements: recentAnnouncements.map((post) => ({
-                id: post.id,
-                title: post.title,
-                content: post.content,
-                authorId: post.authorId,
-                authorName: post.authorName,
-                commentCount: post.commentCount ?? 0,
-                viewCount: post.viewCount,
-                createdAt: post.createdAt,
-                updatedAt: post.updatedAt
-            }))
+            activeProjectCount: counts.activeProjectCount ?? 0,
+            inProgressTaskCount: counts.inProgressTaskCount ?? 0,
+            myTasks: myTasks.map(toTaskSummary),
+            pendingRequests: pendingRequests.map(toApprovalRequestSummary),
+            recentAnnouncements: recentAnnouncements.map(toAnnouncementSummary)
         };
     }
 }

@@ -14,7 +14,6 @@ import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
-import { ApprovalRequestDomain, DashboardViewDomain, ProjectDomain, TaskDomain } from "@/features/operations/domain";
 import { operationsErrors } from "@/features/operations/operations-errors";
 import {
     ApprovalRequestReader,
@@ -49,14 +48,7 @@ export class OperationsQueryService {
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listProjects(query: ProjectListQuery): Promise<ProjectListResult> {
-        const page = await this.projectReader.list(query);
-
-        return {
-            items: page.items.map(ProjectDomain.toProject),
-            page: page.page,
-            pageSize: page.pageSize,
-            total: page.total
-        };
+        return this.projectReader.list(query);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
@@ -67,7 +59,7 @@ export class OperationsQueryService {
             throw operationsErrors.projectNotFound();
         }
 
-        return ProjectDomain.toProject(project);
+        return project;
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
@@ -78,9 +70,7 @@ export class OperationsQueryService {
             throw operationsErrors.projectNotFound();
         }
 
-        const tasks = await this.taskReader.listByProjectId(projectId);
-
-        return tasks.map(TaskDomain.toTask);
+        return this.taskReader.listByProjectId(projectId);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
@@ -91,19 +81,12 @@ export class OperationsQueryService {
             throw operationsErrors.taskNotFound();
         }
 
-        return TaskDomain.toTask(task);
+        return task;
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async listApprovalRequests(query: ApprovalRequestListQuery): Promise<ApprovalRequestListResult> {
-        const page = await this.approvalRequestReader.list(query);
-
-        return {
-            items: page.items.map(ApprovalRequestDomain.toApprovalRequest),
-            page: page.page,
-            pageSize: page.pageSize,
-            total: page.total
-        };
+        return this.approvalRequestReader.list(query);
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
@@ -114,13 +97,11 @@ export class OperationsQueryService {
             throw operationsErrors.approvalRequestNotFound();
         }
 
-        return ApprovalRequestDomain.toApprovalRequest(request);
+        return request;
     }
 
     @Transactional<PgTypedTransactionalAdapter>()
     async getDashboard(userId: number): Promise<Dashboard> {
-        const dashboardView = await this.dashboardViewQuery.get(userId, DASHBOARD_LIMIT);
-
-        return DashboardViewDomain.toDashboard(dashboardView);
+        return this.dashboardViewQuery.get(userId, DASHBOARD_LIMIT);
     }
 }
