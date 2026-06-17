@@ -1,8 +1,9 @@
-import type { AuthClaims, Comment, PostDetail, PostListQuery, PostListResult } from "@nmm/shared";
+import type { Comment, PostDetail, PostListQuery, PostListResult } from "@nmm/shared";
 import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
+import type { AuthClaims } from "@/features/auth";
 import { postNotFoundError } from "@/features/board/board-errors";
 import { CommentDomain, PostDomain } from "@/features/board/domain";
 import { CommentReader, PostReader, PostWriter } from "@/features/board/repository";

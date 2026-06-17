@@ -1,14 +1,14 @@
 import { randomUUID } from "node:crypto";
 
-import type { LoginInput, SignupInput, UserRole, UserStatus } from "@nmm/shared";
+import type { LoginInput, SignupInput, UserRole } from "@nmm/shared";
 import { Inject, Injectable } from "@nestjs/common";
 import type { Request as ExpressRequest, Response as ExpressResponse } from "express";
 import type { Pool } from "pg";
 
 import { PG_POOL } from "@/infra/database/database.tokens";
 import { serverEnv } from "@/infra/env";
-import { authEnv } from "@/features/auth/auth.env";
 import { authProviderError } from "@/features/auth/auth-errors";
+import type { UserStatus } from "@/features/auth/domain";
 
 const authBasePath = "/api/auth";
 const importEsm = new Function("specifier", "return import(specifier)") as <T>(specifier: string) => Promise<T>;
@@ -132,7 +132,7 @@ export class BetterAuthProvider {
     }
 
     clearSessionCookie(response: ExpressResponse) {
-        response.clearCookie(authEnv.sessionCookieName, {
+        response.clearCookie(serverEnv.SESSION_COOKIE_NAME, {
             httpOnly: true,
             path: "/",
             sameSite: "lax",
@@ -156,7 +156,7 @@ export class BetterAuthProvider {
                             sameSite: "lax",
                             secure: serverEnv.NODE_ENV === "production"
                         },
-                        name: authEnv.sessionCookieName
+                        name: serverEnv.SESSION_COOKIE_NAME
                     }
                 },
                 database: {

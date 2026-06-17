@@ -1,4 +1,6 @@
-import type { AuthClaims, PostDetail, PostSummary } from "@nmm/shared";
+import type { PostDetail, PostSummary } from "@nmm/shared";
+
+import type { AuthClaims } from "@/features/auth";
 
 export interface PostSnapshot {
     id: number;

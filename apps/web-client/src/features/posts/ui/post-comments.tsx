@@ -26,8 +26,8 @@ import {
     useSuspenseComments,
     useUpdateComment
 } from "@/features/posts/hooks/use-posts";
+import { isSignedInUser } from "@/features/auth/model/current-user";
 import { canManageComment } from "@/features/posts/model/post-permissions";
-import { isActiveUser } from "@/features/auth/model/user-status";
 
 type PostCommentsProps = {
     currentUser: User | null | undefined;
@@ -79,7 +79,7 @@ function CommentComposer({ currentUser, postId }: PostCommentsProps) {
     });
     const contentValue = form.watch("content");
     const createComment = useCreateComment(postId);
-    const canCreateComment = isActiveUser(currentUser);
+    const canCreateComment = isSignedInUser(currentUser);
 
     function handleSubmit(values: CreateCommentInput) {
         const data = toTrimmedCommentData(values, form.setError);

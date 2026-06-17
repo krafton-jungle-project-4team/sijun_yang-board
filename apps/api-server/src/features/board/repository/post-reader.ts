@@ -1,9 +1,10 @@
-import type { AuthClaims, PostListQuery } from "@nmm/shared";
+import type { PostListQuery } from "@nmm/shared";
 import { InjectTransaction, type Transaction } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import type { Page } from "@/infra/domain/page";
 import { PgTypedTransactionalAdapter } from "@/infra/database";
+import type { AuthClaims } from "@/features/auth";
 import { countPosts, getPostById, listPosts } from "@/features/board/database/__generated__/board.queries";
 import type { PostSnapshot } from "@/features/board/domain";
 

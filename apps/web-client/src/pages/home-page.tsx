@@ -36,7 +36,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { useSuspenseCurrentUserQuery } from "@/features/auth/api/auth-queries";
-import { isActiveUser } from "@/features/auth/model/user-status";
+import { isSignedInUser } from "@/features/auth/model/current-user";
 import { useSuspenseDashboard } from "@/features/dashboard/hooks/use-dashboard";
 import { taskPriorityLabels, taskStatusLabels } from "@/features/projects/model/project-labels";
 import { approvalRequestStatusLabels } from "@/features/requests/model/request-labels";
@@ -55,7 +55,7 @@ type DashboardPost = Dashboard["recentAnnouncements"][number];
 export function HomePage() {
     const currentUser = useSuspenseCurrentUserQuery().data;
 
-    if (!isActiveUser(currentUser)) {
+    if (!isSignedInUser(currentUser)) {
         return <SignedOutDashboard />;
     }
 

@@ -1,4 +1,12 @@
-import type { User, UserRole, UserStatus } from "@nmm/shared";
+import type { User, UserRole } from "@nmm/shared";
+
+export type UserStatus = "ACTIVE" | "SUSPENDED";
+
+export interface AuthClaims {
+    userId: number;
+    sessionId: string;
+    role: UserRole;
+}
 
 export interface UserAccountSnapshot {
     id: number;
@@ -17,7 +25,6 @@ export const UserAccountDomain = {
             email: user.email,
             displayName: user.displayName,
             role: user.role,
-            status: user.status,
             createdAt: user.createdAt.toISOString(),
             updatedAt: user.updatedAt.toISOString()
         };

@@ -1,6 +1,5 @@
 import type {
     ApprovalRequestStatus,
-    AuthClaims,
     CreateApprovalRequestInput,
     CreateProjectInput,
     CreateTaskInput,
@@ -13,6 +12,7 @@ import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
+import type { AuthClaims } from "@/features/auth";
 import { ApprovalRequestDomain, TaskDomain } from "@/features/operations/domain";
 import {
     adminRequiredError,

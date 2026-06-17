@@ -1,4 +1,4 @@
-import type { AuthClaims } from "@nmm/shared";
+import type { AuthClaims } from "@/features/auth";
 import { Controller, Get, UseGuards } from "@nestjs/common";
 
 import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth";

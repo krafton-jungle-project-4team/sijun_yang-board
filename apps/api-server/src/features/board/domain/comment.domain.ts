@@ -1,4 +1,6 @@
-import type { AuthClaims, Comment } from "@nmm/shared";
+import type { Comment } from "@nmm/shared";
+
+import type { AuthClaims } from "@/features/auth";
 
 export interface CommentSnapshot {
     id: number;

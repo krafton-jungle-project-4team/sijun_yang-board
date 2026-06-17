@@ -1,4 +1,6 @@
-import type { AuthClaims, TaskPriority, TaskStatus, TaskSummary, UpdateTaskInput } from "@nmm/shared";
+import type { TaskPriority, TaskStatus, TaskSummary, UpdateTaskInput } from "@nmm/shared";
+
+import type { AuthClaims } from "@/features/auth";
 
 export interface TaskSnapshot {
     id: number;

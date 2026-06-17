@@ -1,9 +1,8 @@
-import type { AuthClaims } from "@nmm/shared";
 import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { loginInputSchema, signupInputSchema, updateMeInputSchema } from "@nmm/shared";
 import type { Request, Response } from "express";
 
-import { suspendedAccountError } from "@/features/auth/auth-errors";
+import type { AuthClaims } from "@/features/auth/domain";
 import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth/http";
 import { AuthCommandService, AuthQueryService } from "@/features/auth/service";
 
@@ -22,11 +21,7 @@ export class AuthController {
             return null;
         }
 
-        if (auth.status === "SUSPENDED") {
-            throw suspendedAccountError();
-        }
-
-        return this.authQuery.getUser(auth.userId);
+        return this.authQuery.getActiveUser(auth.userId);
     }
 
     @Post("login")

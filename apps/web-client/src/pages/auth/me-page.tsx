@@ -67,7 +67,6 @@ export function MePage() {
                     <FieldGroup>
                         <ButtonGroup>
                             <Badge variant="secondary">{currentUser.role}</Badge>
-                            <Badge variant="outline">{currentUser.status}</Badge>
                         </ButtonGroup>
                         <form onSubmit={handleSubmit}>
                             <FieldGroup>

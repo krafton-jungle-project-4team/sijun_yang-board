@@ -1,5 +1,4 @@
 import type {
-    AuthClaims,
     CreateCommentInput,
     CreatePostInput,
     IdCommandResult,
@@ -10,6 +9,7 @@ import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
+import type { AuthClaims } from "@/features/auth";
 import { boardMutationForbiddenError, commentNotFoundError, postNotFoundError } from "@/features/board/board-errors";
 import { CommentDomain, PostDomain } from "@/features/board/domain";
 import { CommentWriter, PostWriter } from "@/features/board/repository";

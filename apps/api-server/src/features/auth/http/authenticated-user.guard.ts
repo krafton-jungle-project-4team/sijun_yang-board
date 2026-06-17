@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 
-import { suspendedAccountError, unauthenticatedError } from "@/features/auth/auth-errors";
+import { unauthenticatedError } from "@/features/auth/auth-errors";
 import { AuthQueryService } from "@/features/auth/service";
 import type { RequestWithAuth } from "./auth-request";
 
@@ -16,9 +16,7 @@ export class AuthenticatedUserGuard implements CanActivate {
             throw unauthenticatedError();
         }
 
-        if (claims.status === "SUSPENDED") {
-            throw suspendedAccountError();
-        }
+        await this.authQuery.assertActiveUser(claims.userId);
 
         request.auth = claims;
         return true;

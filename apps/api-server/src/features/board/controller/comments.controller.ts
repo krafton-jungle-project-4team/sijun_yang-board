@@ -1,4 +1,4 @@
-import type { AuthClaims } from "@nmm/shared";
+import type { AuthClaims } from "@/features/auth";
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { createCommentInputSchema, numericIdParamSchema, updateCommentInputSchema } from "@nmm/shared";
 
