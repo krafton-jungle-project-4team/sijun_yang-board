@@ -7,11 +7,11 @@ import {
     reviewApprovalRequestInputSchema
 } from "@nmm/shared";
 
-import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth";
+import { AuthGuard, CurrentAuth, RoleGuard, Roles } from "@/features/auth";
 import { OperationsCommandService, OperationsQueryService } from "@/features/operations/service";
 
 @Controller("requests")
-@UseGuards(AuthenticatedUserGuard)
+@UseGuards(AuthGuard)
 export class ApprovalRequestsController {
     constructor(
         private readonly operationsQuery: OperationsQueryService,
@@ -36,6 +36,8 @@ export class ApprovalRequestsController {
     }
 
     @Post(":requestId/approve")
+    @Roles("ADMIN")
+    @UseGuards(RoleGuard)
     async approveRequest(
         @CurrentAuth() auth: AuthClaims,
         @Param("requestId") requestId: string,
@@ -47,6 +49,8 @@ export class ApprovalRequestsController {
     }
 
     @Post(":requestId/reject")
+    @Roles("ADMIN")
+    @UseGuards(RoleGuard)
     async rejectRequest(@CurrentAuth() auth: AuthClaims, @Param("requestId") requestId: string, @Body() body: unknown) {
         const input = reviewApprovalRequestInputSchema.parse(body ?? {});
 

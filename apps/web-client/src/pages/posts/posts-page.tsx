@@ -34,10 +34,6 @@ const sortOptions: Array<{ label: string; value: PostListQuery["sort"] }> = [
     { label: "Latest", value: "latest" },
     { label: "Popular", value: "popular" }
 ];
-const ownerViewOptions: Array<{ label: string; value: PostListQuery["view"] }> = [
-    { label: "All announcements", value: "all" },
-    { label: "My announcements", value: "mine" }
-];
 
 export function PostsPage() {
     const [search, setSearch] = usePostSearchParams();
@@ -68,13 +64,6 @@ export function PostsPage() {
         });
     }
 
-    function handleOwnerViewChange(view: PostListQuery["view"]) {
-        void setSearch({
-            page: 1,
-            view
-        });
-    }
-
     function handleTableViewClick() {
         setDisplayView("table");
     }
@@ -91,7 +80,7 @@ export function PostsPage() {
 
     return (
         <section className="grid gap-5">
-            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px_170px_auto]">
+            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px_auto]">
                 <form className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]" onSubmit={handleSearchSubmit}>
                     <InputGroup>
                         <InputGroupAddon>
@@ -115,18 +104,6 @@ export function PostsPage() {
                     </SelectTrigger>
                     <SelectContent>
                         {sortOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select value={search.view} onValueChange={handleOwnerViewChange}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {ownerViewOptions.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                                 {option.label}
                             </SelectItem>

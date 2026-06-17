@@ -3,7 +3,6 @@ import { PreparedQuery } from '@pgtyped/runtime';
 
 /** 'ListPosts' parameters type */
 export interface IListPostsParams {
-  authorId?: number | null | void;
   limit?: number | null | void;
   offset?: number | null | void;
   search?: string | null | void;
@@ -29,7 +28,7 @@ export interface IListPostsQuery {
   result: IListPostsResult;
 }
 
-const listPostsIR: any = {"usedParamSet":{"search":true,"authorId":true,"sort":true,"limit":true,"offset":true},"params":[{"name":"search","required":false,"transform":{"type":"scalar"},"locs":[{"a":388,"b":394},{"a":434,"b":440},{"a":481,"b":487}]},{"name":"authorId","required":false,"transform":{"type":"scalar"},"locs":[{"a":510,"b":518},{"a":551,"b":559}]},{"name":"sort","required":false,"transform":{"type":"scalar"},"locs":[{"a":591,"b":595}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":676,"b":681}]},{"name":"offset","required":false,"transform":{"type":"scalar"},"locs":[{"a":696,"b":702}]}],"statement":"SELECT\n    p.id,\n    p.title,\n    p.content,\n    p.author_id AS \"authorId\",\n    u.display_name AS \"authorName\",\n    p.view_count AS \"viewCount\",\n    p.created_at AS \"createdAt\",\n    p.updated_at AS \"updatedAt\",\n    (\n        SELECT count(*)::int4\n        FROM comments c\n        WHERE c.post_id = p.id\n    ) AS \"commentCount\"\nFROM posts p\nINNER JOIN \"user\" u ON u.id = p.author_id\nWHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)\nORDER BY\n    CASE WHEN :sort = 'popular' THEN p.view_count END DESC NULLS LAST,\n    p.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4                                                             "};
+const listPostsIR: any = {"usedParamSet":{"search":true,"sort":true,"limit":true,"offset":true},"params":[{"name":"search","required":false,"transform":{"type":"scalar"},"locs":[{"a":388,"b":394},{"a":434,"b":440},{"a":481,"b":487}]},{"name":"sort","required":false,"transform":{"type":"scalar"},"locs":[{"a":526,"b":530}]},{"name":"limit","required":false,"transform":{"type":"scalar"},"locs":[{"a":611,"b":616}]},{"name":"offset","required":false,"transform":{"type":"scalar"},"locs":[{"a":631,"b":637}]}],"statement":"SELECT\n    p.id,\n    p.title,\n    p.content,\n    p.author_id AS \"authorId\",\n    u.display_name AS \"authorName\",\n    p.view_count AS \"viewCount\",\n    p.created_at AS \"createdAt\",\n    p.updated_at AS \"updatedAt\",\n    (\n        SELECT count(*)::int4\n        FROM comments c\n        WHERE c.post_id = p.id\n    ) AS \"commentCount\"\nFROM posts p\nINNER JOIN \"user\" u ON u.id = p.author_id\nWHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')\nORDER BY\n    CASE WHEN :sort = 'popular' THEN p.view_count END DESC NULLS LAST,\n    p.created_at DESC\nLIMIT :limit::int4\nOFFSET :offset::int4                                                             "};
 
 /**
  * Query generated from SQL:
@@ -51,7 +50,6 @@ const listPostsIR: any = {"usedParamSet":{"search":true,"authorId":true,"sort":t
  * FROM posts p
  * INNER JOIN "user" u ON u.id = p.author_id
  * WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')
- *   AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)
  * ORDER BY
  *     CASE WHEN :sort = 'popular' THEN p.view_count END DESC NULLS LAST,
  *     p.created_at DESC
@@ -64,7 +62,6 @@ export const listPosts = new PreparedQuery<IListPostsParams,IListPostsResult>(li
 
 /** 'CountPosts' parameters type */
 export interface ICountPostsParams {
-  authorId?: number | null | void;
   search?: string | null | void;
 }
 
@@ -79,7 +76,7 @@ export interface ICountPostsQuery {
   result: ICountPostsResult;
 }
 
-const countPostsIR: any = {"usedParamSet":{"search":true,"authorId":true},"params":[{"name":"search","required":false,"transform":{"type":"scalar"},"locs":[{"a":51,"b":57},{"a":97,"b":103},{"a":144,"b":150}]},{"name":"authorId","required":false,"transform":{"type":"scalar"},"locs":[{"a":173,"b":181},{"a":214,"b":222}]}],"statement":"SELECT count(*)::int4 AS total\nFROM posts p\nWHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')\n  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)                                                                        "};
+const countPostsIR: any = {"usedParamSet":{"search":true},"params":[{"name":"search","required":false,"transform":{"type":"scalar"},"locs":[{"a":51,"b":57},{"a":97,"b":103},{"a":144,"b":150}]}],"statement":"SELECT count(*)::int4 AS total\nFROM posts p\nWHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')                                                                        "};
 
 /**
  * Query generated from SQL:
@@ -87,7 +84,6 @@ const countPostsIR: any = {"usedParamSet":{"search":true,"authorId":true},"param
  * SELECT count(*)::int4 AS total
  * FROM posts p
  * WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')
- *   AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)                                                                        
  * ```
  */
 export const countPosts = new PreparedQuery<ICountPostsParams,ICountPostsResult>(countPostsIR);
@@ -498,5 +494,4 @@ const deleteCommentIR: any = {"usedParamSet":{"commentId":true,"actorId":true,"a
  * ```
  */
 export const deleteComment = new PreparedQuery<IDeleteCommentParams,IDeleteCommentResult>(deleteCommentIR);
-
 

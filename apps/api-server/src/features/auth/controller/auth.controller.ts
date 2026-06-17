@@ -3,7 +3,7 @@ import { loginInputSchema, signupInputSchema, updateMeInputSchema } from "@nmm/s
 import type { Request, Response } from "express";
 
 import type { AuthClaims } from "@/features/auth/domain";
-import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth/http";
+import { AuthGuard, CurrentAuth } from "@/features/auth/http";
 import { AuthCommandService, AuthQueryService } from "@/features/auth/service";
 
 @Controller("account")
@@ -42,7 +42,7 @@ export class AuthController {
     }
 
     @Patch("me")
-    @UseGuards(AuthenticatedUserGuard)
+    @UseGuards(AuthGuard)
     async updateMe(@CurrentAuth() auth: AuthClaims, @Body() body: unknown) {
         const input = updateMeInputSchema.parse(body);
         const result = await this.authCommand.updateMe(auth.userId, input);

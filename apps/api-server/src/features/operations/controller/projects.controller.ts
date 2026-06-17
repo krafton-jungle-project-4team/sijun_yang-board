@@ -8,11 +8,11 @@ import {
     updateProjectInputSchema
 } from "@nmm/shared";
 
-import { AuthenticatedUserGuard, CurrentAuth } from "@/features/auth";
+import { AuthGuard, CurrentAuth, RoleGuard, Roles } from "@/features/auth";
 import { OperationsCommandService, OperationsQueryService } from "@/features/operations/service";
 
 @Controller("projects")
-@UseGuards(AuthenticatedUserGuard)
+@UseGuards(AuthGuard)
 export class ProjectsController {
     constructor(
         private readonly operationsQuery: OperationsQueryService,
@@ -25,6 +25,8 @@ export class ProjectsController {
     }
 
     @Post()
+    @Roles("ADMIN")
+    @UseGuards(RoleGuard)
     async createProject(@CurrentAuth() auth: AuthClaims, @Body() body: unknown) {
         const input = createProjectInputSchema.parse(body);
 
@@ -37,6 +39,8 @@ export class ProjectsController {
     }
 
     @Patch(":projectId")
+    @Roles("ADMIN")
+    @UseGuards(RoleGuard)
     async updateProject(@CurrentAuth() auth: AuthClaims, @Param("projectId") projectId: string, @Body() body: unknown) {
         const input = updateProjectInputSchema.parse(body);
 
@@ -49,6 +53,8 @@ export class ProjectsController {
     }
 
     @Post(":projectId/tasks")
+    @Roles("ADMIN")
+    @UseGuards(RoleGuard)
     async createTask(@CurrentAuth() auth: AuthClaims, @Param("projectId") projectId: string, @Body() body: unknown) {
         const input = createTaskInputSchema.parse(body);
 

@@ -9,15 +9,13 @@ const postListQueryParsers = {
     page: parseAsInteger,
     pageSize: parseAsInteger,
     search: parseAsString,
-    sort: parseAsStringEnum<PostListQuery["sort"]>(["latest", "popular"]),
-    view: parseAsStringEnum<PostListQuery["view"]>(["all", "mine"])
+    sort: parseAsStringEnum<PostListQuery["sort"]>(["latest", "popular"])
 };
 
 const postSearchParsers = {
     page: parseAsInteger.withDefault(1),
     search: parseAsString.withDefault(""),
     sort: parseAsStringEnum<PostListQuery["sort"]>(["latest", "popular"]).withDefault("latest"),
-    view: parseAsStringEnum<PostListQuery["view"]>(["all", "mine"]).withDefault("all"),
     displayView: parseAsStringEnum<PostDisplayView>(["table", "card"]).withDefault("table")
 };
 const serializePostListQueryParams = createSerializer(postListQueryParsers);
@@ -26,7 +24,6 @@ export type PostSearchState = {
     page: number;
     search: string;
     sort: PostListQuery["sort"];
-    view: PostListQuery["view"];
     displayView: PostDisplayView;
 };
 
@@ -39,7 +36,6 @@ export function toPostListQuery(search: PostSearchState): PostListQuery {
         page: Math.max(1, search.page),
         pageSize: POST_LIST_PAGE_SIZE,
         sort: search.sort,
-        view: search.view,
         search: search.search || undefined
     };
 }
@@ -49,8 +45,7 @@ export function serializePostListQuery(query: PostListQuery) {
         page: query.page,
         pageSize: query.pageSize,
         search: query.search ?? null,
-        sort: query.sort,
-        view: query.view
+        sort: query.sort
     }).slice(1);
 }
 

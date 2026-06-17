@@ -8,6 +8,11 @@ export const AUTH_ERRORS = {
         code: "AUTH_UNAUTHENTICATED",
         message: "로그인이 필요합니다."
     },
+    FORBIDDEN: {
+        statusCode: HttpStatus.FORBIDDEN,
+        code: "AUTH_FORBIDDEN",
+        message: "요청한 권한이 없습니다."
+    },
     ACCOUNT_ALREADY_EXISTS: {
         statusCode: HttpStatus.CONFLICT,
         code: "AUTH_ACCOUNT_ALREADY_EXISTS",
@@ -41,6 +46,10 @@ export function createAuthError(error: DomainErrorDefinition, options?: ErrorOpt
 
 export function unauthenticatedError() {
     return createAuthError(AUTH_ERRORS.UNAUTHENTICATED);
+}
+
+export function forbiddenAuthError() {
+    return createAuthError(AUTH_ERRORS.FORBIDDEN);
 }
 
 export function accountAlreadyExistsError() {

@@ -18,5 +18,3 @@
 - 쿼리 변경 후 기능 `database/*.sql` 파일을 수정한다. `npm run verify`가 PgTyped output을 재생성한다.
 - 손으로 작성한 스키마 객체와 기능 SQL 쿼리 위에는 짧은 목적 주석을 추가한다.
 - `npm run verify`는 로컬 PostgreSQL client가 아니라 Docker로 스키마 드리프트를 확인한다.
-- 명시적으로 공개인 경우가 아니면 쓰기에는 `AuthenticatedUserGuard`가 필요하다.
-- 게시판 콘텐츠는 작성자 또는 ADMIN만 수정/삭제할 수 있다.

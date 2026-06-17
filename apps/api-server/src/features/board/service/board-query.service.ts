@@ -3,7 +3,6 @@ import { Transactional } from "@nestjs-cls/transactional";
 import { Injectable } from "@nestjs/common";
 
 import { PgTypedTransactionalAdapter } from "@/infra/database";
-import type { AuthClaims } from "@/features/auth";
 import { postNotFoundError } from "@/features/board/board-errors";
 import { CommentDomain, PostDomain } from "@/features/board/domain";
 import { CommentReader, PostReader, PostWriter } from "@/features/board/repository";
@@ -17,8 +16,8 @@ export class BoardQueryService {
     ) {}
 
     @Transactional<PgTypedTransactionalAdapter>()
-    async listPosts(query: PostListQuery, auth?: AuthClaims): Promise<PostListResult> {
-        const page = await this.postReader.list(query, auth);
+    async listPosts(query: PostListQuery): Promise<PostListResult> {
+        const page = await this.postReader.list(query);
 
         return {
             items: page.items.map(PostDomain.toSummary),

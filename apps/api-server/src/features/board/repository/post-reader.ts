@@ -4,7 +4,6 @@ import { Injectable } from "@nestjs/common";
 
 import type { Page } from "@/infra/domain/page";
 import { PgTypedTransactionalAdapter } from "@/infra/database";
-import type { AuthClaims } from "@/features/auth";
 import { countPosts, getPostById, listPosts } from "@/features/board/database/__generated__/board.queries";
 import type { PostSnapshot } from "@/features/board/domain";
 
@@ -15,10 +14,9 @@ export class PostReader {
         private readonly db: Transaction<PgTypedTransactionalAdapter>
     ) {}
 
-    async list(query: PostListQuery, auth?: AuthClaims): Promise<Page<PostSnapshot>> {
+    async list(query: PostListQuery): Promise<Page<PostSnapshot>> {
         const filters = {
-            search: query.search ?? null,
-            authorId: query.view === "mine" ? (auth?.userId ?? -1) : null
+            search: query.search ?? null
         };
         const posts = await this.db
             .query(listPosts, {

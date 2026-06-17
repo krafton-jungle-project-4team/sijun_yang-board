@@ -1,10 +1,11 @@
 import { Controller, Get, UseGuards } from "@nestjs/common";
 
-import { AuthenticatedUserGuard } from "@/features/auth";
+import { AuthGuard, RoleGuard, Roles } from "@/features/auth";
 import { OperationsQueryService } from "@/features/operations/service";
 
 @Controller("users")
-@UseGuards(AuthenticatedUserGuard)
+@Roles("ADMIN")
+@UseGuards(AuthGuard, RoleGuard)
 export class UsersController {
     constructor(private readonly operationsQuery: OperationsQueryService) {}
 

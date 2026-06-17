@@ -2,7 +2,7 @@ import type { AuthClaims } from "@/features/auth";
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { createPostInputSchema, numericIdParamSchema, postListQuerySchema, updatePostInputSchema } from "@nmm/shared";
 
-import { AuthenticatedUserGuard, CurrentAuth, OptionalAuthGuard } from "@/features/auth";
+import { AuthGuard, CurrentAuth } from "@/features/auth";
 import { BoardCommandService, BoardQueryService } from "@/features/board/service";
 
 @Controller("posts")
@@ -13,9 +13,8 @@ export class PostsController {
     ) {}
 
     @Get()
-    @UseGuards(OptionalAuthGuard)
-    async listPosts(@Query() query: unknown, @CurrentAuth() auth?: AuthClaims) {
-        return this.boardQuery.listPosts(postListQuerySchema.parse(query), auth);
+    async listPosts(@Query() query: unknown) {
+        return this.boardQuery.listPosts(postListQuerySchema.parse(query));
     }
 
     @Get(":postId")
@@ -24,7 +23,7 @@ export class PostsController {
     }
 
     @Post()
-    @UseGuards(AuthenticatedUserGuard)
+    @UseGuards(AuthGuard)
     async createPost(@CurrentAuth() auth: AuthClaims, @Body() body: unknown) {
         const input = createPostInputSchema.parse(body);
 
@@ -32,7 +31,7 @@ export class PostsController {
     }
 
     @Patch(":postId")
-    @UseGuards(AuthenticatedUserGuard)
+    @UseGuards(AuthGuard)
     async updatePost(@CurrentAuth() auth: AuthClaims, @Param("postId") postId: string, @Body() body: unknown) {
         const input = updatePostInputSchema.parse(body);
 
@@ -40,7 +39,7 @@ export class PostsController {
     }
 
     @Delete(":postId")
-    @UseGuards(AuthenticatedUserGuard)
+    @UseGuards(AuthGuard)
     async deletePost(@CurrentAuth() auth: AuthClaims, @Param("postId") postId: string) {
         return this.boardCommand.deletePost(auth, numericIdParamSchema.parse(postId));
     }

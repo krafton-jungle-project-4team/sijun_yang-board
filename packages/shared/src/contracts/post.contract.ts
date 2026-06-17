@@ -5,13 +5,11 @@ import { createPageResultSchema } from "./api.contract";
 export const numericIdParamSchema = z.coerce.number().int().positive();
 
 export const postSortSchema = z.enum(["latest", "popular"]).default("latest");
-export const postViewSchema = z.enum(["all", "mine"]).default("all");
 
 export const postListQuerySchema = z.object({
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(50).default(20),
     sort: postSortSchema,
-    view: postViewSchema,
     search: z.string().trim().min(1).max(120).optional()
 });
 

@@ -17,7 +17,6 @@ SELECT
 FROM posts p
 INNER JOIN "user" u ON u.id = p.author_id
 WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')
-  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4)
 ORDER BY
     CASE WHEN :sort = 'popular' THEN p.view_count END DESC NULLS LAST,
     p.created_at DESC
@@ -28,8 +27,7 @@ OFFSET :offset::int4;
 /* @name CountPosts */
 SELECT count(*)::int4 AS total
 FROM posts p
-WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%')
-  AND (:authorId::int4 IS NULL OR p.author_id = :authorId::int4);
+WHERE (:search::text IS NULL OR p.title ILIKE '%' || :search::text || '%' OR p.content ILIKE '%' || :search::text || '%');
 
 /* Purpose: Increment a post view count before returning detail data. */
 /* @name IncrementPostView */

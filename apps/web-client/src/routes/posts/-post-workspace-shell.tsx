@@ -18,7 +18,7 @@ import {
     SidebarSeparator
 } from "@nmm/ui/components";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ListChecksIcon, NewspaperIcon, PlusIcon, SquarePenIcon, TrendingUpIcon, UserRoundIcon } from "lucide-react";
+import { ListChecksIcon, NewspaperIcon, PlusIcon, SquarePenIcon, TrendingUpIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 type PostWorkspaceShellProps = {
@@ -34,12 +34,10 @@ export function PostWorkspaceShell({ children }: PostWorkspaceShellProps) {
     });
     const currentPostId = getCurrentPostId(pathname);
     const currentPostSort = getPostSortSearchValue(search.sort);
-    const currentPostView = getPostViewSearchValue(search.view);
     const isIndexRoute = pathname === "/posts";
     const isNewRoute = pathname === "/posts/new";
-    const isAllPostsRoute = isIndexRoute && currentPostSort === "latest" && currentPostView === "all";
-    const isMyPostsRoute = isIndexRoute && currentPostView === "mine";
-    const isPopularPostsRoute = isIndexRoute && currentPostSort === "popular" && currentPostView === "all";
+    const isAllPostsRoute = isIndexRoute && currentPostSort === "latest";
+    const isPopularPostsRoute = isIndexRoute && currentPostSort === "popular";
     const currentPostPath = currentPostId ? `/posts/${currentPostId}` : null;
     const currentPostEditPath = currentPostPath ? `${currentPostPath}/edit` : null;
     const isEditRoute = currentPostEditPath ? pathname === currentPostEditPath : false;
@@ -72,29 +70,11 @@ export function PostWorkspaceShell({ children }: PostWorkspaceShellProps) {
                                                 displayView: "table",
                                                 page: 1,
                                                 search: "",
-                                                sort: "latest",
-                                                view: "all"
+                                                sort: "latest"
                                             }}
                                         >
                                             <ListChecksIcon />
                                             <span>All announcements</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton asChild isActive={isMyPostsRoute}>
-                                        <Link
-                                            to="/posts"
-                                            search={{
-                                                displayView: "table",
-                                                page: 1,
-                                                search: "",
-                                                sort: "latest",
-                                                view: "mine"
-                                            }}
-                                        >
-                                            <UserRoundIcon />
-                                            <span>My announcements</span>
                                         </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
@@ -106,8 +86,7 @@ export function PostWorkspaceShell({ children }: PostWorkspaceShellProps) {
                                                 displayView: "table",
                                                 page: 1,
                                                 search: "",
-                                                sort: "popular",
-                                                view: "all"
+                                                sort: "popular"
                                             }}
                                         >
                                             <TrendingUpIcon />
@@ -202,8 +181,4 @@ function getCurrentPostId(pathname: string) {
 
 function getPostSortSearchValue(value: unknown) {
     return value === "popular" ? "popular" : "latest";
-}
-
-function getPostViewSearchValue(value: unknown) {
-    return value === "mine" ? "mine" : "all";
 }
