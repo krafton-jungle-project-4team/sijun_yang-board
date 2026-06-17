@@ -6,7 +6,7 @@
     "scripts": {
         "build": "nest build",
         "db:generate": "node --env-file=.env ../../node_modules/.bin/pgtyped -c pgtyped.config.json",
-        "db:verify": "node scripts/run-sqldef-verify.mjs",
+        "db:verify": "scripts/verify-schema-drift.py .env",
         "dev:docker": "nest start --watch",
         "test": "node --test -r ts-node/register -r tsconfig-paths/register test/*.spec.ts",
         "start:prod": "node dist/main",
