@@ -18,5 +18,4 @@
 - API, DB, PgTyped 작업은 `apps/api-server/AGENTS.md`를 따른다.
 - 공유 계약과 타입은 `packages/shared/AGENTS.md`를 따른다.
 - 공용 UI primitive는 `packages/ui/AGENTS.md`를 따른다.
-- 문서 작업은 `docs/AGENTS.md`를 따른다.
 - 교차 변경은 관련 하위 문서를 모두 따른다.
