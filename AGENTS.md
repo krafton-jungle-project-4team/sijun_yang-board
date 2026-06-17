@@ -13,6 +13,7 @@
 - 변경 검증은 루트 `npm run verify`를 기본으로 한다.
 - 모듈 경계는 `eslint.config.mjs`와 하위 `AGENTS.md`를 따른다.
 - 공통 strict/base TypeScript 옵션은 `tsconfig.base.json`에 둔다.
+- 환경변수는 앱별 env 스키마 한 곳에서 Zod로 검증하고, 코드에서는 기본값/fallback 없이 누락 시 실패하게 한다.
 
 ## 라우팅
 
