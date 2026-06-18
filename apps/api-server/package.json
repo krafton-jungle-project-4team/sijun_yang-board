@@ -6,6 +6,8 @@
     "scripts": {
         "build": "nest build",
         "db:generate": "node --env-file=.env ../../node_modules/.bin/pgtyped -c pgtyped.config.json",
+        "db:migrate": "node --env-file=.env scripts/migrate-db.mjs",
+        "db:migrate:plan": "node --env-file=.env scripts/migrate-db.mjs --dry-run",
         "db:forcesync": "node --env-file=.env scripts/force-sync-db.mjs",
         "db:verify": "node --env-file=.env scripts/verify-schema-drift.mjs",
         "dev:docker": "nest start --watch",

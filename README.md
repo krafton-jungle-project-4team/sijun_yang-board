@@ -46,7 +46,7 @@ npm install
 npm run dev
 ```
 
-`npm run dev`는 PostgreSQL, API, Web을 함께 실행한다.
+`npm run dev`는 PostgreSQL을 띄우고 `database/schema.sql` 기준 자동 마이그레이션을 적용한 뒤 API, Web을 함께 실행한다.
 
 ## 확인
 

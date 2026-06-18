@@ -1,0 +1,100 @@
+import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const apiRoot = resolve(scriptDir, "..");
+const schemaFile = resolve(apiRoot, "database/schema.sql");
+const postgresImage = process.env.POSTGRES_IMAGE ?? "postgres:16-alpine";
+const sqldefImage = process.env.SQLDEF_IMAGE ?? "sqldef/psqldef";
+const dockerHostAlias = "host.docker.internal";
+
+export const requiredEnv = (name) => {
+    const value = process.env[name];
+
+    if (!value) {
+        throw new Error(`missing ${name}`);
+    }
+
+    return value;
+};
+
+export const connection = () => {
+    const pgHost = requiredEnv("PGHOST");
+
+    return {
+        database: requiredEnv("PGDATABASE"),
+        host: ["127.0.0.1", "localhost"].includes(pgHost) ? dockerHostAlias : pgHost,
+        password: requiredEnv("PGPASSWORD"),
+        port: requiredEnv("PGPORT"),
+        sslMode: process.env.PGSSLMODE ?? "disable",
+        user: requiredEnv("PGUSER")
+    };
+};
+
+export const readSchemaSql = () => readFileSync(schemaFile, "utf8");
+
+export const dockerEnv = (db) => ({
+    ...process.env,
+    PGPASSWORD: db.password,
+    PGSSLMODE: db.sslMode
+});
+
+const dockerRunArgs = (image) => [
+    "run",
+    "--rm",
+    "-i",
+    "-e",
+    "PGPASSWORD",
+    "-e",
+    "PGSSLMODE",
+    "--add-host",
+    `${dockerHostAlias}:host-gateway`,
+    image
+];
+
+export const runPsql = (db, sql) => {
+    const result = spawnSync(
+        "docker",
+        [
+            ...dockerRunArgs(postgresImage),
+            "psql",
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-h",
+            db.host,
+            "-p",
+            db.port,
+            "-U",
+            db.user,
+            "-d",
+            db.database
+        ],
+        {
+            encoding: "utf8",
+            env: dockerEnv(db),
+            input: sql
+        }
+    );
+
+    if (result.error) {
+        throw result.error;
+    }
+
+    if (result.status !== 0) {
+        throw new Error(result.stderr.trim() || "psql command failed");
+    }
+};
+
+export const runSqldef = (db, flags) => {
+    return spawnSync(
+        "docker",
+        [...dockerRunArgs(sqldefImage), "-h", db.host, "-p", db.port, "-U", db.user, db.database, ...flags],
+        {
+            encoding: "utf8",
+            env: dockerEnv(db),
+            input: readSchemaSql()
+        }
+    );
+};

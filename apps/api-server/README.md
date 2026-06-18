@@ -10,7 +10,9 @@ NestJS API 서버다. 게시판과 운영 관리는 예시 도메인이며, 이 
 │   ├── schema.sql          # DB schema 원본
 │   └── dummy-data.sql      # 예시 seed data와 sequence runtime state
 ├── scripts
+│   ├── migrate-db.mjs      # schema.sql 기준 자동 마이그레이션
 │   ├── force-sync-db.mjs   # schema.sql 기준 강제 동기화 (기존 데이터 삭제)
+│   ├── schema-sync-utils.mjs  # sqldef/psql Docker 실행 공통 유틸
 │   └── verify-schema-drift.mjs  # sqldef를 사용한 실제 DB와 schema.sql의 일치 여부를 검증
 └── src
     ├── main.ts
@@ -41,7 +43,7 @@ NestJS API 서버다. 게시판과 운영 관리는 예시 도메인이며, 이 
 | better-auth                 | DB 기반 세션 인증, 현재 사용자 조회, guard 흐름을 보일러플레이트에 포함한다.            |
 | nestjs-pino                 | 요청 로그와 애플리케이션 로그를 구조화된 형태로 남긴다.                                 |
 | Docker Compose              | API와 PostgreSQL 실행 방식을 루트 스크립트로 통일한다.                                  |
-| sqldef                      | `schema.sql`과 실제 DB 사이의 drift를 검증하고 필요할 때 강제 동기화한다.               |
+| sqldef                      | `schema.sql`과 실제 DB 사이의 drift를 검증하고 로컬 개발 DB를 자동 마이그레이션한다.    |
 
 ## 개발 규칙
 
@@ -76,6 +78,8 @@ npm run dev:api
 
 `database/schema.sql`이 DB schema의 원본이다. `database/dummy-data.sql`은 예시 데이터와 sequence runtime state를 담는다.
 
+`npm run dev`와 `npm run dev:api`는 PostgreSQL healthcheck 이후 `db:migrate`를 실행해 로컬 DB를 `schema.sql`에 맞춘다. 이 자동 마이그레이션은 sqldef의 기본 safe mode를 사용하므로 DROP 계열 변경은 적용하지 않는다.
+
 기능별 SQL query는 `src/features/<domain>/database/*.sql`에 작성한다. query를 수정하면 PgTyped 생성물이 바뀌므로 다음 명령으로 재생성한다.
 
 ```sh
@@ -88,13 +92,25 @@ npm run db:generate -w @nmm/api-server
 npm run db:verify
 ```
 
+적용될 DDL을 먼저 확인하려면 다음 명령을 실행한다.
+
+```sh
+npm run db:migrate:plan
+```
+
+`schema.sql` 기준으로 로컬 DB에 safe-mode DDL을 적용하려면 다음 명령을 실행한다.
+
+```sh
+npm run db:migrate
+```
+
 `schema.sql` 기준으로 DB를 강제로 맞춰야 할 때만 다음 명령을 사용한다.
 
 ```sh
 npm run db:forcesync
 ```
 
-`db:forcesync`는 sqldef의 `--enable-drop`을 사용하고 세션 테이블을 비우므로 스키마 객체와 로그인 세션을 삭제할 수 있다.
+`db:forcesync`는 sqldef의 `--enable-drop`을 사용하고 세션 테이블을 비우므로 스키마 객체와 로그인 세션을 삭제할 수 있다. 테이블/컬럼 삭제가 필요한 변경은 `db:migrate:plan`으로 DDL을 확인한 뒤 `db:forcesync`를 별도로 실행한다.
 
 ## 확인
 
